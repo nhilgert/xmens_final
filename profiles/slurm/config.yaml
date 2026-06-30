@@ -1,15 +1,50 @@
+# profiles/slurm/config.yaml
+# SLURM execution profile for FASRC (eddy partition). Run with:
+#   snakemake --profile profiles/slurm --use-conda --conda-frontend conda <targets>
+#
+# This is the ONE place cluster specifics live. Rules stay cluster-agnostic;
+# this file maps each rule's resource needs onto how eddy grants them. To port
+# to another cluster, edit this file only (partition names, exclude list, paths).
+
 executor: slurm
-jobs: 50
+jobs: 20                          # max concurrent submitted jobs
+use-conda: true                   # rules with a conda: directive get their env
+conda-frontend: conda
+rerun-incomplete: true
+printshellcmds: true
+
+# ---- default resources (every rule unless overridden in set-resources) ----
+# eddy is a shared CPU+GPU partition. For CPU jobs we EXCLUDE the GPU nodes so
+# CPU work doesn't occupy a GPU node (mirrors your sbatch --exclude list).
 default-resources:
-  slurm_partition: "shared"     # <- set your partition (e.g. eddy / sapphire)
-  runtime: 120                  # minutes
+  slurm_partition: "eddy"
+  runtime: 120                    # minutes
   mem_mb: 16000
   cpus_per_task: 4
+  slurm_extra: "'--exclude=holygpu7c0522,holygpu7c0530,holygpu7c0920,holygpu8a26504,holygpu8a26505,holygpu8a26506'"
+
+# ---- per-rule overrides ---------------------------------------------------
 set-resources:
-  integrate:                    # scVI wants a GPU
-    slurm_partition: "gpu"
+  # QC runs DoubletDetection (40 iters); human samples (~17k cells) are slow.
+  qc:
+    runtime: 240
+    mem_mb: 32000
+    cpus_per_task: 8
+  # scVI integration wants a GPU -> route to a GPU node (NO exclude list here).
+  integrate:
+    runtime: 240
+    mem_mb: 48000
+    cpus_per_task: 8
     slurm_extra: "'--gres=gpu:1'"
+  # heavier CPU stages
   cellrank:
     mem_mb: 64000
+    runtime: 240
   scenic:
     cpus_per_task: 16
+    runtime: 480
+    mem_mb: 64000
+  samap:
+    cpus_per_task: 8
+    runtime: 240
+    mem_mb: 48000
