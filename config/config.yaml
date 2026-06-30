@@ -1,0 +1,14 @@
+# All parameters/thresholds live here — the run is described by this file + samples.tsv.
+seed: 0
+qc:
+  min_genes: 200
+  min_counts: 500
+  max_pct_mito: 20
+  # NOTE: in shedding tissue, high-mito/low-count cells can be REAL dying/shed cells.
+mito_prefix:
+  mouse: "mt-"
+  human: "MT-"
+scvi:       {n_hvg: 3000, n_latent: 30, n_layers: 2, batch_key: sample_id}
+leiden:     {resolution: 0.1, knn: 100}
+pseudotime: {knn: 15, n_diffmap: 10}
+mi:         {n_neighbors: 3, n_perm: 1000, top_percentile: 90}

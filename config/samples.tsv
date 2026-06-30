@@ -1,0 +1,6 @@
+sample_id	species	timepoint	modality	path
+mm_unind_1	mouse	uninduced	slidetags	data/raw/mm_unind_1.h5ad
+mm_3dpi_1	mouse	3dpi	slidetags	data/raw/mm_3dpi_1.h5ad
+mm_4dpi_1	mouse	4dpi	slidetags	data/raw/mm_4dpi_1.h5ad
+hs_secr_1	human	secretory	slidetags	data/raw/hs_secr_1.h5ad
+hs_mens_1	human	menstrual	slidetags	data/raw/hs_mens_1.h5ad

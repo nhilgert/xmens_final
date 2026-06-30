@@ -1,0 +1,16 @@
+data/raw/
+data/interim/
+results/figures/
+*.h5ad
+.venv*/
+**/.venv*/
+__pycache__/
+.snakemake/
+*.egg-info/
+data/
+results/
+logs/
+.snakemake/
+*.h5ad
+*.qs
+*.bak

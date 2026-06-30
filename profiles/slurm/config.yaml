@@ -1,0 +1,15 @@
+executor: slurm
+jobs: 50
+default-resources:
+  slurm_partition: "shared"     # <- set your partition (e.g. eddy / sapphire)
+  runtime: 120                  # minutes
+  mem_mb: 16000
+  cpus_per_task: 4
+set-resources:
+  integrate:                    # scVI wants a GPU
+    slurm_partition: "gpu"
+    slurm_extra: "'--gres=gpu:1'"
+  cellrank:
+    mem_mb: 64000
+  scenic:
+    cpus_per_task: 16
