@@ -1,0 +1,3 @@
+[submodule "external/slidetags"]
+	path = external/slidetags
+	url = https://github.com/nhilgert/slide-tags.git
