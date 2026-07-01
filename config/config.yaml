@@ -28,6 +28,11 @@ cellranger:
 cellbender:
   version: "0.2.2"
   total_droplets_included: 50000
+  env: "cellbender"                    # conda env with CellBender 0.2.2
+  # CellRanger raw matrix per lane; {lane} is resolved from the sample's coords_id
+  cellranger_raw: "/n/eddy_lab/users/nhilgert/decidualization/revisions/velocity/{lane}/cellranger/outs/raw_feature_bc_matrix.h5"
+  # LD_LIBRARY_PATH fix from the original CellBender sbatch script
+  ld_library_path: "/n/eddy_lab/users/nhilgert/.conda/envs/cellbender_backup/lib:/n/eddy_lab/users/nhilgert/.conda/envs/cellbender_backup/lib64"
 
 # ---- Slide-tags coords (produced by the vendored fork; see 00a) -----------
 # export_coords.R writes <coords_id>_coords.csv into this dir. We use the
@@ -81,7 +86,7 @@ scvi:
   hvg_flavor: "seurat_v3"
   n_latent: 30
   n_layers: 2
-  batch_key: "sample_id"
+  batch_key: "sample"
   exclude_mito_ribo: true
 
 leiden:

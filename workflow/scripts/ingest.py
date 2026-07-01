@@ -43,12 +43,12 @@ with open(logfile, "w") as log:
     adata.layers["counts"] = adata.X.copy()
 
     # --- metadata from the sample sheet (authoritative) ---
-    adata.obs["sample_id"] = sample
+    adata.obs["sample"] = sample
     adata.obs["species"] = species
     adata.obs["timepoint"] = timepoint
     adata.obs["modality"] = modality
     adata.obs["coords_id"] = coords_id
-    for c in ["sample_id", "species", "timepoint", "modality", "coords_id"]:
+    for c in ["sample", "species", "timepoint", "modality", "coords_id"]:
         adata.obs[c] = adata.obs[c].astype("category")
 
     # --- coords (Source 1: barcode-keyed fork export) ---
