@@ -1,0 +1,104 @@
+[1mdiff --git a/config/config.yaml b/config/config.yaml[m
+[1mindex 46a25db..490fb06 100644[m
+[1m--- a/config/config.yaml[m
+[1m+++ b/config/config.yaml[m
+[36m@@ -26,13 +26,13 @@[m [mcellranger:[m
+ [m
+ # ---- Ambient RNA removal (upstream of this DAG; documented for provenance) -[m
+ cellbender:[m
+[31m-  version: "0.2.2"[m
+[32m+[m[32m  version: "0.2.2"                      # installed from git tag v0.2.2 into cellbender_022[m
+   total_droplets_included: 50000[m
+[31m-  env: "cellbender"                    # conda env with CellBender 0.2.2[m
+[32m+[m[32m  env: "cellbender_022"                 # clean 0.2.2 env (libstdcxx-ng, no LD hack)[m
+   # CellRanger raw matrix per lane; {lane} is resolved from the sample's coords_id[m
+   cellranger_raw: "/n/eddy_lab/users/nhilgert/decidualization/revisions/velocity/{lane}/cellranger/outs/raw_feature_bc_matrix.h5"[m
+[31m-  # LD_LIBRARY_PATH fix from the original CellBender sbatch script[m
+[31m-  ld_library_path: "/n/eddy_lab/users/nhilgert/.conda/envs/cellbender_backup/lib:/n/eddy_lab/users/nhilgert/.conda/envs/cellbender_backup/lib64"[m
+[32m+[m[32m  # PARALLEL regen dir -- NEVER the real xmens_inputs/. Keeps the validated baseline intact.[m
+[32m+[m[32m  output_dir: "/n/eddy_lab/users/nhilgert/decidualization/xmens_inputs_regen"[m
+ [m
+ # ---- Slide-tags coords (produced by the vendored fork; see 00a) -----------[m
+ # export_coords.R writes <coords_id>_coords.csv into this dir. We use the[m
+[1mdiff --git a/profiles/slurm/config.yaml b/profiles/slurm/config.yaml[m
+[1mindex 6ae177e..fc4d2cb 100644[m
+[1m--- a/profiles/slurm/config.yaml[m
+[1m+++ b/profiles/slurm/config.yaml[m
+[36m@@ -52,7 +52,7 @@[m [mset-resources:[m
+ [m
+   # CellBender (00_cellbender) -- GPU, A40 specifically (like the original script)[m
+   cellbender:[m
+[31m-    runtime: 360[m
+[32m+[m[32m    runtime: 480[m
+     mem_mb: 64000[m
+     cpus_per_task: 1[m
+     gres: "gpu:nvidia_a40:1"[m
+[1mdiff --git a/workflow/rules/00_cellbender.smk b/workflow/rules/00_cellbender.smk[m
+[1mindex 5fa401f..244d1d2 100644[m
+[1m--- a/workflow/rules/00_cellbender.smk[m
+[1m+++ b/workflow/rules/00_cellbender.smk[m
+[36m@@ -1,25 +1,11 @@[m
+ # Stage 00 - CellBender ambient-RNA removal (UPSTREAM; not in the default DAG).[m
+ #[m
+[31m-# Documents/reproduces the ambient-RNA correction that produced the pipeline's[m
+[31m-# inputs. DELIBERATELY NOT wired into the main DAG: the default pipeline starts[m
+[31m-# from the already-corrected .h5 files (ingest reads xmens_inputs/), so the[m
+[31m-# validated downstream cell counts stay fixed. CellBender is a stochastic[m
+[31m-# variational model -- re-running changes the corrected counts and would shift[m
+[31m-# every downstream number. This exists for completeness / provenance /[m
+[31m-# regenerating inputs, run ONLY on explicit request, e.g.:[m
+[31m-#[m
+[31m-#   snakemake --profile profiles/slurm \[m
+[31m-#     preprocessing/cellbender/1_dpi_early_mck1/1_dpi_early_mck1_cellbender.h5[m
+[31m-#[m
+[31m-# Parameters match Cevrim et al. Methods:[m
+[31m-#   CellBender remove-background (v0.2.2), --total-droplets-included <N>,[m
+[31m-#   DEFAULT number of epochs (Methods: "default number of epochs" -> no --epochs),[m
+[31m-#   --cuda.[m
+[31m-#[m
+[31m-# Input is the CellRanger RAW matrix under the velocity CellRanger outputs[m
+[31m-# (raw_feature_bc_matrix.h5 -- the full droplet set, incl. empties, that[m
+[31m-# CellBender needs to model ambient). The lane directory == the sample's[m
+[31m-# coords_id (mck_1, mck_8a, ...), so we map sample -> coords_id.[m
+[32m+[m[32m# Reproduces the ambient-RNA correction that produced the pipeline's inputs.[m
+[32m+[m[32m# NOT in the main DAG (pipeline starts from already-corrected xmens_inputs/).[m
+[32m+[m[32m# Output -> config["cellbender"]["output_dir"] (PARALLEL regen dir, never the[m
+[32m+[m[32m# real inputs). Params match Methods: v0.2.2, --total-droplets-included, default[m
+[32m+[m[32m# epochs (150 for 0.2.x), --cuda. Input = CellRanger raw under velocity/{lane}/;[m
+[32m+[m[32m# lane == coords_id.[m
+ [m
+ rule cellbender:[m
+     input:[m
+[36m@@ -27,11 +13,10 @@[m [mrule cellbender:[m
+             lane=samples.loc[w.sample, "coords_id"][m
+         ),[m
+     output:[m
+[31m-        h5="preprocessing/cellbender/{sample}/{sample}_cellbender.h5",[m
+[32m+[m[32m        h5=config["cellbender"]["output_dir"] + "/{sample}/{sample}_cellbender.h5",[m
+     params:[m
+         total_droplets=lambda w: config["cellbender"]["total_droplets_included"],[m
+         env=lambda w: config["cellbender"]["env"],[m
+[31m-        ld_lib=lambda w: config["cellbender"].get("ld_library_path", ""),[m
+     log:[m
+         "logs/00_cellbender_{sample}.log",[m
+     shell:[m
+[36m@@ -39,13 +24,14 @@[m [mrule cellbender:[m
+         set -euo pipefail[m
+         mkdir -p "$(dirname {output.h5})"[m
+ [m
+[31m-        # CellBender lives in its own conda env. Source conda + activate[m
+[31m-        # explicitly so this works in a bare SLURM job shell.[m
+[32m+[m[32m        # Activate the cellbender_022 conda env inside a bare SLURM job shell.[m
+[32m+[m[32m        # The job shell does NOT inherit the orchestrator's PATH, so put the[m
+[32m+[m[32m        # conda binary on PATH FIRST, then source conda.sh, then activate. The[m
+[32m+[m[32m        # PATH export is the load-bearing bit (conda is otherwise 'command not[m
+[32m+[m[32m        # found' in the non-interactive job shell).[m
+[32m+[m[32m        export PATH="/n/sw/Miniforge3-25.3.1-0/bin:$PATH"[m
+         source /n/sw/Miniforge3-25.3.1-0/etc/profile.d/conda.sh[m
+         conda activate {params.env}[m
+[31m-        if [ -n "{params.ld_lib}" ]; then[m
+[31m-            export LD_LIBRARY_PATH="{params.ld_lib}:${{LD_LIBRARY_PATH:-}}"[m
+[31m-        fi[m
+ [m
+         cellbender remove-background \[m
+             --input {input.raw} \[m

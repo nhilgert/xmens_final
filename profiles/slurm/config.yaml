@@ -52,7 +52,7 @@ set-resources:
 
   # CellBender (00_cellbender) -- GPU, A40 specifically (like the original script)
   cellbender:
-    runtime: 360
+    runtime: 480
     mem_mb: 64000
     cpus_per_task: 1
     gres: "gpu:nvidia_a40:1"

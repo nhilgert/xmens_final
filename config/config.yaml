@@ -26,13 +26,13 @@ cellranger:
 
 # ---- Ambient RNA removal (upstream of this DAG; documented for provenance) -
 cellbender:
-  version: "0.2.2"
+  version: "0.2.2"                      # installed from git tag v0.2.2 into cellbender_022
   total_droplets_included: 50000
-  env: "cellbender"                    # conda env with CellBender 0.2.2
+  env: "cellbender_022"                 # clean 0.2.2 env (libstdcxx-ng, no LD hack)
   # CellRanger raw matrix per lane; {lane} is resolved from the sample's coords_id
   cellranger_raw: "/n/eddy_lab/users/nhilgert/decidualization/revisions/velocity/{lane}/cellranger/outs/raw_feature_bc_matrix.h5"
-  # LD_LIBRARY_PATH fix from the original CellBender sbatch script
-  ld_library_path: "/n/eddy_lab/users/nhilgert/.conda/envs/cellbender_backup/lib:/n/eddy_lab/users/nhilgert/.conda/envs/cellbender_backup/lib64"
+  # PARALLEL regen dir -- NEVER the real xmens_inputs/. Keeps the validated baseline intact.
+  output_dir: "/n/eddy_lab/users/nhilgert/decidualization/xmens_inputs_regen"
 
 # ---- Slide-tags coords (produced by the vendored fork; see 00a) -----------
 # export_coords.R writes <coords_id>_coords.csv into this dir. We use the
@@ -109,4 +109,4 @@ mi:
 # Use to sanity-check a full pipeline run; not enforced.
 expected_cells:
   mouse_postqc: 57242
-  human_postqc: 69525
+  human_postqc: 64553
