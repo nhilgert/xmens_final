@@ -14,3 +14,8 @@ logs/
 *.h5ad
 *.qs
 *.bak
+
+# notebook cruft and generated output
+**/.ipynb_checkpoints/
+notebooks/**/*.png
+notebooks/**/*.csv

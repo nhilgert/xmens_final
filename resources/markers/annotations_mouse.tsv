@@ -1,0 +1,10 @@
+cluster	celltype	exclude	n	purity	pct_removed
+0	epithelial cells	False	9367	0.993	31.3
+1	endometrial fibroblasts	False	20432	0.954	2.2
+2	vascular cells	False	6756	0.968	47.9
+3	endometrial fibroblasts	True	520	0.8	98.1
+4	smooth muscle cells	False	1700	0.997	7.6
+5	perimetrium cells	False	646	0.998	0.9
+6	immune cells	False	2381	1.0	13.9
+7	decidual cells	False	25461	0.964	14.4
+8	decidual cells	False	806	1.0	0.4
