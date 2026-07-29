@@ -42,7 +42,7 @@ EXCLUDE_MITO_RIBO = scvi_cfg.get("exclude_mito_ribo", True)
 N_NEIGHBORS = leiden_cfg.get("knn", 100)
 RESOLUTIONS = scvi_cfg.get(
     "resolutions",
-    [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.5, 2.0, 2.5, 3.0],
+    [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.5, 2.0, 2.5, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0],
 )
 
 SCVI_LATENT_KEY = "X_scVI"
