@@ -1,0 +1,216 @@
+# resources/lineage_spec.yaml
+# Single source of truth for the per-lineage annotation pass.
+# Edit here, then re-run tools/gen_04c_notebooks.py to (re)generate scaffolding.
+#
+# fine.mode:
+#   none    - coarse only; every kept cluster gets `coarse`
+#   markers - assign a fine label per cluster by argmax over `fine.from_groups`
+#             (each value names a group in `markers`)
+#   csv     - transfer a fine label by majority vote from a barcode->label CSV
+
+defaults:
+  # deposited fine type -> our lineage vocabulary (used for the VOTE only; the
+  # agreement check still compares against the raw deposited labels)
+  collapse:
+    endometrial fibroblasts: stromal
+    decidual cells: stromal
+  res: leiden_scVI_3.0
+  auto_exclude:
+    doublet_score: 999      # disabled -- exclusions are marker-based, by hand
+    doublet_frac: 999
+  qc_cols: [n_genes_by_counts, total_counts, pct_counts_mt, pct_counts_ribo,
+            doubletdetection_doublet_score]
+
+species:
+
+  mouse:
+    ref: 20251008_Cevrim_XMens_All_Cells.h5ad
+    lineages:
+
+      epithelial:
+        res: leiden_scVI_3.0        # finer: resolves the luminal<->glandular continuum
+        coarse: epithelial cells
+        markers:
+          epi:       [Cdh1, Pax8]
+          luminal:   [Wnt7a, Muc1, Lgr5]
+          glandular: [Foxa2, Ihh, Lif]
+          contam:    [Flt1, Pecam1, Pdgfra, Prl8a2, Acta2, Myh11, Ptprc, Sox6]
+        umap_genes: [Wnt7a, Foxa2, Ihh, Lgr5]
+        fine:
+          mode: markers
+          from_groups:
+            luminal epithelium:   luminal
+            glandular epithelium: glandular
+          # note: Sox6 is in `contam` on purpose -- broadly expressed, so a Sox6-high
+          # epithelial cluster WITHOUT the Msln/Upk3b/Wt1 trio is still epithelium.
+
+      perimetrium:
+        res: leiden_scVI_3.0
+        coarse: perimetrium cells
+        markers:
+          peri:   [Sox6, Msln, Upk3b, Wt1]   # real peri = Sox6 AND the trio
+          epi:    [Cdh1, Pax8]
+          contam: [Pdgfra, Prl8a2, Acta2, Myh11, Flt1, Pecam1, Ptprc]
+        umap_genes: [Sox6, Msln, Upk3b, Wt1]
+        fine: {mode: none}
+
+      stromal:
+        res: leiden_scVI_3.0        # all 9 published subtypes recover here (84% subtype / 99.99% lineage agreement vs deposited)
+        coarse: stromal
+        markers:
+          fibroblast: [Pdgfra, Col1a1, Col3a1, Dcn, Lum]
+          decidual:   [Prl8a2, Ptgs2, Bmp2, Wnt4, Hand2]
+          prolif:     [Mki67, Top2a]
+          contam:     [Cdh1, Pax8, Pecam1, Ptprc, Myh11, Sox6]
+        umap_genes: [Pdgfra, Prl8a2, Bmp2, Mki67]
+        fine:
+          mode: csv
+          csv: fib_metadata.csv           # resources/annotations/
+          col: cell_subtype_annotations
+          labels: [dec1, dec2, dec3, decAp, eFib1, eFib2, eFib2i, eFib3, eFibP]
+          rollup_prefix:                  # fine label prefix -> coarse label
+            dec: decidual cells
+            eFib: endometrial fibroblasts
+
+      immune:
+        res: leiden_scVI_3.0
+        coarse: immune cells
+        markers:
+          pan:    [Ptprc]
+          myeloid: [Adgre1, Csf1r, C1qa, C1qb, Mrc1, Itgax]
+          lymph:  [Cd3e, Cd3d, Cd79a, Ms4a1]
+          nk:     [Ncr1, Gzmb, Prf1, Eomes]
+          prolif: [Mki67, Top2a]
+          contam: [Cdh1, Pdgfra, Pecam1, Myh11, Sox6]
+        umap_genes: [Ptprc, Csf1r, Cd3e, Gzmb]
+        fine:
+          mode: csv
+          csv: mouse_immune_fine.csv      # Alan Y. Baez Vazquez -- export pending
+          col: Annotation_1.3
+          labels: ["Macrophages", "Prolif. Macrophages", "Monocytes", "DCs", "B Cells",
+                   "T Cells", "Gamma/Delta T Cells", "Gzmb hi. Itgax lo. uNK Cells",
+                   "Gzmb lo. Itgax hi. uNK cells", "Prolif. uNK Cells"]
+          rollup_all: immune cells
+
+      vascular:
+        res: leiden_scVI_3.0
+        coarse: vascular cells
+        markers:
+          endothelial:  [Pecam1, Flt1, Cldn5, Cdh5]
+          perivascular: [Pdgfrb, Rgs5, Acta2]
+          contam:       [Cdh1, Pdgfra, Ptprc, Sox6]
+        umap_genes: [Pecam1, Flt1, Rgs5]
+        fine: {mode: none}
+
+      smc:
+        res: leiden_scVI_3.0
+        coarse: smooth muscle cells
+        markers:
+          smc:    [Acta2, Myh11, Tagln, Des, Cnn1]
+          contam: [Cdh1, Pdgfra, Pecam1, Ptprc, Sox6]
+        umap_genes: [Acta2, Myh11, Tagln]
+        fine: {mode: none}
+
+  human:
+    ref: 20251008_Cevrim_Human_All_Cells.h5ad
+    lineages:
+
+      epithelial:
+        res: leiden_scVI_3.0
+        coarse: epithelial cells
+        markers:
+          epi:       [CDH1, PAX8]
+          luminal:   [WNT7A, MUC1, LGR5]
+          glandular: [FOXA2, LIF, SCGB1D2]
+          contam:    [FLT1, PECAM1, PDGFRA, PTPRC, ACTA2]
+        umap_genes: [CDH1, WNT7A, FOXA2]
+        fine: {mode: none}     # switch to markers/from_groups if you want lumen/gland here too
+
+      stromal:
+        res: leiden_scVI_3.0
+        coarse: stromal
+        markers:
+          fibroblast: [PDGFRA, DCN, LUM, COL1A1]
+          decidual:   [PRL, IGFBP1, LEFTY2, FOXO1]
+          prolif:     [MKI67, TOP2A]
+          contam:     [CDH1, PECAM1, PTPRC, ACTA2]
+        umap_genes: [PDGFRA, PRL, IGFBP1]
+        fine: {mode: none}     # human fib/dec object carries no subtypes
+
+      immune:
+        res: leiden_scVI_3.0
+        coarse: immune cells
+        markers:
+          pan:    [PTPRC]
+          myeloid: [CD68, CSF1R, ITGAM, LYZ, ITGAX]
+          lymph:  [CD3E, CD8A, CD4, FOXP3]
+          nk:     [NCAM1, NCR1, KLRD1, GZMB]
+          mast:   [TPSAB1, CPA3, MS4A2, KIT]
+          contam: [CDH1, PDGFRA, PECAM1, ACTA2]
+        umap_genes: [PTPRC, CSF1R, CD3E, GZMB]
+        fine:
+          mode: csv
+          csv: human_immune_fine.csv      # Alan Y. Baez Vazquez -- export pending
+          col: Annotation_1.3
+          labels: ["CD8 T Cells", "CD4 T Cells", "Regulatory T Cells",
+                   "GZMB hi. ITGAX hi. uNK Cells", "GZMB lo. ITGAX lo. uNK Cells",
+                   "Menstruation Macrophages", "Secretory Macrophages", "Mast Cells",
+                   "Gamma/Delta T Cells"]
+          rollup_all: immune cells
+
+      perivascular:
+        res: leiden_scVI_3.0
+        coarse: perivascular cells
+        markers:
+          endothelial:  [PECAM1, FLT1, CLDN5, CDH5]
+          perivascular: [PDGFRB, RGS5, ACTA2]
+          contam:       [CDH1, PDGFRA, PTPRC]
+        umap_genes: [PECAM1, RGS5]
+        fine: {mode: none}
+
+      smc:
+        res: leiden_scVI_3.0
+        coarse: smooth muscle cells
+        markers:
+          smc:    [ACTA2, MYH11, TAGLN, DES, CNN1]
+          contam: [CDH1, PDGFRA, PECAM1, PTPRC]
+        umap_genes: [ACTA2, MYH11]
+        fine: {mode: none}
+
+# =============================================================================
+# ATLAS level (stage 04): whole-tissue coarse lineage annotation.
+# Feeds 04b_reintegrate -- it writes data/interim/lineages/{species}_{slug}.h5ad
+# and the leiden ladder CSVs the R clustree script reads.
+# =============================================================================
+atlas:
+
+  mouse:
+    res: leiden_scVI_2.5          # published ladder; nothing is re-clustered here
+    ref: 20251008_Cevrim_XMens_All_Cells.h5ad
+    panel: panel_mouse.tsv        # resources/markers/
+    # deposited fine type -> our lineage. Fibroblast and decidual are one
+    # continuum; the split happens at 04c after reintegration.
+    collapse:
+      endometrial fibroblasts: stromal
+      decidual cells: stromal
+    labels:                       # lineage -> output slug
+      stromal: stromal
+      epithelial cells: epithelial
+      immune cells: immune
+      vascular cells: vascular
+      smooth muscle cells: smc
+      perimetrium cells: perimetrium
+
+  human:
+    res: leiden_scVI_2.5
+    ref: 20251008_Cevrim_Human_All_Cells.h5ad
+    panel: panel_human.tsv
+    collapse:
+      endometrial fibroblasts: stromal
+      decidual cells: stromal
+    labels:                       # human has no perimetrium; vascular is "perivascular cells"
+      stromal: stromal
+      epithelial cells: epithelial
+      immune cells: immune
+      perivascular cells: perivascular
+      smooth muscle cells: smc
