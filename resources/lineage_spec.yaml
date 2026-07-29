@@ -64,8 +64,12 @@ species:
           contam:     [Cdh1, Pax8, Pecam1, Ptprc, Myh11, Sox6]
         umap_genes: [Pdgfra, Prl8a2, Bmp2, Mki67]
         fine:
-          mode: csv
-          csv: fib_metadata.csv           # resources/annotations/
+          mode: h5ad
+          # DO NOT use fib_metadata.csv: the copy on disk is 15,972 of 43,052 rows
+          # and joins at 36% SILENTLY (missing barcodes -> NaN -> "unlabeled",
+          # indistinguishable from a real absence), which invalidates every subtype
+          # vote. See HANDOFF_mouse_stromal.md section 3.
+          h5ad: 20251008_Cevrim_XMens_Only_Fib_Dec_Cells.h5ad   # REPO_SUB, 97.1% join
           col: cell_subtype_annotations
           labels: [dec1, dec2, dec3, decAp, eFib1, eFib2, eFib2i, eFib3, eFibP]
           rollup_prefix:                  # fine label prefix -> coarse label

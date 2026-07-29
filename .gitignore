@@ -35,3 +35,11 @@ notebooks/curation/
 # manual snapshots superseded by git history
 workflow/**/*.bak-*
 workflow/scripts/_archive/
+resources/annotations/_BROKEN_*
+
+# quarantined root-level duplicates / transfer scripts (superseded by git)
+_scratch/
+figures/
+config/**/*.bak-*
+profiles/**/*.bak-*
+resources/*.pre-finefix

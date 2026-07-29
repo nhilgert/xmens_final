@@ -110,3 +110,26 @@ mi:
 expected_cells:
   mouse_postqc: 57242
   human_postqc: 64553
+# ---- Lineage sub-objects (stage 04 output -> stage 04b input) --------------
+# Slugs must match data/interim/lineages/{species}_{lineage}.h5ad on disk, and
+# the LINEAGE_SLUG maps in the 04 curation notebooks. Species-specific: mouse
+# has perimetrium; human's vascular lineage is annotated "perivascular cells".
+lineages:
+  mouse: [stromal, epithelial, immune, vascular, smc, perimetrium]
+  human: [stromal, epithelial, immune, perivascular, smc]
+
+
+repo: "/n/eddy_lab/users/nhilgert/xmens_final"
+references:
+  mouse: /n/eddy_lab/users/nhilgert/decidualization/revisions/adatas/submission/20251008_Cevrim_XMens_All_Cells.h5ad
+  human: /n/eddy_lab/users/nhilgert/decidualization/revisions/adatas/submission/20251008_Cevrim_Human_All_Cells.h5ad
+published_n:
+  mouse: 57242
+  human: 64553
+annotate_res:
+  mouse: leiden_scVI_3.0
+  human: leiden_scVI_3.0
+
+clustree:
+  targets: [mouse_stromal]
+  range: {start: 0.1, stop: 0.8, step: 0.1}
