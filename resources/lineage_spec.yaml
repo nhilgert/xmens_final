@@ -128,7 +128,16 @@ species:
           glandular: [FOXA2, LIF, SCGB1D2]
           contam:    [FLT1, PECAM1, PDGFRA, PTPRC, ACTA2]
         umap_genes: [CDH1, WNT7A, FOXA2]
-        fine: {mode: none}     # switch to markers/from_groups if you want lumen/gland here too
+        fine:
+          # `labels` is what build_rollup keys on. Without it, "ciliated epithelium"
+          # becomes its own cell_type AND fine_refined stays empty for those cells.
+          # mode: none is correct -- ciliated was found de novo, not transferred.
+          mode: none
+          labels: [ciliated epithelium]
+          rollup_all: epithelial cells
+          # 91 cells; DE almost entirely axonemal (CFAP54/43/299, DNAH12/9/5,
+          # RSPH1, ZBBX), ciliated score 1.289 vs next-best 0.078. The deposited
+          # annotation lumps these into "epithelial cells" -- documented deviation.
 
       stromal:
         res: leiden_scVI_3.0
@@ -156,10 +165,18 @@ species:
           mode: csv
           csv: human_immune_fine.csv      # Alan Y. Baez Vazquez -- export pending
           col: Annotation_1.3
+          # MUST be a superset of the labels in the committed human_immune.csv.
+          # A label absent here orphans: it becomes its own cell_type AND leaves
+          # fine_refined empty. The committed CSV writes "ITGAX hi" without the
+          # trailing period, and one "Macrophages" rather than the
+          # Menstruation/Secretory split -- both spellings kept so either works.
           labels: ["CD8 T Cells", "CD4 T Cells", "Regulatory T Cells",
-                   "GZMB hi. ITGAX hi. uNK Cells", "GZMB lo. ITGAX lo. uNK Cells",
-                   "Menstruation Macrophages", "Secretory Macrophages", "Mast Cells",
-                   "Gamma/Delta T Cells"]
+                   "Gamma/Delta T Cells", "Mast Cells",
+                   "GZMB hi. ITGAX hi uNK Cells",      # as committed in the CSV
+                   "GZMB hi. ITGAX hi. uNK Cells",     # collaborator's spelling
+                   "GZMB lo. ITGAX lo. uNK Cells",
+                   "Macrophages",                      # as committed in the CSV
+                   "Menstruation Macrophages", "Secretory Macrophages"]
           rollup_all: immune cells
 
       perivascular:
@@ -170,8 +187,17 @@ species:
           perivascular: [PDGFRB, RGS5, ACTA2]
           contam:       [CDH1, PDGFRA, PTPRC]
         umap_genes: [PECAM1, RGS5]
-        fine: {mode: none}
-
+        fine:
+          # This lineage contains NO pericytes: RGS5 max 0.11, NOTCH3 max 0.16,
+          # pericyte co-expression 0.04 object-wide. It is two endothelial
+          # populations -- 62% blood (VWF/FLT1/MECOM), 38% lymphatic
+          # (PROX1/RELN/FLT4/PDPN); FLT1 goes 0.88 -> 0.02 across the boundary.
+          # cell_type stays "perivascular cells" (the deposited vocabulary) so the
+          # agreement metric is unaffected -- raise the misnomer with collaborators.
+          # Mouse has NO lymphatic population (Prox1 0.01, Ccl21a 0.002).
+          mode: none
+          labels: [blood endothelium, lymphatic endothelium]
+          rollup_all: perivascular cells
       smc:
         res: leiden_scVI_3.0
         coarse: smooth muscle cells

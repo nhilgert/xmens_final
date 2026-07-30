@@ -1,52 +1,52 @@
-cluster,label
-0,epithelial cells
-1,EXCLUDE
-2,epithelial cells
-3,epithelial cells
-4,epithelial cells
-5,epithelial cells
-6,epithelial cells
-7,epithelial cells
-8,epithelial cells
-9,epithelial cells
-10,epithelial cells
-11,EXCLUDE
-12,epithelial cells
-13,epithelial cells
-14,epithelial cells
-15,epithelial cells
-16,epithelial cells
-17,epithelial cells
-18,epithelial cells
-19,epithelial cells
-20,epithelial cells
-21,epithelial cells
-22,EXCLUDE
-23,epithelial cells
-24,epithelial cells
-25,epithelial cells
-26,epithelial cells
-27,epithelial cells
-28,epithelial cells
-29,epithelial cells
-30,epithelial cells
-31,epithelial cells
-32,epithelial cells
-33,epithelial cells
-34,epithelial cells
-35,epithelial cells
-36,epithelial cells
-37,epithelial cells
-38,epithelial cells
-39,epithelial cells
-40,epithelial cells
-41,epithelial cells
-42,epithelial cells
-43,ciliated epithelium
-44,EXCLUDE
-45,epithelial cells
-46,epithelial cells
-47,epithelial cells
-48,epithelial cells
-49,epithelial cells
-50,epithelial cells
+cluster,label,n_cells,res,note
+0,epithelial cells,209,leiden_scVI_3.0,
+1,EXCLUDE,463,leiden_scVI_3.0,"mixed: PDGFRA/DCN/COL1A1/ACTA2 co-expressed, own markers dilute; deposit leaves 285/463 unlabeled"
+2,epithelial cells,230,leiden_scVI_3.0,
+3,epithelial cells,112,leiden_scVI_3.0,
+4,epithelial cells,127,leiden_scVI_3.0,
+5,epithelial cells,300,leiden_scVI_3.0,
+6,epithelial cells,174,leiden_scVI_3.0,
+7,epithelial cells,248,leiden_scVI_3.0,
+8,epithelial cells,107,leiden_scVI_3.0,
+9,epithelial cells,106,leiden_scVI_3.0,
+10,epithelial cells,289,leiden_scVI_3.0,
+11,EXCLUDE,238,leiden_scVI_3.0,"conservative: PECAM1 ~3x object mean but FLT1/VWF ~absent and own markers intact -- likely ambient, excluded conservatively"
+12,epithelial cells,405,leiden_scVI_3.0,
+13,epithelial cells,327,leiden_scVI_3.0,
+14,epithelial cells,288,leiden_scVI_3.0,
+15,epithelial cells,267,leiden_scVI_3.0,
+16,epithelial cells,129,leiden_scVI_3.0,
+17,epithelial cells,310,leiden_scVI_3.0,
+18,epithelial cells,360,leiden_scVI_3.0,
+19,epithelial cells,246,leiden_scVI_3.0,
+20,epithelial cells,318,leiden_scVI_3.0,
+21,epithelial cells,162,leiden_scVI_3.0,
+22,EXCLUDE,548,leiden_scVI_3.0,"conservative: PECAM1 ~5x object mean, FLT1/VWF absent, own markers ABOVE object mean. Excluded conservatively -- NOT an epithelial identity failure. (Supersedes an earlier note reading PAX8-dark; PAX8 here is 2.05 vs 1.33 object mean.)"
+23,epithelial cells,366,leiden_scVI_3.0,
+24,epithelial cells,358,leiden_scVI_3.0,
+25,epithelial cells,314,leiden_scVI_3.0,
+26,epithelial cells,459,leiden_scVI_3.0,
+27,epithelial cells,90,leiden_scVI_3.0,
+28,epithelial cells,181,leiden_scVI_3.0,
+29,epithelial cells,426,leiden_scVI_3.0,
+30,epithelial cells,153,leiden_scVI_3.0,
+31,epithelial cells,245,leiden_scVI_3.0,
+32,epithelial cells,109,leiden_scVI_3.0,
+33,epithelial cells,77,leiden_scVI_3.0,
+34,epithelial cells,231,leiden_scVI_3.0,
+35,epithelial cells,112,leiden_scVI_3.0,
+36,epithelial cells,125,leiden_scVI_3.0,
+37,epithelial cells,387,leiden_scVI_3.0,
+38,epithelial cells,165,leiden_scVI_3.0,
+39,epithelial cells,125,leiden_scVI_3.0,
+40,epithelial cells,135,leiden_scVI_3.0,
+41,epithelial cells,266,leiden_scVI_3.0,
+42,epithelial cells,95,leiden_scVI_3.0,
+43,ciliated epithelium,91,leiden_scVI_3.0,"ciliated: axonemal DE (CFAP/DNAH/RSPH1/SPAG17/ZBBX, all p_adj=0), module score 1.289 vs next 0.078, 100% of cells positive, recovered as its own cluster on an independent re-embed. Deposit lumps into epithelial cells -- documented deviation."
+44,EXCLUDE,231,leiden_scVI_3.0,"mixed: PECAM1 AND FLT1 co-expressed (0.71/0.40 vs 0.07/0.01 object); CDH1/EPCAM/KRT8/KRT18 all low while PAX8 high -- discordant, endothelial island"
+45,epithelial cells,366,leiden_scVI_3.0,
+46,epithelial cells,321,leiden_scVI_3.0,
+47,epithelial cells,202,leiden_scVI_3.0,
+48,epithelial cells,21,leiden_scVI_3.0,
+49,epithelial cells,240,leiden_scVI_3.0,
+50,epithelial cells,325,leiden_scVI_3.0,

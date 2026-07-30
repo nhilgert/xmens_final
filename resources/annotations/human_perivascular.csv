@@ -1,22 +1,22 @@
-cluster,label
-0,perivascular cells
-1,perivascular cells
-2,EXCLUDE
-3,EXCLUDE
-4,EXCLUDE
-5,EXCLUDE
-6,perivascular cells
-7,perivascular cells
-8,perivascular cells
-9,perivascular cells
-10,perivascular cells
-11,perivascular cells
-12,perivascular cells
-13,EXCLUDE
-14,perivascular cells
-15,perivascular cells
-16,perivascular cells
-17,perivascular cells
-18,perivascular cells
-19,perivascular cells
-20,EXCLUDE
+cluster,label,n_cells,res,note
+0,blood endothelium,124,leiden_scVI_3.0,"BEC: VWF/FLT1/MECOM+, PROX1/RELN-negative"
+1,blood endothelium,94,leiden_scVI_3.0,"BEC: VWF/FLT1/MECOM+, PROX1/RELN-negative"
+2,EXCLUDE,53,leiden_scVI_3.0,mixed: PDGFRA/DCN/LUM co-expressed -> fibroblast contamination
+3,EXCLUDE,110,leiden_scVI_3.0,mixed: PDGFRA/DCN/LUM co-expressed -> fibroblast contamination
+4,EXCLUDE,76,leiden_scVI_3.0,mixed: PDGFRA/DCN/LUM co-expressed -> fibroblast contamination
+5,EXCLUDE,105,leiden_scVI_3.0,mixed: PDGFRA/DCN/LUM co-expressed -> fibroblast contamination
+6,lymphatic endothelium,85,leiden_scVI_3.0,"LEC: PROX1/RELN/FLT4/PDPN+, FLT1-negative"
+7,lymphatic endothelium,125,leiden_scVI_3.0,"LEC: PROX1 0.90 RELN 0.98. NB doublet score ~9.15 -- KEPT anyway. LECs are large and RNA-rich so the continuous score is inflated; exclusion is marker-based (handoff §5), same as mouse cluster 19."
+8,lymphatic endothelium,74,leiden_scVI_3.0,"LEC: PROX1/RELN/FLT4/PDPN+, FLT1-negative"
+9,blood endothelium,70,leiden_scVI_3.0,"BEC: VWF/FLT1/MECOM+, PROX1/RELN-negative"
+10,blood endothelium,80,leiden_scVI_3.0,"BEC: VWF/FLT1/MECOM+, PROX1/RELN-negative"
+11,blood endothelium,44,leiden_scVI_3.0,"BEC: VWF/FLT1/MECOM+, PROX1/RELN-negative"
+12,lymphatic endothelium,58,leiden_scVI_3.0,"LEC: PROX1/RELN/FLT4/PDPN+, FLT1-negative"
+13,EXCLUDE,91,leiden_scVI_3.0,mixed: PDGFRA/DCN/LUM co-expressed -> fibroblast contamination
+14,blood endothelium,79,leiden_scVI_3.0,"BEC: VWF/FLT1/MECOM+, PROX1/RELN-negative"
+15,lymphatic endothelium,62,leiden_scVI_3.0,"LEC: PROX1/RELN/FLT4/PDPN+, FLT1-negative"
+16,lymphatic endothelium,102,leiden_scVI_3.0,"LEC: PROX1/RELN/FLT4/PDPN+, FLT1-negative"
+17,blood endothelium,111,leiden_scVI_3.0,"BEC: VWF/FLT1/MECOM+, PROX1/RELN-negative"
+18,blood endothelium,122,leiden_scVI_3.0,"BEC: VWF/FLT1/MECOM+, PROX1/RELN-negative"
+19,blood endothelium,104,leiden_scVI_3.0,"BEC: VWF/FLT1/MECOM+, PROX1/RELN-negative"
+20,EXCLUDE,44,leiden_scVI_3.0,mixed: PDGFRA/DCN/LUM co-expressed -> fibroblast contamination

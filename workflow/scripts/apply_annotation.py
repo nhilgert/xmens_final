@@ -37,7 +37,12 @@ def build_rollup(fine_cfg: dict, coarse: str) -> dict:
         return {}
     if fine_cfg.get("mode") == "markers":
         return {lab: coarse for lab in fine_cfg.get("from_groups", {})}
-    if fine_cfg.get("mode") == "csv":
+    # Any mode declaring an explicit `labels` list rolls up the same way: the
+    # rollup is a function of the LABELS, not of where they were sourced from.
+    # (Gating on mode == "csv" silently returned {} when mouse stromal moved to
+    # mode: h5ad -- which wrote fine labels into coarse_refined AND emptied
+    # fine_refined, with the pipeline still exiting 0.)
+    if fine_cfg.get("labels"):
         out = {}
         for lab in fine_cfg.get("labels", []):
             if "rollup_all" in fine_cfg:
