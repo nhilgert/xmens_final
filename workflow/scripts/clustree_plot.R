@@ -8,6 +8,15 @@
 # Input: one column per resolution, named leiden_scVI_<res> (that prefix is what
 # clustree keys on). Produced by workflow/scripts/export_clustree.py.
 
+setwd("/n/eddy_lab/users/nhilgert/xmens_final")
+library(clustree); library(readr); library(ggplot2)
+
+d <- read_csv("results/tables/clustree/mouse_stromal_wide.csv", show_col_types = FALSE)
+for (cc in grep("^leiden_scVI_", colnames(d), value = TRUE)) d[[cc]] <- as.factor(d[[cc]])
+
+clustree(d, prefix = "leiden_scVI_")                              # structure
+clustree(d, prefix = "leiden_scVI_", node_colour = "sc3_stability")  # stability
+
 suppressPackageStartupMessages({
   library(clustree)
   library(readr)

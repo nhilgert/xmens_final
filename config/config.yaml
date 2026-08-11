@@ -133,3 +133,17 @@ annotate_res:
 clustree:
   targets: [mouse_stromal]
   range: {start: 0.1, stop: 0.8, step: 0.1}
+
+# ---- SAMap cross-species integration (hmmer, two paper pairings) -----------
+samap:
+  root:            /n/lab_storage/eddy_lab/users/nhilgert/decidualization/revisions/samap_integrate
+  coords_root:     /n/lab_storage/eddy_lab/users/nhilgert/decidualization/revisions/crossspecies_radial_gp
+  proteomes_root:  /n/lab_storage/eddy_lab/users/nhilgert/data/proteomes
+  python:          /n/lab_storage/eddy_lab/users/nhilgert/xmens_final/envs/samap/.venv/bin/python
+  saturn_python:   /n/lab_storage/eddy_lab/users/nhilgert/.uv/envs/saturn_uv/bin/python
+  phmmer:          /n/lab_storage/eddy_lab/users/nhilgert/software/hmmer-3.4/src/phmmer
+  n_iter:          3
+  pairs: ["menstrual_x_4dpi_hmmer", "secretory_x_1dpi_late_hmmer"]
+  pt_h5ad:
+    menstrual_x_4dpi_hmmer:      /n/lab_storage/eddy_lab/users/nhilgert/decidualization/revisions/adatas/pseudotime/adata_4dpi.h5ad
+    secretory_x_1dpi_late_hmmer: /n/lab_storage/eddy_lab/users/nhilgert/decidualization/revisions/adatas/pseudotime/adata_1dpi.h5ad
