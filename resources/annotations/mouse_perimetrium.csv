@@ -1,26 +1,26 @@
 cluster,label
-0,perimetrium cells
-1,perimetrium cells
-2,perimetrium cells
-3,perimetrium cells
-4,perimetrium cells
-5,perimetrium cells
-6,perimetrium cells
-7,perimetrium cells
+0,mesothelial_cell
+1,mesothelial_cell
+2,mesothelial_cell
+3,mesothelial_cell
+4,mesothelial_cell
+5,mesothelial_cell
+6,mesothelial_cell
+7,mesothelial_cell
 8,EXCLUDE
-9,perimetrium cells
-10,perimetrium cells
-11,perimetrium cells
-12,perimetrium cells
-13,perimetrium cells
-14,perimetrium cells
-15,perimetrium cells
-16,perimetrium cells
-17,perimetrium cells
+9,mesothelial_cell
+10,mesothelial_cell
+11,mesothelial_cell
+12,mesothelial_cell
+13,mesothelial_cell
+14,mesothelial_cell
+15,mesothelial_cell
+16,mesothelial_cell
+17,mesothelial_cell
 18,EXCLUDE
 19,EXCLUDE
 20,EXCLUDE
-21,perimetrium cells
-22,perimetrium cells
-23,perimetrium cells
-24,perimetrium cells
+21,mesothelial_cell
+22,mesothelial_cell
+23,mesothelial_cell
+24,mesothelial_cell

@@ -18,7 +18,10 @@ import sys
 from pathlib import Path
 import pandas as pd, numpy as np
 
-__all__ = ["load_choices", "apply_map", "write_atlas", "write_fine", "build_rollup"]
+__all__ = [
+    "load_choices", "apply_map", "write_atlas", "write_fine", "build_rollup",
+    "build_vocabulary_rollup", "validate_canonical_annotations",
+]
 
 
 # ----------------------------------------------------------------- choices ---
@@ -56,10 +59,48 @@ def build_rollup(fine_cfg: dict, coarse: str) -> dict:
     return {}
 
 
+def build_vocabulary_rollup(vocab: dict) -> dict:
+    """Return the globally unique canonical subtype -> cell-type mapping."""
+    out = {}
+    for cell_type, subtypes in vocab["allowed"].items():
+        for subtype in subtypes or []:
+            if subtype in out and out[subtype] != cell_type:
+                raise ValueError(
+                    f"cell_subtype {subtype!r} appears under both {out[subtype]!r} "
+                    f"and {cell_type!r} in annotation_vocabulary.yaml")
+            out[subtype] = cell_type
+    return out
+
+
+def validate_canonical_annotations(adata, vocab: dict, *, context: str = "object"):
+    """Fail on missing, legacy, or invalid canonical annotation values."""
+    for col in ("cell_type", "cell_subtype"):
+        if col not in adata.obs:
+            raise ValueError(f"{context}: missing required obs column {col!r}")
+        if adata.obs[col].isna().any():
+            raise ValueError(f"{context}: {col} contains NaN")
+    types = adata.obs["cell_type"].astype(str)
+    subtypes = adata.obs["cell_subtype"].astype(str)
+    invalid_types = sorted(set(types) - set(vocab["allowed"]))
+    if invalid_types:
+        raise ValueError(f"{context}: invalid cell_type values {invalid_types}")
+    bad_missing = sorted(set(subtypes.str.lower()) & {"nan", "none", "na", "<na>"})
+    if bad_missing:
+        raise ValueError(f"{context}: invalid missing-value strings in cell_subtype {bad_missing}")
+    bad_pairs = []
+    for cell_type, subtype in zip(types, subtypes):
+        if subtype and subtype not in set(vocab["allowed"][cell_type] or []):
+            bad_pairs.append((cell_type, subtype))
+    if bad_pairs:
+        raise ValueError(f"{context}: invalid cell_type/cell_subtype pairs {sorted(set(bad_pairs))}")
+    return True
+
+
 # ------------------------------------------------------------------- apply ---
 def apply_map(adata, res: str, choices: dict, rollup: dict | None = None,
-              label_col: str = "label", strict: bool = True):
-    """Write label / coarse_refined / fine_refined / excluded onto adata.obs.
+              label_col: str = "label", strict: bool = True,
+              output_mode: str = "fine"):
+    """Apply a frozen map as either internal lineage or canonical annotations.
 
     Returns a per-cluster summary frame. Pure: no I/O, no plotting -- this is
     what the pipeline and the notebooks share.
@@ -80,12 +121,18 @@ def apply_map(adata, res: str, choices: dict, rollup: dict | None = None,
     key = adata.obs[res].astype(str)
     adata.obs[label_col] = key.map(choices).astype(str)
     adata.obs["excluded"] = adata.obs[label_col].eq("EXCLUDE").values
-    adata.obs["coarse_refined"] = np.where(
-        adata.obs.excluded, "EXCLUDE",
-        adata.obs[label_col].map(lambda l: rollup.get(l, l)))
-    adata.obs["fine_refined"] = np.where(
-        adata.obs.excluded, "",
-        np.where(adata.obs[label_col].isin(rollup), adata.obs[label_col], ""))
+    if output_mode == "atlas":
+        adata.obs["lineage"] = np.where(
+            adata.obs.excluded, "EXCLUDE", adata.obs[label_col])
+    elif output_mode == "fine":
+        adata.obs["cell_type"] = np.where(
+            adata.obs.excluded, "EXCLUDE",
+            adata.obs[label_col].map(lambda value: rollup.get(value, value)))
+        adata.obs["cell_subtype"] = np.where(
+            adata.obs.excluded, "",
+            np.where(adata.obs[label_col].isin(rollup), adata.obs[label_col], ""))
+    else:
+        raise ValueError(f"unknown output_mode {output_mode!r}")
 
     summary = pd.DataFrame({
         "n": key.value_counts(),
@@ -102,7 +149,7 @@ def apply_map(adata, res: str, choices: dict, rollup: dict | None = None,
 
 # ------------------------------------------------------------------- write ---
 def write_atlas(adata, out_h5ad, lineage_dir, ladder_dir, slug: dict, species: str,
-                label_col: str = "coarse_refined"):
+                label_col: str = "lineage"):
     """Annotated object + the lineage subsets 04b consumes + the leiden ladder."""
     out_h5ad = Path(out_h5ad); out_h5ad.parent.mkdir(parents=True, exist_ok=True)
     lineage_dir, ladder_dir = Path(lineage_dir), Path(ladder_dir)
@@ -149,19 +196,33 @@ def write_atlas(adata, out_h5ad, lineage_dir, ladder_dir, slug: dict, species: s
 
 def write_fine(adata, out_h5ad):
     """Cleaned per-lineage object for 04d_merge (EXCLUDE dropped)."""
+    import os
     out_h5ad = Path(out_h5ad); out_h5ad.parent.mkdir(parents=True, exist_ok=True)
+    if out_h5ad.exists() and "migrated" in out_h5ad.parts:
+        raise FileExistsError(f"refusing to overwrite staged annotation object: {out_h5ad}")
     out = adata[~adata.obs.excluded].copy()
-    for c in ["ref_type", "ref_lineage", "ref_fine", "label", "asn_lbl", "cluster_lbl"]:
+    internal = [
+        c for c in out.obs
+        if c.startswith(("ref_", "score_"))
+        or c in {"celltype_ref", "lineage", "excluded", "label", "asn_lbl",
+                 "cluster_lbl", "coarse_refined", "fine_refined", "subtype",
+                 "annotation_level"}
+    ]
+    for c in internal:
         if c in out.obs: del out.obs[c]
-    out.write_h5ad(out_h5ad)
+    tmp = out_h5ad.with_name(f".{out_h5ad.name}.{os.getpid()}.tmp.h5ad")
+    out.write_h5ad(tmp)
+    os.replace(tmp, out_h5ad)
     print(f"  wrote {out_h5ad}  ({out.n_obs:,} cells)")
     return out
 
 
 # ------------------------------------------------------------------ entries --
-def _run(level, species, lineage, res, in_h5ad, csv, spec_path, repo, out_h5ad):
+def _run(level, species, lineage, res, in_h5ad, csv, spec_path, vocab_path,
+         repo, out_h5ad):
     import scanpy as sc, yaml
     spec = yaml.safe_load(open(spec_path))
+    vocab = yaml.safe_load(open(vocab_path))
     repo = Path(repo)
     print(f"apply_annotation [{level}] {species}"
           f"{'/' + lineage if lineage else ''} | {Path(in_h5ad).name} | {res}")
@@ -171,15 +232,18 @@ def _run(level, species, lineage, res, in_h5ad, csv, spec_path, repo, out_h5ad):
 
     if level == "atlas":
         cfg = spec["atlas"][species]
-        apply_map(adata, res, choices, rollup={})
+        apply_map(adata, res, choices, rollup={}, output_mode="atlas")
         write_atlas(adata, out_h5ad,
                     repo / "data/interim/lineages",
                     repo / "results/tables/clusters" / species,
                     slug=cfg["labels"], species=species)
     else:
-        lin = spec["species"][species]["lineages"][lineage]
-        rollup = build_rollup(lin.get("fine", {}), lin["coarse"])
-        apply_map(adata, res, choices, rollup=rollup)
+        rollup = build_vocabulary_rollup(vocab)
+        apply_map(adata, res, choices, rollup=rollup, output_mode="fine")
+        validate_canonical_annotations(adata[~adata.obs.excluded], vocab,
+                                       context=f"{species}/{lineage}")
+        adata.uns["annotation_schema_version"] = vocab["schema_version"]
+        adata.uns["display_names"] = vocab["display_names"]
         write_fine(adata, out_h5ad)
 
 
@@ -189,6 +253,8 @@ def _from_snakemake(sm):
          res=p.res, in_h5ad=sm.input.h5ad, csv=sm.input.csv,
          spec_path=getattr(sm.input, "spec", None)
                    or "resources/lineage_spec.yaml",
+         vocab_path=getattr(sm.input, "vocab", None)
+                    or "resources/annotation_vocabulary.yaml",
          repo=p.repo, out_h5ad=sm.output.h5ad)
 
 
@@ -202,10 +268,12 @@ def _from_cli(argv):
     ap.add_argument("--in-h5ad", required=True)
     ap.add_argument("--csv", required=True)
     ap.add_argument("--spec", default="resources/lineage_spec.yaml")
+    ap.add_argument("--vocab", default="resources/annotation_vocabulary.yaml")
     ap.add_argument("--repo", default=".")
     ap.add_argument("--out", required=True)
     a = ap.parse_args(argv)
-    _run(a.level, a.species, a.lineage, a.res, a.in_h5ad, a.csv, a.spec, a.repo, a.out)
+    _run(a.level, a.species, a.lineage, a.res, a.in_h5ad, a.csv, a.spec,
+         a.vocab, a.repo, a.out)
 
 
 if "snakemake" in globals():          # script: directive

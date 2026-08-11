@@ -1,20 +1,20 @@
 cluster,label
-0,epithelial cells
+0,epithelial
 1,stromal
 2,EXCLUDE
-3,epithelial cells
+3,epithelial
 4,EXCLUDE
 5,EXCLUDE
 6,stromal
 7,EXCLUDE
-8,smooth muscle cells
-9,perimetrium cells
-10,vascular cells
+8,smc
+9,perimetrium
+10,vascular
 11,stromal
 12,stromal
-13,immune cells
-14,epithelial cells
-15,immune cells
+13,immune
+14,epithelial
+15,immune
 16,EXCLUDE
 17,stromal
 18,stromal

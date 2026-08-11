@@ -57,10 +57,10 @@ assert all(_manifest[r]["homology"] == "hmmer" for r in SAMAP_PAIRS), \
     "paper deliverables are scoped to hmmer; a requested pair is blast"
 PAIRS = {r: _manifest[r] for r in SAMAP_PAIRS}
 
-# per-species source object + its (divergent) column names + expected fib/dec count
+# per-species source object + canonical annotation columns + expected fib/dec count
 _REFINED = {
-    "hs": dict(path="data/interim/refined_human.h5ad", coarse="cell_type",     fine="subtype",      expect=47533),
-    "mm": dict(path="data/interim/refined_mouse.h5ad", coarse="coarse_refined", fine="fine_refined", expect=43197),
+    "hs": dict(path="data/interim/refined_human.h5ad", coarse="cell_type", fine="cell_subtype", expect=47533),
+    "mm": dict(path="data/interim/refined_mouse.h5ad", coarse="cell_type", fine="cell_subtype", expect=43197),
 }
 
 # the SAMap input basenames the two pairings need, e.g. {hs_fib_dec_secretory, mm_fib_dec_4_dpi_bleeding, ...}

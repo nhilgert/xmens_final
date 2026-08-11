@@ -1,35 +1,35 @@
 cluster,label
-0,epithelial cells
-1,perivascular cells
-2,epithelial cells
+0,epithelial
+1,perivascular
+2,epithelial
 3,EXCLUDE
-4,perivascular cells
-5,immune cells
+4,perivascular
+5,immune
 6,stromal
 7,stromal
 8,stromal
 9,stromal
 10,stromal
 11,stromal
-12,epithelial cells
-13,immune cells
+12,epithelial
+13,immune
 14,stromal
 15,stromal
-16,smooth muscle cells
+16,smc
 17,stromal
-18,epithelial cells
+18,epithelial
 19,stromal
 20,stromal
 21,stromal
-22,epithelial cells
-23,immune cells
+22,epithelial
+23,immune
 24,stromal
 25,stromal
 26,stromal
 27,stromal
-28,immune cells
-29,immune cells
+28,immune
+29,immune
 30,EXCLUDE
 31,stromal
 32,EXCLUDE
-33,epithelial cells
+33,epithelial

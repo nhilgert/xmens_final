@@ -1,29 +1,29 @@
 cluster,label
-0,Macrophages
+0,macrophage
 1,EXCLUDE
-2,Macrophages
+2,macrophage
 3,EXCLUDE
-4,Macrophages
-5,CD8 T Cells
-6,GZMB hi. ITGAX hi uNK Cells
-7,Gamma/Delta T Cells
-8,GZMB lo. ITGAX lo. uNK Cells
+4,macrophage
+5,t_cell_cd8
+6,unk_cell_gzmb_high_itgax_high
+7,t_cell_gamma_delta
+8,unk_cell_gzmb_low_itgax_low
 9,EXCLUDE
-10,CD8 T Cells
-11,Macrophages
-12,CD8 T Cells
-13,Mast Cells
-14,Regulatory T Cells
-15,CD4 T Cells
-16,Regulatory T Cells
-17,CD4 T Cells
-18,CD4 T Cells
-19,CD4 T Cells
-20,CD4 T Cells
-21,GZMB hi. ITGAX hi uNK Cells
-22,CD8 T Cells
-23,CD8 T Cells
-24,CD8 T Cells
-25,CD8 T Cells
-26,CD8 T Cells
-27,CD8 T Cells
+10,t_cell_cd8
+11,macrophage
+12,t_cell_cd8
+13,mast_cell
+14,t_cell_regulatory
+15,t_cell_cd4
+16,t_cell_regulatory
+17,t_cell_cd4
+18,t_cell_cd4
+19,t_cell_cd4
+20,t_cell_cd4
+21,unk_cell_gzmb_high_itgax_high
+22,t_cell_cd8
+23,t_cell_cd8
+24,t_cell_cd8
+25,t_cell_cd8
+26,t_cell_cd8
+27,t_cell_cd8

@@ -43,6 +43,13 @@ set-resources:
     cpus_per_task: 8
     gres: "gpu:1"
     slurm_extra: ""
+  # Annotation migration: staging-only whole-atlas re-embedding.
+  reembed_migrated:
+    runtime: 240
+    mem_mb: 64000
+    cpus_per_task: 8
+    gres: "gpu:1"
+    slurm_extra: ""
   reintegrate_lineage:
     runtime: 240
     mem_mb: 48000
@@ -72,4 +79,4 @@ set-resources:
 
 # conda isn't on PATH (uv shop), so hashing conda envs fails and makes every rule
 # look stale -- drop software-env from the rerun triggers
-rerun-triggers: [mtime, params, input]
+rerun-triggers: [code, mtime, params, input]

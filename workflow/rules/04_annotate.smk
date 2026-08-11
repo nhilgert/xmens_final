@@ -19,6 +19,8 @@ for _sp, _lins in config["lineages"].items():
         input:
             h5ad="data/interim/latent_{sp}.h5ad".format(sp=_sp),
             csv="resources/annotations/{sp}_lineage.csv".format(sp=_sp),
+            spec="resources/lineage_spec.yaml",
+            vocab="resources/annotation_vocabulary.yaml",
         output:
             h5ad="data/interim/annotated_{sp}.h5ad".format(sp=_sp),
             subsets=["data/interim/lineages/{sp}_{lin}.h5ad".format(sp=_sp, lin=_l)

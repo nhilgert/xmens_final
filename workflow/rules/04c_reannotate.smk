@@ -15,6 +15,8 @@ rule reannotate_lineage:
     input:
         h5ad="data/interim/latent_{species}_{lineage}.h5ad",
         csv="resources/annotations/{species}_{lineage}.csv",
+        spec="resources/lineage_spec.yaml",
+        vocab="resources/annotation_vocabulary.yaml",
     output:
         h5ad="data/interim/reannotated/{species}_{lineage}.h5ad",
     params:

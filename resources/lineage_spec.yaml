@@ -29,24 +29,22 @@ species:
 
       epithelial:
         res: leiden_scVI_3.0        # finer: resolves the luminal<->glandular continuum
-        coarse: epithelial cells
+        coarse: epithelial_cell
         markers:
           epi:       [Cdh1, Pax8]
           luminal:   [Wnt7a, Muc1, Lgr5]
           glandular: [Foxa2, Ihh, Lif]
           contam:    [Flt1, Pecam1, Pdgfra, Prl8a2, Acta2, Myh11, Ptprc, Sox6]
         umap_genes: [Wnt7a, Foxa2, Ihh, Lgr5]
-        fine:
-          mode: markers
-          from_groups:
-            luminal epithelium:   luminal
-            glandular epithelium: glandular
+        # Current frozen decisions are coarse-only. Do not invent luminal/
+        # glandular subtypes: they are not in xmens.annotation.v1.
+        fine: {mode: none}
           # note: Sox6 is in `contam` on purpose -- broadly expressed, so a Sox6-high
           # epithelial cluster WITHOUT the Msln/Upk3b/Wt1 trio is still epithelium.
 
       perimetrium:
         res: leiden_scVI_3.0
-        coarse: perimetrium cells
+        coarse: mesothelial_cell
         markers:
           peri:   [Sox6, Msln, Upk3b, Wt1]   # real peri = Sox6 AND the trio
           epi:    [Cdh1, Pax8]
@@ -71,14 +69,16 @@ species:
           # vote. See HANDOFF_mouse_stromal.md section 3.
           h5ad: 20251008_Cevrim_XMens_Only_Fib_Dec_Cells.h5ad   # REPO_SUB, 97.1% join
           col: cell_subtype_annotations
-          labels: [dec1, dec2, dec3, decAp, eFib1, eFib2, eFib2i, eFib3, eFibP]
+          labels: [decidual_border, decidual_proliferative, decidual_mature,
+                   decidual_apoptotic, efib_myometrial, efib_middle,
+                   efib_middle_induced, efib_subluminal, efib_proliferative]
           rollup_prefix:                  # fine label prefix -> coarse label
-            dec: decidual cells
-            eFib: endometrial fibroblasts
+            decidual_: decidual_cell
+            efib_: endometrial_fibroblast
 
       immune:
         res: leiden_scVI_3.0
-        coarse: immune cells
+        coarse: immune_cell
         markers:
           pan:    [Ptprc]
           myeloid: [Adgre1, Csf1r, C1qa, C1qb, Mrc1, Itgax]
@@ -91,24 +91,29 @@ species:
           mode: csv
           csv: mouse_immune_fine.csv      # Alan Y. Baez Vazquez -- export pending
           col: Annotation_1.3
-          labels: ["Macrophages", "Prolif. Macrophages", "Monocytes", "DCs", "B Cells",
-                   "T Cells", "Gamma/Delta T Cells", "Gzmb hi. Itgax lo. uNK Cells",
-                   "Gzmb lo. Itgax hi. uNK cells", "Prolif. uNK Cells"]
-          rollup_all: immune cells
+          labels: [macrophage, macrophage_proliferative, monocyte, dendritic_cell,
+                   b_cell, t_cell, t_cell_gamma_delta,
+                   unk_cell_gzmb_high_itgax_low, unk_cell_gzmb_low_itgax_high,
+                   unk_cell_proliferative]
+          rollup_all: immune_cell
 
       vascular:
         res: leiden_scVI_3.0
-        coarse: vascular cells
+        coarse: endothelial_cell
         markers:
           endothelial:  [Pecam1, Flt1, Cldn5, Cdh5]
           perivascular: [Pdgfrb, Rgs5, Acta2]
           contam:       [Cdh1, Pdgfra, Ptprc, Sox6]
         umap_genes: [Pecam1, Flt1, Rgs5]
-        fine: {mode: none}
+        # Content task: every retained mouse vascular cell is blood endothelial.
+        fine:
+          mode: none
+          labels: [endothelial_blood]
+          rollup_all: endothelial_cell
 
       smc:
         res: leiden_scVI_3.0
-        coarse: smooth muscle cells
+        coarse: smooth_muscle_cell
         markers:
           smc:    [Acta2, Myh11, Tagln, Des, Cnn1]
           contam: [Cdh1, Pdgfra, Pecam1, Ptprc, Sox6]
@@ -121,7 +126,7 @@ species:
 
       epithelial:
         res: leiden_scVI_3.0
-        coarse: epithelial cells
+        coarse: epithelial_cell
         markers:
           epi:       [CDH1, PAX8]
           luminal:   [WNT7A, MUC1, LGR5]
@@ -133,8 +138,8 @@ species:
           # becomes its own cell_type AND fine_refined stays empty for those cells.
           # mode: none is correct -- ciliated was found de novo, not transferred.
           mode: none
-          labels: [ciliated epithelium]
-          rollup_all: epithelial cells
+          labels: [epithelial_ciliated]
+          rollup_all: epithelial_cell
           # 91 cells; DE almost entirely axonemal (CFAP54/43/299, DNAH12/9/5,
           # RSPH1, ZBBX), ciliated score 1.289 vs next-best 0.078. The deposited
           # annotation lumps these into "epithelial cells" -- documented deviation.
@@ -152,7 +157,7 @@ species:
 
       immune:
         res: leiden_scVI_3.0
-        coarse: immune cells
+        coarse: immune_cell
         markers:
           pan:    [PTPRC]
           myeloid: [CD68, CSF1R, ITGAM, LYZ, ITGAX]
@@ -170,18 +175,15 @@ species:
           # fine_refined empty. The committed CSV writes "ITGAX hi" without the
           # trailing period, and one "Macrophages" rather than the
           # Menstruation/Secretory split -- both spellings kept so either works.
-          labels: ["CD8 T Cells", "CD4 T Cells", "Regulatory T Cells",
-                   "Gamma/Delta T Cells", "Mast Cells",
-                   "GZMB hi. ITGAX hi uNK Cells",      # as committed in the CSV
-                   "GZMB hi. ITGAX hi. uNK Cells",     # collaborator's spelling
-                   "GZMB lo. ITGAX lo. uNK Cells",
-                   "Macrophages",                      # as committed in the CSV
-                   "Menstruation Macrophages", "Secretory Macrophages"]
-          rollup_all: immune cells
+          labels: [t_cell_cd8, t_cell_cd4, t_cell_regulatory,
+                   t_cell_gamma_delta, mast_cell,
+                   unk_cell_gzmb_high_itgax_high,
+                   unk_cell_gzmb_low_itgax_low, macrophage]
+          rollup_all: immune_cell
 
       perivascular:
         res: leiden_scVI_3.0
-        coarse: perivascular cells
+        coarse: endothelial_cell
         markers:
           endothelial:  [PECAM1, FLT1, CLDN5, CDH5]
           perivascular: [PDGFRB, RGS5, ACTA2]
@@ -192,15 +194,13 @@ species:
           # pericyte co-expression 0.04 object-wide. It is two endothelial
           # populations -- 62% blood (VWF/FLT1/MECOM), 38% lymphatic
           # (PROX1/RELN/FLT4/PDPN); FLT1 goes 0.88 -> 0.02 across the boundary.
-          # cell_type stays "perivascular cells" (the deposited vocabulary) so the
-          # agreement metric is unaffected -- raise the misnomer with collaborators.
           # Mouse has NO lymphatic population (Prox1 0.01, Ccl21a 0.002).
           mode: none
-          labels: [blood endothelium, lymphatic endothelium]
-          rollup_all: perivascular cells
+          labels: [endothelial_blood, endothelial_lymph]
+          rollup_all: endothelial_cell
       smc:
         res: leiden_scVI_3.0
-        coarse: smooth muscle cells
+        coarse: smooth_muscle_cell
         markers:
           smc:    [ACTA2, MYH11, TAGLN, DES, CNN1]
           contam: [CDH1, PDGFRA, PECAM1, PTPRC]
@@ -223,13 +223,13 @@ atlas:
     collapse:
       endometrial fibroblasts: stromal
       decidual cells: stromal
-    labels:                       # lineage -> output slug
+    labels:                       # internal lineage routing value -> output slug
       stromal: stromal
-      epithelial cells: epithelial
-      immune cells: immune
-      vascular cells: vascular
-      smooth muscle cells: smc
-      perimetrium cells: perimetrium
+      epithelial: epithelial
+      immune: immune
+      vascular: vascular
+      smc: smc
+      perimetrium: perimetrium
 
   human:
     res: leiden_scVI_2.5
@@ -238,9 +238,9 @@ atlas:
     collapse:
       endometrial fibroblasts: stromal
       decidual cells: stromal
-    labels:                       # human has no perimetrium; vascular is "perivascular cells"
+    labels:                       # internal lineage routing value -> output slug
       stromal: stromal
-      epithelial cells: epithelial
-      immune cells: immune
-      perivascular cells: perivascular
-      smooth muscle cells: smc
+      epithelial: epithelial
+      immune: immune
+      perivascular: perivascular
+      smc: smc

@@ -50,6 +50,8 @@ SCVI_NEIGHBORS_KEY = f"neighbors_scVI_{N_NEIGHBORS}"
 SCVI_UMAP_KEY = "X_umap_scVI"
 
 
+from pathlib import Path as _Path
+_Path(logfile).parent.mkdir(parents=True, exist_ok=True)
 with open(logfile, "w") as log:
     def say(msg):
         print(f"[integrate:{species}] {msg}", file=log, flush=True)
@@ -147,5 +149,13 @@ with open(logfile, "w") as log:
     del adata.obsm["X_umap"]
 
     say(f"final: {adata.n_obs} cells, obsm={list(adata.obsm.keys())}")
-    adata.write_h5ad(out)
+    import os
+    from pathlib import Path
+    out_path = Path(out)
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    if out_path.exists() and "migrated" in out_path.parts:
+        raise FileExistsError(f"refusing to overwrite existing object: {out}")
+    tmp_path = out_path.with_name(f".{out_path.name}.{os.getpid()}.tmp.h5ad")
+    adata.write_h5ad(tmp_path)
+    os.replace(tmp_path, out_path)
     say(f"wrote -> {out}")

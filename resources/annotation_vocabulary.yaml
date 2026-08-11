@@ -1,0 +1,203 @@
+# annotation_vocabulary.yaml — xmens.annotation.v1
+# SINGLE SOURCE OF TRUTH for the cell_type / cell_subtype schema.
+# Producers (apply_annotation, merge), the checker (check_annotations.py), the SAMap bridge
+# (prep_samap_input), and plotting all load THIS file rather than duplicating mappings.
+#
+# Rules:
+#   - two obs fields: cell_type (coarse) and cell_subtype (fine)
+#   - all stored values: lowercase snake_case, singular, ZERO casing exceptions
+#   - cell_subtype = "" (empty string; never NaN, never "nan", never the coarse label) where not subdivided
+#   - schema applies from 04c onward; stages 04/04b keep an internal `lineage` routing field (not published)
+#   - display names (plural/cased/legacy-code) live here and are applied only at plot time
+
+schema_version: xmens.annotation.v1
+
+# ----------------------------------------------------------------------------
+# Allowed vocabulary: each cell_type maps to the list of cell_subtypes valid under it.
+# "" (empty) is implicitly allowed for every cell_type and means "not subdivided".
+# ----------------------------------------------------------------------------
+allowed:
+  decidual_cell:
+    - decidual_border
+    - decidual_proliferative
+    - decidual_mature
+    - decidual_apoptotic
+  endometrial_fibroblast:
+    - efib_myometrial
+    - efib_middle
+    - efib_middle_induced
+    - efib_subluminal
+    - efib_proliferative
+  epithelial_cell:
+    - epithelial_ciliated        # human only; others ""
+  endothelial_cell:
+    - endothelial_blood          # mouse: all blood; human: subset
+    - endothelial_lymph          # human only (mouse has no lymphatic population)
+  perivascular_cell: []          # human only; coarse-only (subtype "")
+  mesothelial_cell: []           # mouse only (was "perimetrium cells"); coarse-only
+  immune_cell:
+    - macrophage
+    - macrophage_proliferative
+    - monocyte
+    - dendritic_cell
+    - t_cell                     # mouse's unresolved T cells
+    - t_cell_cd4                 # human only
+    - t_cell_cd8                 # human only
+    - t_cell_regulatory          # human only
+    - t_cell_gamma_delta
+    - b_cell
+    - mast_cell                  # human only
+    - unk_cell_proliferative
+    - unk_cell_gzmb_high_itgax_low    # mouse (crossed state)
+    - unk_cell_gzmb_low_itgax_high    # mouse (crossed state)
+    - unk_cell_gzmb_high_itgax_high   # human (matched state)
+    - unk_cell_gzmb_low_itgax_low     # human (matched state)
+  smooth_muscle_cell: []         # coarse-only
+
+# ----------------------------------------------------------------------------
+# Old -> new value mappings, per species. Applied during the rename/import.
+# NOTE the strings on the left are the ACTUAL stored values found in the objects
+# (verify against the real categories before running; some are display-y).
+# ----------------------------------------------------------------------------
+import_mapping:
+  human:
+    cell_type:
+      "decidual cells": decidual_cell
+      "endometrial fibroblasts": endometrial_fibroblast
+      "epithelial cells": epithelial_cell
+      "immune cells": immune_cell
+      "smooth muscle cells": smooth_muscle_cell
+      # "perivascular cells" is CONTENT-AWARE (see content_tasks.human_perivascular_split);
+      # it is NOT a simple rename — 1,334 cells -> endothelial_cell, 471 -> perivascular_cell.
+    cell_subtype:
+      "ciliated epithelium": epithelial_ciliated
+      "blood endothelium": endothelial_blood
+      "lymphatic endothelium": endothelial_lymph
+      "Macrophages": macrophage
+      "Gamma/Delta T Cells": t_cell_gamma_delta
+      "CD4 T Cells": t_cell_cd4
+      "CD8 T Cells": t_cell_cd8
+      "Regulatory T Cells": t_cell_regulatory
+      "Mast Cells": mast_cell
+      "GZMB hi. ITGAX hi uNK Cells": unk_cell_gzmb_high_itgax_high
+      "GZMB lo. ITGAX lo. uNK Cells": unk_cell_gzmb_low_itgax_low
+  mouse:
+    cell_type:
+      "decidual cells": decidual_cell
+      "endometrial fibroblasts": endometrial_fibroblast
+      "epithelial cells": epithelial_cell
+      "immune cells": immune_cell
+      "smooth muscle cells": smooth_muscle_cell
+      "vascular cells": endothelial_cell        # all -> endothelial_blood at subtype (blood-only)
+      "perimetrium cells": mesothelial_cell
+    cell_subtype:
+      "dec1": decidual_border
+      "dec2": decidual_proliferative
+      "dec3": decidual_mature
+      "decAp": decidual_apoptotic
+      "eFib1": efib_myometrial
+      "eFib2": efib_middle
+      "eFib2i": efib_middle_induced
+      "eFib3": efib_subluminal
+      "eFibP": efib_proliferative
+      "Macrophages": macrophage
+      "Prolif. Macrophages": macrophage_proliferative
+      "Monocytes": monocyte
+      "DCs": dendritic_cell
+      "T Cells": t_cell
+      "Gamma/Delta T Cells": t_cell_gamma_delta
+      "B Cells": b_cell
+      "Prolif. uNK Cells": unk_cell_proliferative
+      "Gzmb hi. Itgax lo. uNK Cells": unk_cell_gzmb_high_itgax_low
+      "Gzmb lo. Itgax hi. uNK cells": unk_cell_gzmb_low_itgax_high
+
+# ----------------------------------------------------------------------------
+# Content tasks — NOT renames. Must be applied with cell-level logic and VERIFIED by counts.
+# ----------------------------------------------------------------------------
+content_tasks:
+  human_perivascular_split:
+    description: >
+      Human coarse "perivascular cells" mixes endothelial + true mural cells. Split by the
+      reannotated source: cells from human_perivascular.h5ad (blood/lymph endothelial) ->
+      endothelial_cell with endothelial_blood/endothelial_lymph subtypes; the 471 mural cells
+      thrown back from stromal cluster 13 -> perivascular_cell with cell_subtype "".
+    expected_counts:
+      endothelial_cell: 1334      # 828 blood + 506 lymph
+      perivascular_cell: 471
+  mouse_endothelial_blood_only:
+    description: All mouse "vascular cells" -> endothelial_cell / endothelial_blood. No lymphatic (verified absent).
+    expected_counts:
+      endothelial_cell: 3487
+      endothelial_lymph: 0
+  empty_subtype_propagation:
+    description: >
+      Set cell_subtype="" (explicit empty, not NaN) for every cell whose lineage is not subdivided.
+    applies_to:
+      mouse:
+        - {cell_type: epithelial_cell, expected_blank_count: 6265}
+        - {cell_type: smooth_muscle_cell, expected_blank_count: 1443}
+        - {cell_type: mesothelial_cell, expected_blank_count: 550}
+      human:
+        - {cell_type: epithelial_cell, exclude_cell_subtypes: [epithelial_ciliated], expected_blank_count: 10608}
+        - {cell_type: smooth_muscle_cell, expected_blank_count: 2084}
+        - {cell_type: perivascular_cell, expected_blank_count: 471}
+
+# ----------------------------------------------------------------------------
+# Expected coarse counts (for post-migration validation, from final_* objects)
+# ----------------------------------------------------------------------------
+expected_coarse_counts:
+  human:  { decidual_cell: 21648, endometrial_fibroblast: 25885, epithelial_cell: 10699, immune_cell: 4709, smooth_muscle_cell: 2084, endothelial_cell: 1334, perivascular_cell: 471 }
+  mouse:  { decidual_cell: 22919, endometrial_fibroblast: 20278, epithelial_cell: 6265, immune_cell: 2091, smooth_muscle_cell: 1443, endothelial_cell: 3487, mesothelial_cell: 550 }
+  totals: { human: 66830, mouse: 57033 }
+
+# ----------------------------------------------------------------------------
+# Categorical order (for stable plotting/legends). "" sorts last (no subtype).
+# ----------------------------------------------------------------------------
+categorical_order:
+  cell_type:
+    [decidual_cell, endometrial_fibroblast, epithelial_cell, endothelial_cell,
+     perivascular_cell, mesothelial_cell, smooth_muscle_cell, immune_cell]
+
+# ----------------------------------------------------------------------------
+# Display names -> uns["display_names"]. Applied ONLY at plot time. Never stored in obs.
+# Do NOT add an "" key (unsafe HDF5 group name); render "" as no subtype.
+# ----------------------------------------------------------------------------
+display_names:
+  cell_type:
+    decidual_cell: "Decidual cells"
+    endometrial_fibroblast: "Endometrial fibroblasts"
+    epithelial_cell: "Epithelial cells"
+    endothelial_cell: "Endothelial cells"
+    perivascular_cell: "Perivascular cells"
+    mesothelial_cell: "Perimetrium mesothelial cells"
+    smooth_muscle_cell: "Smooth muscle cells"
+    immune_cell: "Immune cells"
+  cell_subtype:
+    decidual_border: "Decidual border (dec1)"
+    decidual_proliferative: "Proliferative decidual (dec2)"
+    decidual_mature: "Mature decidual (dec3)"
+    decidual_apoptotic: "Apoptotic decidual (decAp)"
+    efib_myometrial: "Myometrial eFib (eFib1)"
+    efib_middle: "Middle eFib (eFib2)"
+    efib_middle_induced: "Induced middle eFib (eFib2i)"
+    efib_subluminal: "Subluminal eFib (eFib3)"
+    efib_proliferative: "Proliferative eFib (eFibP)"
+    epithelial_ciliated: "Ciliated epithelial cells"
+    endothelial_blood: "Blood endothelial cells"
+    endothelial_lymph: "Lymphatic endothelial cells"
+    macrophage: "Macrophages"
+    macrophage_proliferative: "Proliferative macrophages"
+    monocyte: "Monocytes"
+    dendritic_cell: "Dendritic cells"
+    t_cell: "T cells"
+    t_cell_cd4: "CD4 T cells"
+    t_cell_cd8: "CD8 T cells"
+    t_cell_regulatory: "Regulatory T cells"
+    t_cell_gamma_delta: "Gamma/delta T cells"
+    b_cell: "B cells"
+    mast_cell: "Mast cells"
+    unk_cell_proliferative: "Proliferative uNK cells"
+    unk_cell_gzmb_high_itgax_low: "GZMB-hi/ITGAX-lo uNK cells"
+    unk_cell_gzmb_low_itgax_high: "GZMB-lo/ITGAX-hi uNK cells"
+    unk_cell_gzmb_high_itgax_high: "GZMB-hi/ITGAX-hi uNK cells"
+    unk_cell_gzmb_low_itgax_low: "GZMB-lo/ITGAX-lo uNK cells"

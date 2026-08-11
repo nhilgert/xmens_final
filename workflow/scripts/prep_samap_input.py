@@ -13,19 +13,17 @@ This is the missing edge that connects the annotation pipeline to SAMap:
       -> subset to one timepoint
       -> write inputs/h5ads_samap/{sp}_fib_dec_{tp}.h5ad
 
-The two refined objects use DIFFERENT obs column names for the same content
-(human: cell_type/subtype ; mouse: coarse_refined/fine_refined), so the column names are
-passed in rather than hardcoded — the divergence lives in the rule's config dict, not here.
+Both migrated species use the canonical ``cell_type`` / ``cell_subtype`` fields.
 
 Usage:
     python prep_samap_input.py --refined data/interim/refined_human.h5ad --species hs \
-        --coarse-col cell_type --fine-col subtype --timepoint secretory \
+        --coarse-col cell_type --fine-col cell_subtype --timepoint secretory \
         --expect-fibdec 47533 --out .../inputs/h5ads_samap/hs_fib_dec_secretory.h5ad
 """
 import argparse
 import anndata as ad
 
-FIBDEC = {"decidual cells", "endometrial fibroblasts"}   # the two coarse labels we keep
+FIBDEC = {"decidual_cell", "endometrial_fibroblast"}
 
 
 def main():
@@ -103,6 +101,8 @@ def main():
           f"cell_barcode in obs? {'cell_barcode' in a.obs.columns}")
 
     print(f"Writing {args.out} ...")
+    from pathlib import Path
+    Path(args.out).parent.mkdir(parents=True, exist_ok=True)
     a.write_h5ad(args.out)
     print("Done.")
 

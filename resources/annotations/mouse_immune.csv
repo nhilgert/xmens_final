@@ -1,30 +1,30 @@
 cluster,label
-0,Macrophages
-1,Macrophages
-2,Macrophages
-3,Macrophages
-4,Prolif. uNK Cells
-5,DCs
-6,Gamma/Delta T Cells
-7,Monocytes
-8,Macrophages
-9,Gzmb hi. Itgax lo. uNK Cells
-10,Gzmb lo. Itgax hi. uNK cells
-11,T Cells
-12,Gzmb lo. Itgax hi. uNK cells
-13,Monocytes
-14,Macrophages
-15,Gzmb lo. Itgax hi. uNK cells
-16,Macrophages
-17,Macrophages
-18,Gzmb lo. Itgax hi. uNK cells
-19,Monocytes
-20,Gzmb lo. Itgax hi. uNK cells
-21,Monocytes
-22,Macrophages
-23,Macrophages
-24,Macrophages
-25,Gzmb lo. Itgax hi. uNK cells
-26,Prolif. Macrophages
-27,B Cells
-28,Monocytes
+0,macrophage
+1,macrophage
+2,macrophage
+3,macrophage
+4,unk_cell_proliferative
+5,dendritic_cell
+6,t_cell_gamma_delta
+7,monocyte
+8,macrophage
+9,unk_cell_gzmb_high_itgax_low
+10,unk_cell_gzmb_low_itgax_high
+11,t_cell
+12,unk_cell_gzmb_low_itgax_high
+13,monocyte
+14,macrophage
+15,unk_cell_gzmb_low_itgax_high
+16,macrophage
+17,macrophage
+18,unk_cell_gzmb_low_itgax_high
+19,monocyte
+20,unk_cell_gzmb_low_itgax_high
+21,monocyte
+22,macrophage
+23,macrophage
+24,macrophage
+25,unk_cell_gzmb_low_itgax_high
+26,macrophage_proliferative
+27,b_cell
+28,monocyte
