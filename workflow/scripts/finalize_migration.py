@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
 """Aggregate staging validation without hiding SUSPECT/FAIL evidence."""
-from __future__ import annotations
-
 import json
 import hashlib
 import os

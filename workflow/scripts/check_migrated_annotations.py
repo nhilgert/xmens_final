@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
 """Run tools/check_annotations.py on every staged object for one species."""
-from __future__ import annotations
-
 import json
 import os
 from pathlib import Path

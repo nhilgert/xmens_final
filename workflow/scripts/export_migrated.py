@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
 """Create staging-only fib/dec and Dataverse artifacts from a staged final atlas."""
-from __future__ import annotations
-
 import hashlib
 import json
 import os

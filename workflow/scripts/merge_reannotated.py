@@ -5,8 +5,6 @@ This script is shared by the normal and migration-only rules.  It never changes
 counts to satisfy a gate: expected/actual discrepancies are written as SUSPECT
 and the staged object is retained for human review.
 """
-from __future__ import annotations
-
 import os
 from pathlib import Path
 
