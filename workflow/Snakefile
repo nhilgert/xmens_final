@@ -35,3 +35,4 @@ rule all:
         expand("data/interim/pt/spatial_{s}.h5ad", s=SLIDETAGS),
         "results/tables/invitro_comparison.csv",
         "results/figures/.done",
+include: "rules/10b_samap_raw.smk"
