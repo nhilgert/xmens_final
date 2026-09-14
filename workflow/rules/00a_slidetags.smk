@@ -10,17 +10,16 @@
 # Run the fork separately (see external/slidetags/FASRC_SETUP.md) to produce a
 # barcode,x,y CSV per sample; this rule normalizes it into the xmens layout.
 
-# Where the fork writes its per-sample coords. Override in config/config.yaml
-# (key: slidetags_coords_src) once you confirm export_coords.R's output path.
-SLIDETAGS_COORDS_SRC = config.get(
-    "slidetags_coords_src",
-    "external/slidetags/data/{sample}/coords/{sample}.csv",
-)
+# CONFIRMED 2026-09-14: the fork's per-sample coords live where config["coords"]
+# already points (the same source stage 00b reads via params) -- dir + pattern
+# keyed by coords_id from the sample sheet. The old default here was a
+# placeholder path that never existed; see .pre_coords_fix.bak for the original.
 
 
 rule slidetags:
     input:
-        fork_coords=lambda w: SLIDETAGS_COORDS_SRC.format(sample=w.sample),
+        fork_coords=lambda w: config["coords"]["dir"] + "/"
+            + config["coords"]["pattern"].format(coords_id=samples.loc[w.sample, "coords_id"]),
     output:
         coords="data/interim/coords/{sample}.csv",
     log:

@@ -1,0 +1,240 @@
+[
+ {
+  "label": "config qc.min_counts",
+  "ok": true,
+  "warn": false,
+  "got": "500",
+  "want": "500"
+ },
+ {
+  "label": "config qc.n_mads",
+  "ok": true,
+  "warn": false,
+  "got": "3",
+  "want": "3"
+ },
+ {
+  "label": "config qc.max_pct_mito",
+  "ok": true,
+  "warn": false,
+  "got": "8",
+  "want": "8"
+ },
+ {
+  "label": "qc.py contains median_abs_deviation (raw MAD (no 1.4826))",
+  "ok": true,
+  "warn": false,
+  "got": "True",
+  "want": "True"
+ },
+ {
+  "label": "qc.py contains log10 (log10(x+1) scale)",
+  "ok": true,
+  "warn": false,
+  "got": "True",
+  "want": "True"
+ },
+ {
+  "label": "qc.py contains min_counts (hard floor first)",
+  "ok": true,
+  "warn": false,
+  "got": "True",
+  "want": "True"
+ },
+ {
+  "label": "qc.py contains BoostClassifier (DoubletDetection)",
+  "ok": true,
+  "warn": false,
+  "got": "True",
+  "want": "True"
+ },
+ {
+  "label": "every QC'd sample has its raw 00b input",
+  "ok": true,
+  "warn": false,
+  "got": "15/15",
+  "want": "None"
+ },
+ {
+  "label": "all survivors >= min_counts floor",
+  "ok": true,
+  "warn": false,
+  "got": "500.0",
+  "want": ">= 500"
+ },
+ {
+  "label": "all survivors <= max mito%",
+  "ok": true,
+  "warn": false,
+  "got": "7.614",
+  "want": "<= 8"
+ },
+ {
+  "label": "no predicted doublet retained",
+  "ok": true,
+  "warn": false,
+  "got": "0",
+  "want": "0"
+ },
+ {
+  "label": "replayed filters >= stored survivors (doublets non-negative)",
+  "ok": true,
+  "warn": false,
+  "got": "min implied doublets 50",
+  "want": "None"
+ },
+ {
+  "label": "implied doublet fraction < 15% everywhere",
+  "ok": false,
+  "warn": true,
+  "got": "0.1913",
+  "want": "None"
+ },
+ {
+  "label": "1_dpi_early_mck1: log doublets == implied",
+  "ok": true,
+  "warn": false,
+  "got": "log 50 vs implied 50",
+  "want": "None"
+ },
+ {
+  "label": "1_dpi_late_mck12a: log doublets == implied",
+  "ok": false,
+  "warn": false,
+  "got": "log 1104 vs implied 1091",
+  "want": "None"
+ },
+ {
+  "label": "1_dpi_late_mck12b: log doublets == implied",
+  "ok": false,
+  "warn": false,
+  "got": "log 798 vs implied 787",
+  "want": "None"
+ },
+ {
+  "label": "2_dpi_mck15: log doublets == implied",
+  "ok": false,
+  "warn": false,
+  "got": "log 457 vs implied 415",
+  "want": "None"
+ },
+ {
+  "label": "3_dpi_mck10a: log doublets == implied",
+  "ok": true,
+  "warn": false,
+  "got": "log 1595 vs implied 1595",
+  "want": "None"
+ },
+ {
+  "label": "3_dpi_mck10b: log doublets == implied",
+  "ok": false,
+  "warn": false,
+  "got": "log 1625 vs implied 1602",
+  "want": "None"
+ },
+ {
+  "label": "4_dpi_bleeding_mck11a: log doublets == implied",
+  "ok": false,
+  "warn": false,
+  "got": "log 2014 vs implied 1995",
+  "want": "None"
+ },
+ {
+  "label": "menstrual_mck5a: log doublets == implied",
+  "ok": false,
+  "warn": false,
+  "got": "log 2490 vs implied 2323",
+  "want": "None"
+ },
+ {
+  "label": "menstrual_mck5b: log doublets == implied",
+  "ok": false,
+  "warn": false,
+  "got": "log 2774 vs implied 2553",
+  "want": "None"
+ },
+ {
+  "label": "menstrual_mck5c: log doublets == implied",
+  "ok": false,
+  "warn": false,
+  "got": "log 2249 vs implied 2071",
+  "want": "None"
+ },
+ {
+  "label": "secretory_mck6a: log doublets == implied",
+  "ok": false,
+  "warn": false,
+  "got": "log 3078 vs implied 2791",
+  "want": "None"
+ },
+ {
+  "label": "secretory_mck6b: log doublets == implied",
+  "ok": false,
+  "warn": false,
+  "got": "log 2805 vs implied 2499",
+  "want": "None"
+ },
+ {
+  "label": "secretory_mck6c: log doublets == implied",
+  "ok": false,
+  "warn": false,
+  "got": "log 1551 vs implied 1360",
+  "want": "None"
+ },
+ {
+  "label": "uninduced_mck8a: log doublets == implied",
+  "ok": true,
+  "warn": false,
+  "got": "log 2022 vs implied 2022",
+  "want": "None"
+ },
+ {
+  "label": "uninduced_mck8b: log doublets == implied",
+  "ok": false,
+  "warn": false,
+  "got": "log 1832 vs implied 1684",
+  "want": "None"
+ },
+ {
+  "label": "mouse: concat == sum of post-QC samples",
+  "ok": true,
+  "warn": false,
+  "got": "68069 vs 68069",
+  "want": "None"
+ },
+ {
+  "label": "mouse: integrate loses no cells",
+  "ok": true,
+  "warn": false,
+  "got": "68069 vs 68069",
+  "want": "None"
+ },
+ {
+  "label": "mouse: current vs published_n (delta +10827)",
+  "ok": false,
+  "warn": true,
+  "got": "68069",
+  "want": "57242"
+ },
+ {
+  "label": "human: concat == sum of post-QC samples",
+  "ok": true,
+  "warn": false,
+  "got": "70363 vs 70363",
+  "want": "None"
+ },
+ {
+  "label": "human: integrate loses no cells",
+  "ok": true,
+  "warn": false,
+  "got": "70363 vs 70363",
+  "want": "None"
+ },
+ {
+  "label": "human: current vs published_n (delta +5810)",
+  "ok": false,
+  "warn": true,
+  "got": "70363",
+  "want": "64553"
+ }
+]

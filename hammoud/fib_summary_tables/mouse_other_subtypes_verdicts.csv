@@ -1,0 +1,6 @@
+subtype,mouse_population,evidence,caveat,verdict
+Stro-11 progenitor,eFibP,0.2593 label / 0.0594 per-cell / 74.2% of cells / 92.3% markers home,15/15 mitotic drivers; 31.8% mouse vs 2.9% human cycling-positive,"STATE match, not identity - say 'shared proliferative state'"
+Stro-10 dS3,eFib3,"0.0996 label, margin 0.0055, NOT reciprocal; per-cell 0.0374 BELOW ceiling; 31.2% markers home",held-out agreement collapses to 0.254,SUGGESTIVE only - do not call it established
+Stro-8 dS1,decAp / dec3,top label hit is decAp = the ambient sink (71.4% of its cells); dec3 is the biological candidate,panel-conditional: -0.087 full panel -> +0.165/+0.171 discriminative,WEAK and panel-dependent
+Stro-5 RUNX3+,-,per-cell 0.0128 below ceiling; 6.2% markers home,immune program absent by construction,NOT RECOVERED
+Stro-9 dS2,-,0% of 22 markers point home; per-cell below ceiling,not resolved from dS1 in human either,NOT RECOVERED

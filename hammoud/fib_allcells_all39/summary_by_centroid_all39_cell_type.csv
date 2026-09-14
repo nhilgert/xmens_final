@@ -1,0 +1,40 @@
+centroid,best_group,cosine,runner_up,margin,null_max_in_best,above_null
+L_Endo,endothelial_cell,0.4593,perivascular_cell,0.4405,0.1047,True
+Endo-1_Artery,endothelial_cell,0.5367,perivascular_cell,0.5339,0.1047,True
+Endo-2_EndoMT,endothelial_cell,0.405,perivascular_cell,0.1466,0.1047,True
+Endo-3_PCV,endothelial_cell,0.5645,perivascular_cell,0.6142,0.1047,True
+Endo-4_tPCV,endothelial_cell,0.5332,perivascular_cell,0.5861,0.1047,True
+Endo-5_Capillary,endothelial_cell,0.5966,perivascular_cell,0.6189,0.1047,True
+Endo-6_aPCV,endothelial_cell,0.5355,perivascular_cell,0.5623,0.1047,True
+Endo-7_Tip,endothelial_cell,0.5891,perivascular_cell,0.6037,0.1047,True
+Endo-8_HEV,endothelial_cell,0.6189,perivascular_cell,0.6476,0.1047,True
+Stro-1_PV MYH11 FOXC1hi CTGFlo,perivascular_cell,0.4612,smooth_muscle_cell,0.1263,0.0879,True
+Stro-2_PV MYH11 FOXC1lo CTGFhi,perivascular_cell,0.5265,smooth_muscle_cell,0.2023,0.0879,True
+Stro-3_PV STEAP4,perivascular_cell,0.6326,smooth_muscle_cell,0.2998,0.0879,True
+Stro-4_Tissue resident vascular progenitor,perivascular_cell,0.3825,smooth_muscle_cell,0.0575,0.0879,True
+Stro-5_RUNX3+ Fibroblast,decidual_cell,0.3275,endometrial_fibroblast,0.0511,0.0859,True
+Stro-6_uSMC,smooth_muscle_cell,0.5761,endometrial_fibroblast,0.2516,0.105,True
+Stro-7_C7 Fibroblast,endometrial_fibroblast,0.4642,decidual_cell,0.0928,0.1166,True
+Stro-8_dS1,decidual_cell,0.5504,endometrial_fibroblast,0.1241,0.0859,True
+Stro-9_dS2,decidual_cell,0.5381,endometrial_fibroblast,0.0472,0.0859,True
+Stro-10_dS3,endometrial_fibroblast,0.5066,decidual_cell,0.0116,0.1166,True
+Stro-11_Stromal progenitor,decidual_cell,0.3551,endometrial_fibroblast,0.0085,0.0859,True
+1_Ciliated,epithelial_cell,0.3663,smooth_muscle_cell,0.3821,0.0751,True
+2_MUC16+ Gland_sec,epithelial_cell,0.4881,immune_cell,0.4923,0.0751,True
+3_Sox9_Glandular,epithelial_cell,0.5335,immune_cell,0.5835,0.0751,True
+4_Lumenal,epithelial_cell,0.4542,decidual_cell,0.5128,0.0751,True
+5_Gland_sec-progenitor A,epithelial_cell,0.4908,immune_cell,0.5304,0.0751,True
+6_Gland_sec-progenitor B,epithelial_cell,0.4781,immune_cell,0.5157,0.0751,True
+7_Myoepithelial,epithelial_cell,0.2207,decidual_cell,0.0028,0.0751,True
+8_OLFM4_Prolif,epithelial_cell,0.4292,endothelial_cell,0.4465,0.0751,True
+9_Tissue Res Mem T cell,epithelial_cell,0.4516,immune_cell,0.1754,0.0751,True
+Imm-1_Mast,immune_cell,0.3364,epithelial_cell,0.304,0.0703,True
+Imm-2_Fibrocytes,immune_cell,0.1452,perivascular_cell,0.0222,0.0703,True
+Imm-3_TMEM/CD8,immune_cell,0.5939,epithelial_cell,0.6175,0.0703,True
+Imm-4_TMEM/CD4,immune_cell,0.5744,epithelial_cell,0.5812,0.0703,True
+Imm-5_Treg,immune_cell,0.5233,epithelial_cell,0.5236,0.0703,True
+Imm-6_ILC,immune_cell,0.4775,epithelial_cell,0.48,0.0703,True
+Imm-7_B cells,immune_cell,0.2603,epithelial_cell,0.1996,0.0703,True
+Imm-8_Macrophage,immune_cell,0.3278,epithelial_cell,0.3442,0.0703,True
+Imm-9_NK cells,immune_cell,0.5669,epithelial_cell,0.5805,0.0703,True
+Imm-10_Hematopoietic progenitor,immune_cell,0.5108,epithelial_cell,0.5287,0.0703,True

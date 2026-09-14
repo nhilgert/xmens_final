@@ -1,0 +1,6 @@
+program,cells_positive_for_any,genes_mouse,n_translated,n_requested
+cycling (defines Stro-11),0.317822996967382,"Mki67, Top2a, Cenpf, Ube2c, Birc5, Cdk1",6,6
+immune (defines Stro-5),0.019029099243002986,"Ptprc, Nkg7, Ccl5, Tyrobp",4,6
+immediate-early / stress (defines Stro-9),0.1277635020950529,"Fosb, Jund, Atf3, Nr4a1, Ier2",5,5
+C7 program (defines Stro-7),0.378243859527282,"C7, Ctsk, Apod, Ccdc80, Igfbp5",5,6
+decidual (defines Stro-8/9/10),0.5653401856610413,"Igfbp1, Foxo1, Wnt4",3,4

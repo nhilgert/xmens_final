@@ -1,0 +1,65 @@
+{
+  "purpose": "human per-cell Ulrich-subtype cosine projected onto mouse cells through the SAMap graph, by connectivity-weighted mean over cross-species neighbours",
+  "run_utc": "2026-09-04 16:01:33",
+  "joint_object": "/n/netscratch/eddy_lab/Everyone/nhilgert/2026_09_02_samap_raw_all.h5ad",
+  "source_values": "/n/lab_storage/eddy_lab/users/nhilgert/xmens_final/hammoud/fib_percell_cosine/per_cell_contrastive_cosine.csv",
+  "graph_key": "connectivities",
+  "primitive": "workflow/scripts/transfer_label_staining.project (verbatim); the existing pseudotime transfer uses the same function with source_mask=mouse",
+  "barcode_join": {
+    "strategy": "obs_names",
+    "human_side_rate": 1.0
+  },
+  "spatial_source": "obs['x_um_dbscan','y_um_dbscan']",
+  "n_joint": 90730,
+  "n_human": 47533,
+  "n_mouse": 43197,
+  "mouse_with_human_neighbour": 43196,
+  "per_subtype": {
+    "Stro-5": {
+      "n_native_human": 47533,
+      "n_projected_mouse": 43196,
+      "mouse_median": 0.010508666951971711,
+      "is_impossible_subtype": false
+    },
+    "Stro-7": {
+      "n_native_human": 47533,
+      "n_projected_mouse": 43196,
+      "mouse_median": -0.018841514477018068,
+      "is_impossible_subtype": false
+    },
+    "Stro-8": {
+      "n_native_human": 47533,
+      "n_projected_mouse": 43196,
+      "mouse_median": -0.0062352623129326955,
+      "is_impossible_subtype": false
+    },
+    "Stro-9": {
+      "n_native_human": 47533,
+      "n_projected_mouse": 43196,
+      "mouse_median": -0.002515003673029231,
+      "is_impossible_subtype": false
+    },
+    "Stro-10": {
+      "n_native_human": 47533,
+      "n_projected_mouse": 43196,
+      "mouse_median": 0.004721088506558165,
+      "is_impossible_subtype": false
+    },
+    "Stro-11": {
+      "n_native_human": 47533,
+      "n_projected_mouse": 43196,
+      "mouse_median": 0.0018432148571075157,
+      "is_impossible_subtype": false
+    }
+  },
+  "negative_controls": [
+    "Stro-1",
+    "Stro-2",
+    "Stro-3",
+    "Stro-4",
+    "Stro-6"
+  ],
+  "checks": 11,
+  "mismatches": 1,
+  "CAVEAT": "DOUBLY DERIVED. The source is a per-cell generalisation of the published cluster-level cosine (query side centred against the all-cell mean, since one cell cannot be centred across its own columns), and the projection is a weighted mean over cross-species neighbours. These are NOT the published cosines and NOT mouse-native measurements. Mouse cells with no cross-species neighbour are NaN, not zero. Read Stro-1/2/3/4/6 as the projected floor."
+}

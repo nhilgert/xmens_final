@@ -1,0 +1,17 @@
+,mean,std,max
+epithelial_cell,0.0333,0.0127,0.0978
+epithelial_ciliated,0.0272,0.0104,0.0623
+decidual_cell,0.0391,0.011,0.064
+endometrial_fibroblast,0.0289,0.0092,0.0564
+perivascular_cell,0.0444,0.0116,0.0742
+macrophage,0.0281,0.0117,0.0666
+t_cell_cd8,0.0321,0.0104,0.0615
+unk_cell_gzmb_high_itgax_high,0.0321,0.0124,0.0776
+t_cell_gamma_delta,0.0276,0.0096,0.0647
+unk_cell_gzmb_low_itgax_low,0.0335,0.0116,0.0644
+mast_cell,0.0294,0.0133,0.0768
+t_cell_regulatory,0.0305,0.0104,0.0615
+t_cell_cd4,0.031,0.0108,0.0621
+endothelial_blood,0.0324,0.0127,0.0717
+endothelial_lymph,0.0275,0.0093,0.0491
+smooth_muscle_cell,0.0307,0.0103,0.064

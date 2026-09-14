@@ -1,0 +1,31 @@
+{
+ "restored": [
+  "09_pt_genes_mi.smk",
+  "20_liana.smk",
+  "21_scenic.smk",
+  "Snakefile"
+ ],
+ "chain": {
+  "22_crossspecies": [
+   "16_liana_crossspecies.smk",
+   "90_figures.smk"
+  ],
+  "09_pt_genes_mi": [
+   "22_crossspecies.smk",
+   "90_figures.smk"
+  ],
+  "workflow/Snakefile": [
+   "rule all:",
+   "input:",
+   "\"results/tables/conservation.csv\","
+  ],
+  "workflow/rules/90_figures.smk": [
+   "input:",
+   "\"results/tables/conservation.csv\","
+  ]
+ },
+ "verify": {
+  "dryrun_rc": 1,
+  "tail": "lgert/xmens_final\n  Config file(s): ['config/config.yaml']\n  Config MD5: 8a56e90916427cfa9f07f21ee7da2d46\n\nBuilding DAG of jobs...\nMissingInputException in rule slidetags in file \"/n/lab_storage/eddy_lab/users/nhilgert/xmens_final/workflow/rules/00a_slidetags.smk\", line 21:\nMissing input files for rule slidetags:\n    output: data/interim/coords/uninduced_mck8a.csv\n    wildcards: sample=uninduced_mck8a\n    affected files:\n        external/slidetags/data/uninduced_mck8a/coords/uninduced_mck8a.csv\n"
+ }
+}

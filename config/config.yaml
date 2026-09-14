@@ -1,125 +1,118 @@
-# config/config.yaml
-# All parameters/thresholds live here. Values pinned to Cevrim et al. 2025
-# (bioRxiv 2025.10.08.681007) Methods so the repo reproduces the paper.
-# The run is described by this file + config/samples.tsv.
-
 seed: 0
-
-# ---- References (cellranger count was run against these) -------------------
-# Mouse: custom transgenic genome (GsD + GqD DREADD contigs), mkref 7.2.0.
-#   Transgene FASTA/GTF preserved in preprocessing/reference/transgenes/.
-# Human: stock 10x reference (downloadable), no transgenes.
 genome_references:
   mouse:
-    name: "transgenic_mus"
-    path: "/n/lab_storage/eddy_lab/users/nhilgert/reference/transgenic_mus"
-    mkref_version: "7.2.0"
-    transgenes: ["CHRM3_Jax026220 (GqD / Chrm3*)", "GsD_Berdeaux (GsD)"]
-    note: "custom build; not a stock refdata. See preprocessing/reference/."
+    name: transgenic_mus
+    path: /n/lab_storage/eddy_lab/users/nhilgert/reference/transgenic_mus
+    mkref_version: 7.2.0
+    transgenes:
+    - CHRM3_Jax026220 (GqD / Chrm3*)
+    - GsD_Berdeaux (GsD)
+    note: custom build; not a stock refdata. See preprocessing/reference/.
   human:
-    name: "refdata-gex-GRCh38-2024-A"
-    path: "/n/lab_storage/eddy_lab/users/nhilgert/reference/human/refdata-gex-GRCh38-2024-A"
-
+    name: refdata-gex-GRCh38-2024-A
+    path: /n/lab_storage/eddy_lab/users/nhilgert/reference/human/refdata-gex-GRCh38-2024-A
 cellranger:
-  count_version: "7.2.0"
-  mkfastq_version: "8.0.1"
-
-# ---- Ambient RNA removal (upstream of this DAG; documented for provenance) -
+  count_version: 7.2.0
+  mkfastq_version: 8.0.1
 cellbender:
-  version: "0.2.2"                      # installed from git tag v0.2.2 into cellbender_022
+  version: 0.2.2
   total_droplets_included: 50000
-  env: "cellbender_022"                 # clean 0.2.2 env (libstdcxx-ng, no LD hack)
-  # CellRanger raw matrix per lane; {lane} is resolved from the sample's coords_id
-  cellranger_raw: "/n/lab_storage/eddy_lab/users/nhilgert/decidualization/revisions/velocity/{lane}/cellranger/outs/raw_feature_bc_matrix.h5"
-  # PARALLEL regen dir -- NEVER the real xmens_inputs/. Keeps the validated baseline intact.
-  output_dir: "/n/lab_storage/eddy_lab/users/nhilgert/decidualization/xmens_inputs_regen"
-
-# ---- Slide-tags coords (produced by the vendored fork; see 00a) -----------
-# export_coords.R writes <coords_id>_coords.csv into this dir. We use the
-# DBSCAN-placed coordinates (more permissive superset of x_um/y_um).
+  env: cellbender_022
+  cellranger_raw: /n/lab_storage/eddy_lab/users/nhilgert/decidualization/revisions/velocity/{lane}/cellranger/outs/raw_feature_bc_matrix.h5
+  output_dir: /n/lab_storage/eddy_lab/users/nhilgert/decidualization/xmens_inputs_regen
 coords:
-  dir: "/n/lab_storage/eddy_lab/users/nhilgert/Slide-tags/coords"
-  pattern: "{coords_id}_coords.csv"
-  x_col: "dbscan_1"
-  y_col: "dbscan_2"
-
-# ---- Per-rule conda environments ------------------------------------------
-# Rules that need a tool absent from the driver env (rsc_uv / envs/base) point
-# their Snakemake `conda:` directive at one of these. Rules WITHOUT an entry run
-# in whatever env invoked snakemake (the scanpy spine). Absolute paths for now;
-# for the public repo, replace with committed environment.yml files.
-#   - doubletdetection: DoubletDetection 4.2 + scanpy (used by 01_qc). The
-#     louvain dep won't build under uv/pip, so this stays conda. CLEAN UP LATER.
-#   - scenic / samap: existing conda envs (placeholders; used by 21_scenic /
-#     22_crossspecies when those rules are wired). Confirm paths before use.
+  dir: /n/lab_storage/eddy_lab/users/nhilgert/Slide-tags/coords
+  pattern: '{coords_id}_coords.csv'
+  x_col: dbscan_1
+  y_col: dbscan_2
 envs:
-  doubletdetection: "/n/lab_storage/eddy_lab/users/nhilgert/.conda/envs/cuda11.8_env"
-  scenic: "/n/lab_storage/eddy_lab/users/nhilgert/.conda/envs/pyscenic"
-  samap: "/n/lab_storage/eddy_lab/users/nhilgert/.conda/envs/SAMap"
-  # r: "/n/lab_storage/eddy_lab/users/nhilgert/.conda/envs/<analysis-R-env>"  # add when R rules land
-
-# ---- Quality control (Methods: "Quality control") -------------------------
-# CellBender-corrected counts; >=500 UMIs; 3-MAD adaptive filters on
-# log1p total counts and n_genes; mito fraction > 8% excluded.
+  doubletdetection: /n/lab_storage/eddy_lab/users/nhilgert/.conda/envs/cuda11.8_env
+  scenic: /n/lab_storage/eddy_lab/users/nhilgert/.conda/envs/pyscenic
+  samap: /n/lab_storage/eddy_lab/users/nhilgert/.conda/envs/SAMap
 qc:
-  min_counts: 500          # CellBender-corrected UMIs
-  n_mads: 3                # MADs on log1p(total_counts) and log1p(n_genes)
-  max_pct_mito: 8          # paper value (NOT 20)
+  min_counts: 500
+  n_mads: 3
+  max_pct_mito: 8
 mito_prefix:
-  mouse: "mt-"
-  human: "MT-"
-
-# ---- Doublet removal (DoubletDetection BoostClassifier) -------------------
+  mouse: mt-
+  human: MT-
 doublet:
-  package: "doubletdetection"
-  version: "4.2"
+  package: doubletdetection
+  version: '4.2'
   n_iters: 40
   voter_thresh: 0.5
-  p_thresh: 1.0e-7         # cluster p-value cutoff per iteration
-  n_top_var_genes: 3000    # n_top_var_genes for the BoostClassifier (matches notebook)
-
-# ---- Dimensionality reduction / integration (scVI) ------------------------
-# Per-species concatenated objects; scVI on 3000 seurat_v3 HVGs (excl mito+
-# ribo), sample_id as batch key, 2 layers, 30 latent, NB likelihood.
+  p_thresh: 1.0e-07
+  n_top_var_genes: 3000
 scvi:
   n_hvg: 3000
-  hvg_flavor: "seurat_v3"
+  hvg_flavor: seurat_v3
   n_latent: 30
   n_layers: 2
-  batch_key: "sample"
+  batch_key: sample
   exclude_mito_ribo: true
-
 leiden:
-  resolution: 0.1          # chosen for coarse cell-type annotation
+  resolution: 0.1
   knn: 100
-
-# ---- Pseudotime (diffusion) -----------------------------------------------
 pseudotime:
   knn: 15
   n_diffmap: 10
-
-# ---- Pseudotime-associated genes (mutual information) ---------------------
+pseudotime_tests:
+  input_h5ad: data/interim/migrated/xmens_annotation_v1_20260810/final_mouse_migrated.h5ad
+  test_output_dir: data/interim/_pt_test_20260811
+  n_hvg: 3000
+  n_latent: 30
+  n_neighbors: 15
+  n_diffmap: 15
+  max_epochs: 400
+  seed: 0
+  timepoints:
+    1dpi_late:
+      timepoint: 1_dpi_late
+      stage_tag: 1dpi_late
+      root_dc: 1
+      root_sign: 1
+      root_subtype: null
+      apop_quantile: null
+      exclude_apoptotic_subtype: true
+    4dpi:
+      timepoint: 4_dpi_bleeding
+      stage_tag: 4dpi
+      root_dc: 1
+      root_sign: 1
+      root_subtype: null
+      apop_quantile: null
+      exclude_apoptotic_subtype: true
+    3dpi:
+      timepoint: 3_dpi
+      stage_tag: 3dpi
+      root_dc: null
+      root_sign: null
+      root_subtype: null
+      apop_quantile: null
+      exclude_apoptotic_subtype: true
 mi:
   n_neighbors: 3
   n_perm: 1000
   q_thresh: 0.05
   top_percentile: 90
-
-# ---- Expected post-QC cell counts (regression targets from the paper) -----
-# Use to sanity-check a full pipeline run; not enforced.
 expected_cells:
   mouse_postqc: 57242
   human_postqc: 64553
-# ---- Lineage sub-objects (stage 04 output -> stage 04b input) --------------
-# Slugs must match data/interim/lineages/{species}_{lineage}.h5ad on disk, and
-# the LINEAGE_SLUG maps in the 04 curation notebooks. Species-specific: mouse
-# has perimetrium; human's vascular lineage is annotated "perivascular cells".
 lineages:
-  mouse: [stromal, epithelial, immune, vascular, smc, perimetrium]
-  human: [stromal, epithelial, immune, perivascular, smc]
-
-
-repo: "/n/lab_storage/eddy_lab/users/nhilgert/xmens_final"
+  mouse:
+  - stromal
+  - epithelial
+  - immune
+  - vascular
+  - smc
+  - perimetrium
+  human:
+  - stromal
+  - epithelial
+  - immune
+  - perivascular
+  - smc
+repo: /n/lab_storage/eddy_lab/users/nhilgert/xmens_final
 annotation_references:
   mouse: /n/lab_storage/eddy_lab/users/nhilgert/decidualization/revisions/adatas/submission/20251008_Cevrim_XMens_All_Cells.h5ad
   human: /n/lab_storage/eddy_lab/users/nhilgert/decidualization/revisions/adatas/submission/20251008_Cevrim_Human_All_Cells.h5ad
@@ -129,21 +122,215 @@ published_n:
 annotate_res:
   mouse: leiden_scVI_3.0
   human: leiden_scVI_3.0
-
 clustree:
-  targets: [mouse_stromal]
-  range: {start: 0.1, stop: 0.8, step: 0.1}
-
-# ---- SAMap cross-species integration (hmmer, two paper pairings) -----------
+  targets:
+  - mouse_stromal
+  range:
+    start: 0.1
+    stop: 0.8
+    step: 0.1
 samap:
-  root:            /n/lab_storage/eddy_lab/users/nhilgert/decidualization/revisions/samap_integrate
-  coords_root:     /n/lab_storage/eddy_lab/users/nhilgert/decidualization/revisions/crossspecies_radial_gp
-  proteomes_root:  /n/lab_storage/eddy_lab/users/nhilgert/data/proteomes
-  python:          /n/lab_storage/eddy_lab/users/nhilgert/xmens_final/envs/samap/.venv/bin/python
-  saturn_python:   /n/lab_storage/eddy_lab/users/nhilgert/.uv/envs/saturn_uv/bin/python
-  phmmer:          /n/lab_storage/eddy_lab/users/nhilgert/software/hmmer-3.4/src/phmmer
-  n_iter:          3
-  pairs: ["menstrual_x_4dpi_hmmer", "secretory_x_1dpi_late_hmmer"]
+  root: /n/lab_storage/eddy_lab/users/nhilgert/decidualization/revisions/samap_integrate
+  coords_root: /n/lab_storage/eddy_lab/users/nhilgert/decidualization/revisions/crossspecies_radial_gp
+  proteomes_root: /n/lab_storage/eddy_lab/users/nhilgert/data/proteomes
+  python: /n/lab_storage/eddy_lab/users/nhilgert/xmens_final/envs/samap/.venv/bin/python
+  saturn_python: /n/lab_storage/eddy_lab/users/nhilgert/.uv/envs/saturn_uv/bin/python
+  phmmer: /n/lab_storage/eddy_lab/users/nhilgert/software/hmmer-3.4/src/phmmer
+  n_iter: 3
+  pairs:
+  - menstrual_x_uninduced_hmmer
+  - menstrual_x_1dpi_early_hmmer
+  - menstrual_x_1dpi_late_hmmer
+  - menstrual_x_2dpi_hmmer
+  - menstrual_x_3dpi_hmmer
+  - menstrual_x_4dpi_hmmer
+  - secretory_x_uninduced_hmmer
+  - secretory_x_1dpi_early_hmmer
+  - secretory_x_1dpi_late_hmmer
+  - secretory_x_2dpi_hmmer
+  - secretory_x_3dpi_hmmer
+  - secretory_x_4dpi_hmmer
   pt_h5ad:
-    menstrual_x_4dpi_hmmer:      /n/lab_storage/eddy_lab/users/nhilgert/decidualization/revisions/adatas/pseudotime/adata_4dpi.h5ad
+    menstrual_x_4dpi_hmmer: /n/lab_storage/eddy_lab/users/nhilgert/decidualization/revisions/adatas/pseudotime/adata_4dpi.h5ad
     secretory_x_1dpi_late_hmmer: /n/lab_storage/eddy_lab/users/nhilgert/decidualization/revisions/adatas/pseudotime/adata_1dpi.h5ad
+mi_pseudotime:
+  python: /n/lab_storage/eddy_lab/users/nhilgert/.uv/envs/rsc_uv/bin/python
+  n_chunks: 200
+  perms: 1001
+  min_counts: 10
+  layer: log1p
+  runs:
+    mouse_dpt:
+      h5ad: pseudotime_mouse_v2_induced_no_apop/2026_08_28_mouse_fibdec_pseudotime_rooted.h5ad
+      pt_key: dpt_pseudotime
+    mouse_palantir_rtk:
+      h5ad: pseudotime_mouse_v2_induced_no_apop/2026_08_28_mouse_fibdec_pseudotime_rooted.h5ad
+      pt_key: palantir_pt_rtk
+    human_dpt:
+      h5ad: results/isodepth/human_fibdec_isodepth.h5ad
+      pt_key: dpt_pseudotime
+    human_isodepth:
+      h5ad: results/isodepth/human_fibdec_isodepth.h5ad
+      pt_key: isodepth_consensus
+    mouse_isodepth:
+      h5ad: results/isodepth/mouse_fibdec_isodepth.h5ad
+      pt_key: isodepth_consensus
+spatial_gp:
+  python: /n/lab_storage/eddy_lab/users/nhilgert/.uv/envs/rsc_uv/bin/python
+  runs:
+    mouse_dpt_1dpi_late:
+      h5ad: pseudotime_mouse_v2_induced_no_apop/2026_08_28_mouse_fibdec_pseudotime_rooted.h5ad
+      pt_key: dpt_pseudotime
+      timepoint: 1_dpi_late
+    mouse_dpt_4dpi:
+      h5ad: pseudotime_mouse_v2_induced_no_apop/2026_08_28_mouse_fibdec_pseudotime_rooted.h5ad
+      pt_key: dpt_pseudotime
+      timepoint: 4_dpi_bleeding
+scenic:
+  python: /n/lab_storage/eddy_lab/users/nhilgert/.conda/envs/pyscenic/bin/python
+  rev: /n/lab_storage/eddy_lab/users/nhilgert/decidualization/revisions/scenic_v2_2026_08_28   # v2 lane (2026_08_28 fib/dec deliverables); June lane at revisions/scenic
+  n_seeds: 100
+  base_seed: 1000
+  sketch: 15k   # switched from full 2026-09-08: full-object GRNBoost2 = 9-24 h/seed, 36/200 done after 16 h
+  mode: weighted_soft
+  species:
+  - mouse
+  - human
+  source_h5ad:
+    mouse: /n/netscratch/eddy_lab/Everyone/nhilgert/2026_08_28_Cevrim_XMens_Only_Fib_Dec_Cells.h5ad
+    human: /n/netscratch/eddy_lab/Everyone/nhilgert/2026_08_28_Cevrim_Human_Only_Fib_Dec_Cells.h5ad
+  raw_layer: counts
+  timepoint_col: timepoint
+  celltype_col: cell_subtype   # composition printout in the loom log (sketch vs full)
+  sketch_per_seed: true   # 2026-09-08: a new geosketch per GRN seed (bootstrap over cells); false = one shared sketch
+  sketch_seed: 0          # shared-sketch seed, used only when sketch_per_seed is false
+liana:
+  # 2026-09-08: ported to workflow/scripts/liana/ and re-pointed at the 2026_08_28 deliverable
+  # objects on netscratch (per user 2026-09-08). NOTE: data/deliverables/2026_08_28_Cevrim_XMens_All_Cells.h5ad
+  # (Sep 2 15:04) differs in content from the netscratch copy (15:15, same size); Human copies are identical.
+  # Previous config (June 2026 inputs in decidualization/revisions/liana_pipeline_final) is in
+  # config/config.yaml.pre_liana_port_20260908.bak.
+  python: /n/lab_storage/eddy_lab/users/nhilgert/.uv/envs/rsc_uv/bin/python
+  scripts_dir: workflow/scripts/liana
+  cache_dir: /n/lab_storage/eddy_lab/users/nhilgert/.cache_scratch
+  expr_prop: 0.1
+  cell_type_key: cell_type_merged # derived from cell_subtype via cell_type_map (immune lineages + coarse stroma); alt: cell_type, cell_subtype
+  cell_type_map: resources/liana_cell_type_map.yaml   # port of merge_immune_xspecies.ipynb; adds cell_type_merged + cell_type_xspecies
+  orthology: resources/orthology/ensembl_human_mouse_components.tsv   # Ensembl 116 Compara; cross-species join uses homology_type == ortholog_one2one only
+  orthology_homology_type: ortholog_one2one
+  pseudotime:                     # rule liana_pt (17_liana_pseudotime.smk); fib/dec lineage only
+    bins: 5                       # equal-count quantile bins of the rank-normalised DPT
+    outdir: results/liana_pseudotime
+    runs:
+      mouse:
+        h5ad: /n/netscratch/eddy_lab/Everyone/nhilgert/2026_08_28_Cevrim_XMens_Only_Fib_Dec_Cells.h5ad
+        pt_key: dpt_pseudotime_rank_norm          # 43,197 cells, 0-1, no NaN
+      human:
+        h5ad: /n/netscratch/eddy_lab/Everyone/nhilgert/2026_08_28_Cevrim_Human_Only_Fib_Dec_Cells.h5ad
+        pt_key: dpt_pseudotime_rank_normalized    # 47,533 cells, 0-1, no NaN (note: name differs from mouse)
+  crossspecies:                   # rule liana_crossspecies (16_liana_crossspecies.smk)
+    liana_root: results/liana/no_commot
+    outdir: results/liana_crossspecies
+  counts_layer: counts            # log1p is recomputed: log1p(normalize_total(counts, target_sum))
+  target_sum: 10000
+  rank_column: magnitude_rank     # LR discovery (2026-09-09): magnitude_rank < rank_cutoff (Dimitrov et al. 2024); alt: specificity_rank
+  rank_cutoff: 0.05
+  top_n_lr: null                  # optional cap on discovered LR pairs after the filter; null = no cap
+  skip_spatial_no_commot: true    # no_commot = non-spatial deliverable: stop after rank_aggregate (no Moran's I / spatial plots)
+  moran_i_min: 0.01               # only used when a spatial arm runs (bivariate, or skip off); BH-FDR <= 0.05 always applied
+  variants:                       # variants built by liana_ccc_all; bivariate (spatial figures arm) is run on demand:
+  - no_commot                     #   snakemake ... results/liana/bivariate/{human,mouse}/.liana_complete
+  runs:
+    human:
+      h5ad: /n/netscratch/eddy_lab/Everyone/nhilgert/2026_08_28_Cevrim_Human_All_Cells.h5ad
+      timepoints:
+      - menstrual
+      - secretory
+    mouse:
+      h5ad: /n/netscratch/eddy_lab/Everyone/nhilgert/2026_08_28_Cevrim_XMens_All_Cells.h5ad
+      timepoints:
+      - uninduced
+      - 1_dpi_early
+      - 1_dpi_late
+      - 2_dpi
+      - 3_dpi
+      - 4_dpi_bleeding
+pt_per_timepoint:
+  python: /n/lab_storage/eddy_lab/users/nhilgert/.uv/envs/rsc_uv/bin/python
+  drop_subtypes:
+    mouse:
+    - decidual_apoptotic
+    human: []
+  h5ad:
+    mouse: data/deliverables/2026_08_28_Cevrim_XMens_Only_Fib_Dec_Cells.h5ad
+    human: data/deliverables/2026_08_28_Cevrim_Human_Only_Fib_Dec_Cells.h5ad
+  timepoints:
+    mouse:
+    - uninduced
+    - 1_dpi_early
+    - 1_dpi_late
+    - 2_dpi
+    - 3_dpi
+    - 4_dpi_bleeding
+    human:
+    - secretory
+    - menstrual
+
+# ---------------------------------------------------------------------------
+# spatial_qc (stage 04f) -- "blank, don't drop" spatial-coordinate QC applied
+# AFTER annotation. Purely spatial: only coordinates drive it. Ported from
+# notebooks/01b_spatial_qc_mouse.ipynb. Mouse only for now (human deferred until
+# the slide-tags positioning rerun). Rotations 0 = identity (no rotation yet).
+# ---------------------------------------------------------------------------
+spatial_qc:
+  species: [mouse]           # human deferred; add "human" after the slidetags rerun
+  x_key: x_um_dbscan
+  y_key: y_um_dbscan
+  sample_key: sample
+  timepoint_key: timepoint
+  k: 5                       # kNN neighbours for local-density distance
+  floor_um: 10.0             # min_knn_dist_um -- physical resolution floor
+  max_at_coord: 1            # >1 cell at an identical coord -> degenerate
+  n_mads: 5.0                # far cut: median + n_mads*mad_scale*MAD ... (was 3.0 with mad_scale 1.4826 = 4.45 raw MADs)
+  mad_scale: 1.0             # 1.0 = plain MADs; 1.4826 would express n_mads in sigma units
+  log_scale: true            # ... computed on log1p(distance)
+  mad_group: timepoint       # far threshold pooled per timepoint
+  action: blank
+  drop_unmapped: false       # coordinate-less cells are KEPT (normal for slide-tags)
+  tp_order:
+    mouse: [uninduced, 1_dpi_early, 1_dpi_late, 2_dpi, 3_dpi, 4_dpi_bleeding]
+  # Per-timepoint rigid rotation about each puck centre. All 0 for now.
+  rotations:
+    mouse:
+      uninduced: 0.0
+      1_dpi_early: 0.0
+      1_dpi_late: 0.0
+      2_dpi: 0.0
+      3_dpi: 0.0
+      4_dpi_bleeding: 0.0
+  # Physical cross-sections per puck. Every kept cell gets tissue_section = "{sample}__A"
+  # unless its timepoint is listed here, in which case a straight line in the coordinate
+  # frame splits it: y > slope*x + intercept -> `above` label, else `below`. Uninduced is
+  # the only mouse timepoint with two cross-sections on one puck (both pucks share a frame;
+  # line chosen 2026-09-02, agrees with k-means(2) on all 6,596 cells, margin >= 127 um).
+  sections:
+    mouse:
+      - {timepoint: uninduced, line: {slope: 1.0, intercept: -500}, above: A, below: B}
+  # Hand-drawn exclusion regions (um, on x_um_dbscan/y_um_dbscan) the distance
+  # statistics miss. The 3-dpi central island is deliberately NOT boxed -- it is
+  # transcriptionally coherent, a real spatial domain.
+  exclusions:
+    mouse:
+      # --- uninduced: union of all exclusions in minimal form (rewritten 2026-09-02). Each box verified to cover every
+      #     previously-boxed cell and to add only the user-named stragglers. Both pucks (mck8a/8b) share one frame.
+      - {timepoint: uninduced,   y_gt: 5000}                 # above both sections
+      - {timepoint: uninduced,   x_lt: 500}                  # left margin
+      - {timepoint: uninduced,   x_lt: 3000, y_lt: 1950}     # below-left; absorbs old (x<3000,y<1500) + (2500<x<3000,1500<y<2000) + clump [1300,1600]x[1700,1900]
+      - {timepoint: uninduced,   x_lt: 3400, y_lt: 700}      # low strip for the isolated pair at [3000,3400]x[500,600]; right-section rim (y>=1036) untouched
+      - {timepoint: uninduced,   x_gt: 5400, y_gt: 3000}     # top-right stragglers (paired positions in 8a/8b)
+      # --- induced timepoints
+      - {timepoint: 1_dpi_early , x_lt: 750}
+      - {timepoint: 2_dpi       , y_gt: 7000}
+      - {timepoint: 3_dpi       , y_gt: 9000}
+      - {timepoint: 3_dpi       , y_lt: 1500, x_gt: 6500}
+      - {timepoint: 3_dpi       , x_gt: 9000, y_gt: 8000}

@@ -1,3 +1,4 @@
+# COMPLEMENTARY to 10_samap.smk: this file is the VANILLA/RAW arm (the paper arm); 10 is the transfer arm. Both are live. (2026-09-13)
 # workflow/rules/10b_samap_raw.smk
 # =============================================================================
 # SAMap RAW-COUNTS arm — the all-timepoint ("full object") fib/dec integration

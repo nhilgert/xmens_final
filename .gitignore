@@ -43,3 +43,9 @@ figures/
 config/**/*.bak-*
 profiles/**/*.bak-*
 resources/*.pre-finefix
+dataverse/
+out/
+.ipynb_checkpoints/
+.venv/
+archive/pseudotime_mouse_v2_induced_no_apop/
+*.loom

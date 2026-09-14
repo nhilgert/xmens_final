@@ -1,0 +1,43 @@
+{
+  "purpose": "per-group per-gene mean expression and fraction expressing, for the atlas marker panels \u2014 the only part of a dotplot that needs the .h5ad. All rendering (light/dark, layout, ordering) happens downstream from this CSV with no further cluster access.",
+  "run_utc": "2026-09-04 04:30:20",
+  "n_genes": 80,
+  "n_per_panel": 8,
+  "per_species": {
+    "human": {
+      "source": "/n/lab_storage/eddy_lab/users/nhilgert/xmens_final/data/interim/2026_08_05_Cevrim_Human_Only_Fib_Dec_Cells.h5ad",
+      "n_cells": 47533,
+      "groups": {
+        "fine_refined": 1,
+        "leiden_0.5": 6
+      }
+    },
+    "mouse": {
+      "source": "/n/netscratch/eddy_lab/Everyone/nhilgert/2026_08_28_Cevrim_XMens_Only_Fib_Dec_Cells.h5ad",
+      "n_cells": 43197,
+      "groups": {
+        "cell_subtype": 9,
+        "fine_refined": 9
+      }
+    }
+  },
+  "positive_panels": [
+    "Stro-7",
+    "Stro-8",
+    "Stro-10",
+    "Stro-11"
+  ],
+  "claimed_absent": [
+    "Stro-5",
+    "Stro-9"
+  ],
+  "negative_controls": [
+    "Stro-1",
+    "Stro-2",
+    "Stro-4",
+    "Stro-6"
+  ],
+  "checks": 4,
+  "mismatches": 0,
+  "CAVEAT": "panel_quality is load-bearing: Stro-9 and Stro-10 have NO gene clearing a specificity margin at any threshold, so their panels are flagged best_available and any figure using them must state that the genes are not subtype-specific."
+}

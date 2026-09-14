@@ -1,0 +1,7 @@
+query,rung1_self,rung1_recovers,rung2_self,rung2_min,rung2_recovers,atlas_call
+0,0.9931,1.0,0.7323,0.6094,1.0,Stro-11 (n.s.)
+1,0.9933,1.0,0.675,0.5321,1.0,Stro-10 dS3 confident
+2,0.9975,1.0,0.8033,0.721,1.0,-
+3,0.9949,1.0,0.7921,0.695,1.0,Stro-7 C7 confident
+4,0.9847,1.0,0.3638,0.0544,0.7333,-
+5,0.9898,1.0,0.5195,0.2078,1.0,Stro-8 dS1 probable

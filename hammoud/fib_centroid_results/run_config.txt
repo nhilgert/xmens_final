@@ -1,0 +1,8 @@
+resolution=0.5
+cluster_key=leiden_0.5
+n_panel=3000
+min_cluster_n=100
+n_boot=500
+seed=0
+n_obs=47533
+n_shared_genes=33791

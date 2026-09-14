@@ -24,17 +24,10 @@
 #     phmmer:         /n/lab_storage/eddy_lab/users/nhilgert/software/hmmer-3.4/src/phmmer
 # This file reads its own config values, so include order vs 10_samap.smk does not matter.
 #
-# ─────────────────────────────────────────────────────────────────────────────
-#  ⚠ BLOCKER before this aggregate can be trusted (or even correctly dormant):
-#  phmmer_to_samap_symbols.py hardcodes its OWN input dir and output path internally
-#  (PIPELINE_integrations.md flagged line 27 as still /n/eddy_lab). A rule's declared
-#  output MUST equal where the script actually writes. So:
-#    1. `cat scripts/phmmer_to_samap_symbols.py` — confirm the shard dir it reads and the
-#       map path it writes.
-#    2. `fixpath` that script (samap_integrate/scripts/ was NOT in the xmens_final pass).
-#    3. Replace the TWO `TODO:CONFIRM` output paths below with the fixed, actual paths.
-#  Until then the aggregate rules are structurally right but path-unverified.
-# ─────────────────────────────────────────────────────────────────────────────
+# 2026-09-10: phmmer_to_samap_symbols.py now takes --prot-dir/--out-dir (was hardcoded to the dead
+# /n/eddy_lab mount and wrote one level above hsmm/). The aggregate rules pass both explicitly, so
+# declared outputs == where the script writes. Rebuild into scratch verified byte-identical to the
+# 2026-04-24 maps (see results/tables/homology_rebuild_check.txt).
 # =============================================================================
 SAMAP_ROOT    = config["samap"]["root"]            # read here too, so include-order is irrelevant
 PROT_ROOT     = config["samap"]["proteomes_root"]
@@ -42,8 +35,10 @@ SATURN_PY     = config["samap"]["saturn_python"]
 PHMMER        = config["samap"]["phmmer"]          # ABSOLUTE path (rebuilt HMMER 3.4), NOT bare `phmmer`
 N_CHUNKS      = 32          # SLURM array 1-32 in both phmmer_*.sh
 PHMMER_EVALUE = "1e-5"      # -E from the phmmer scripts
-# expected hit totals from proteomes/check.sh — a rebuild is verifiable, not just "it ran":
-#   hu_vs_mu -> 123845 hits   |   mu_vs_hu -> 66558 hits
+# completeness check from proteomes/check.sh (counts '# CPU time' lines in the phmmer logs = finished
+# QUERY proteins, one per FASTA entry): hu_vs_mu -> 123845 = n(human proteins) | mu_vs_hu -> 66558 =
+# n(mouse proteins). NOT hit counts: the shards hold ~12.8M hit lines per direction at E<=1e-5
+# (2026-09-10 rebuild check: aggregate re-run is byte-identical to the 2026-04-24 maps).
 
 # direction -> query species subdir, query/target FASTA basenames, tbl prefix, output map basename
 _HMMER_DIRS = {
@@ -105,7 +100,6 @@ rule phmmer_aggregate_hs_to_mm:
         mm_fa  = ancient(f"{PROT_ROOT}/fasta/Mus_musculus.GRCm39.pep.all.fa"),
         script = ancient(f"{SAMAP_ROOT}/scripts/phmmer_to_samap_symbols.py"),
     output:
-        # TODO:CONFIRM against the script body + after fixpath (see header blocker).
         m = f"{SAMAP_ROOT}/homology/hsmm_hmmer/hsmm/hs_to_mm.txt",
     params:
         py = SATURN_PY,
@@ -113,7 +107,7 @@ rule phmmer_aggregate_hs_to_mm:
         f"{SAMAP_ROOT}/logs/phmmer_to_symbols_hu_vs_mu.log",
     shell:
         r"""
-        cd {SAMAP_ROOT} && {params.py} scripts/phmmer_to_samap_symbols.py hu_vs_mu > {log} 2>&1
+        {params.py} {input.script} hu_vs_mu --prot-dir {PROT_ROOT} --out-dir $(dirname {output.m}) > {log} 2>&1
         """
 
 rule phmmer_aggregate_mm_to_hs:
@@ -123,7 +117,6 @@ rule phmmer_aggregate_mm_to_hs:
         mm_fa  = ancient(f"{PROT_ROOT}/fasta/Mus_musculus.GRCm39.pep.all.fa"),
         script = ancient(f"{SAMAP_ROOT}/scripts/phmmer_to_samap_symbols.py"),
     output:
-        # TODO:CONFIRM against the script body + after fixpath (see header blocker).
         m = f"{SAMAP_ROOT}/homology/hsmm_hmmer/hsmm/mm_to_hs.txt",
     params:
         py = SATURN_PY,
@@ -131,7 +124,7 @@ rule phmmer_aggregate_mm_to_hs:
         f"{SAMAP_ROOT}/logs/phmmer_to_symbols_mu_vs_hu.log",
     shell:
         r"""
-        cd {SAMAP_ROOT} && {params.py} scripts/phmmer_to_samap_symbols.py mu_vs_hu > {log} 2>&1
+        {params.py} {input.script} mu_vs_hu --prot-dir {PROT_ROOT} --out-dir $(dirname {output.m}) > {log} 2>&1
         """
 
 # -----------------------------------------------------------------------------

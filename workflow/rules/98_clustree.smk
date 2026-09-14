@@ -46,3 +46,34 @@ rule clustree_plot:
 rule clustree:
     input:
         expand("results/figures/clustree/{target}.png", target=CLUSTREE_TARGETS),
+
+
+# ---- reference-free resolution diagnostics (2026-09-02) ---------------------
+# Stability of cluster membership across the FULL Leiden ladder stored on each
+# lineage latent (all leiden_scVI_* columns, not the clustree plotting range).
+# Backs the "deliberately over-clustered, below the churn elbow" statement in
+# Methods. Pure obs computation; runs for every lineage. No z-scores.
+
+rule ladder_stability:
+    input:
+        h5ad="data/interim/latent_{species}_{lineage}.h5ad",
+    output:
+        tsv="results/tables/clustree/{species}_{lineage}_stability.tsv",
+        summary="results/tables/clustree/{species}_{lineage}_stability_summary.tsv",
+    params:
+        res=lambda w: LINEAGE_RES(w.species, w.lineage),
+    log:
+        "logs/98_ladder_stability_{species}_{lineage}.log",
+    script:
+        "../scripts/ladder_stability.py"
+
+
+rule stability_summary:
+    input:
+        [f"results/tables/clustree/{sp}_{lin}_stability_summary.tsv"
+         for sp, lins in LINEAGES.items() for lin in lins],
+    output:
+        "results/tables/clustree/stability_summary_all_lineages.tsv",
+    run:
+        import pandas as pd
+        pd.concat([pd.read_csv(f, sep="\t") for f in input]).to_csv(output[0], sep="\t", index=False)

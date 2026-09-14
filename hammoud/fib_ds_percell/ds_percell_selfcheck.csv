@@ -1,0 +1,7 @@
+claim,recomputed,recorded,status
+a raw integer count matrix was located,1,1,PASS
+the dS1 anchor IGFBP1 is present in the count matrix,1,1,PASS
+the defining TF axis genes are present,1,1,PASS
+every cell carries a leiden_0.5 label,47533,47533,PASS
+total counts are positive for every cell,1,1,PASS
+counts are non-negative integers,1,1,PASS

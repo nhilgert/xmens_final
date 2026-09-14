@@ -124,14 +124,18 @@ def validate_h5ad(path: Path, species: str, role: str, vocab: dict):
     invalid_types = sorted(set(types) - allowed_species)
     if invalid_types:
         failures.append(f"invalid {species} cell_type values: {invalid_types}")
-    _, subtype_parent = canonical_sets(vocab)
-    invalid_subtypes = sorted(set(subtypes) - {""} - set(subtype_parent))
+    canonical_types, subtype_parent = canonical_sets(vocab)
+    empty_count = int((subtypes == "").sum())
+    if empty_count:
+        failures.append(
+            f"cell_subtype contains {empty_count} empty values; expected coarse-fill")
+    invalid_subtypes = sorted(set(subtypes) - canonical_types - set(subtype_parent))
     if invalid_subtypes:
         failures.append(f"invalid cell_subtype values: {invalid_subtypes}")
     invalid_pairs = sorted({
         (cell_type, subtype)
         for cell_type, subtype in zip(types, subtypes)
-        if subtype and subtype_parent.get(subtype) != cell_type
+        if subtype != cell_type and subtype_parent.get(subtype) != cell_type
     })
     if invalid_pairs:
         failures.append(f"invalid subtype-parent pairs: {invalid_pairs}")
@@ -149,13 +153,23 @@ def validate_h5ad(path: Path, species: str, role: str, vocab: dict):
     if species == "human" and role in {"refined", "final", "all_deposit"}:
         gate("endothelial_blood", 828, int((subtypes == "endothelial_blood").sum()))
         gate("endothelial_lymph", 506, int((subtypes == "endothelial_lymph").sum()))
-        gate("perivascular_blank", 471,
-             int(((types == "perivascular_cell") & (subtypes == "")).sum()))
-        gate("nonciliated_epithelial_blank", 10608,
-             int(((types == "epithelial_cell") & (subtypes == "")).sum()))
+        gate("cell_subtype_empty", 0, empty_count)
+        for label, expected in (("decidual_cell", 21648),
+                                ("endometrial_fibroblast", 25885),
+                                ("epithelial_cell", 10608),
+                                ("perivascular_cell", 471),
+                                ("smooth_muscle_cell", 2084)):
+            gate(f"{label}_coarse_subtype", expected,
+                 int(((types == label) & (subtypes == label)).sum()))
     if species == "mouse" and role in {"refined", "final", "all_deposit"}:
         gate("endothelial_blood", 3487, int((subtypes == "endothelial_blood").sum()))
         gate("endothelial_lymph", 0, int((subtypes == "endothelial_lymph").sum()))
+        gate("cell_subtype_empty", 0, empty_count)
+        for label, expected in (("epithelial_cell", 6265),
+                                ("smooth_muscle_cell", 1443),
+                                ("perimetrial_cell", 550)):
+            gate(f"{label}_coarse_subtype", expected,
+                 int(((types == label) & (subtypes == label)).sum()))
 
     if role != "reannotated":
         if obj.uns.get("annotation_schema_version") != vocab["schema_version"]:

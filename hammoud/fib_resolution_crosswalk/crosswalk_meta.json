@@ -1,0 +1,125 @@
+{
+  "purpose": "map fib_leiden_c7.ipynb leiden_0.8 clusters onto the compiled notebook's leiden_0.5 clusters",
+  "run_utc": "2026-09-03 20:43:00",
+  "leiden_0.8": {
+    "source_object": "/n/lab_storage/eddy_lab/users/nhilgert/xmens_final/data/interim/2026_08_05_Cevrim_Human_Only_Fib_Dec_Cells.h5ad",
+    "source_is_notebook_original": false,
+    "notebook_original_path": "/n/netscratch/eddy_lab/Everyone/nhilgert/08_21/2026_08_21_Cevrim_Human_Only_Fib_Dec_Cells.h5ad",
+    "notebook_original_status": "purged from netscratch",
+    "route_used": "stored graph 'neighbors_scVI_100'",
+    "n_neighbors": null,
+    "call": "sc.tl.leiden(resolution=0.8, flavor='igraph', n_iterations=2, directed=False, random_state=0)",
+    "recomputed_sizes": {
+      "0": 8220,
+      "1": 4207,
+      "2": 9967,
+      "3": 5056,
+      "4": 12220,
+      "5": 5882,
+      "6": 1235,
+      "7": 746
+    },
+    "recorded_sizes": {
+      "0": 8220,
+      "1": 4207,
+      "2": 9967,
+      "3": 5056,
+      "4": 12220,
+      "5": 5882,
+      "6": 1235,
+      "7": 746
+    },
+    "reproduces_notebook_exactly": true,
+    "all_routes_tried": [
+      {
+        "route": "stored graph 'neighbors_scVI_100'",
+        "n_clusters": 8,
+        "sizes": {
+          "0": 8220,
+          "1": 4207,
+          "2": 9967,
+          "3": 5056,
+          "4": 12220,
+          "5": 5882,
+          "6": 1235,
+          "7": 746
+        },
+        "reproduces": true
+      }
+    ]
+  },
+  "leiden_0.5": {
+    "source": "/n/lab_storage/eddy_lab/users/nhilgert/xmens_final/hammoud/fib_centroid_results/cluster_assignments.csv",
+    "recomputed": false,
+    "note": "read from the per-cell assignments written by run_mapping.py (neighbors_key='nbr30', 2026_08_28 deliverable); not recomputed here",
+    "sizes": {
+      "0": 9383,
+      "1": 11103,
+      "2": 20555,
+      "3": 4657,
+      "4": 791,
+      "5": 1044
+    }
+  },
+  "n_cells_crosstabbed": 47533,
+  "headline": {
+    "08_c2": {
+      "why": "module's MOST specific cluster at 0.8 (z=+12.46, p=0.0010)",
+      "n": 9967,
+      "top": [
+        [
+          "1",
+          0.6446
+        ],
+        [
+          "2",
+          0.277
+        ],
+        [
+          "0",
+          0.0727
+        ]
+      ]
+    },
+    "08_c3": {
+      "why": "module's LEAST specific cluster at 0.8 (z=-10.99, p=1.0000)",
+      "n": 5056,
+      "top": [
+        [
+          "2",
+          0.8594
+        ],
+        [
+          "1",
+          0.1347
+        ],
+        [
+          "3",
+          0.0032
+        ]
+      ]
+    },
+    "05_c3": {
+      "why": "the compiled notebook's Stro-7 winner (leiden 0.5 cluster 3)",
+      "n": 4657,
+      "top": [
+        [
+          "5",
+          0.9397
+        ],
+        [
+          "4",
+          0.0429
+        ],
+        [
+          "2",
+          0.0092
+        ]
+      ]
+    }
+  },
+  "checks": 4,
+  "mismatches": 0,
+  "trust": "exact \u2014 the recomputed 0.8 clustering matches the notebook's printed sizes cell for cell",
+  "caveat": "the two clusterings come from different neighbour graphs (scVI-based vs nbr30) and, for 0.8, a rebuilt graph; this is a cell-level contingency table, not a claim that the two embeddings are equivalent"
+}

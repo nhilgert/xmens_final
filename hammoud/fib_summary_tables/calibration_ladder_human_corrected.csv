@@ -1,0 +1,6 @@
+rung,kind,score,best_non_match,recovery,note
+"1. split-half (same cells, same assay)",positive control - absolute ceiling,0.9922,0.5194,150/150,two halves of the same cells; upper bound no cross-dataset mapping can reach
+"2. cross-sample (same assay, different sample)",positive control - realistic ceiling,0.6477,0.3673,172/180,biological + technical variation between the two sides
+3a. real atlas -> Stro-7 C7 fibroblast,OBSERVED,0.343,,6/6 sections,"cross-assay, cross-donor, cross-lab"
+3b. real atlas -> Stro-10 dS3,OBSERVED,0.3894,,6/6 sections,"cross-assay, cross-donor, cross-lab"
+4. structurally impossible subtypes,negative control - floor,0.0813-0.1235,,0 reciprocal,Stro-1/2/3/4/6 cannot be present in a fibroblast/decidual object

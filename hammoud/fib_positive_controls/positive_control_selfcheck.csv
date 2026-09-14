@@ -1,0 +1,9 @@
+claim,recomputed,recorded,status
+atlas fibroblast columns,6,6,PASS
+human: shared genes match the published run,33791,33791,PASS
+human: cluster count equals the atlas column count (so scores are comparable),6,6,PASS
+human: centroids reproduce the stored cluster_centroids.parquet,0.0,0.0,PASS
+human RUNG 1: every cluster recovers itself in every split,1,1,PASS
+human RUNG 1: every self-recovery is reciprocal,1,1,PASS
+human RUNG 2: self-recovery rate across sample pairs,0.956,1.0,PASS
+mouse RUNG 1: every population recovers itself in every split,1,1,PASS

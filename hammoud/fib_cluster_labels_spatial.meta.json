@@ -1,0 +1,19 @@
+{
+  "written_utc": "2026-09-04 14:28:43",
+  "n_cells": 47533,
+  "resolutions": {
+    "leiden_0.5": 6,
+    "leiden_0.8": 8,
+    "leiden_1.0": 10,
+    "leiden_1.2": 11
+  },
+  "n_with_coordinates": 33250,
+  "coordinate_note": "30% of nuclei have no Slide-tags coordinate; the dropout is uneven (~40% of menstrual vs ~20% of secretory cells), so a spatial panel shows a biased subset",
+  "provenance": {
+    "leiden_0.5": "pipeline cluster_assignments.csv (published)",
+    "leiden_0.8": "recomputed 2026-09-03 from the stored neighbors_scVI_100 graph and verified cell-for-cell against fib_leiden_c7.ipynb's cluster sizes",
+    "leiden_1.0": "recomputed 2026-09-04 from the same stored neighbors_scVI_100 graph \u2014 UNVERIFIED, no prior run to compare against",
+    "leiden_1.2": "recomputed 2026-09-04 from the same stored neighbors_scVI_100 graph \u2014 UNVERIFIED, no prior run to compare against",
+    "coordinates_and_metadata": "fib_centroid_results/per_cell_subtype_scores.csv"
+  }
+}

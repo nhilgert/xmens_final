@@ -1,0 +1,8 @@
+,mean,std,max
+epithelial_cell,0.039,0.0103,0.0628
+decidual_cell,0.0389,0.0129,0.0729
+endometrial_fibroblast,0.0277,0.0109,0.0618
+perivascular_cell,0.0415,0.0116,0.0682
+immune_cell,0.0321,0.0134,0.0713
+endothelial_cell,0.0284,0.011,0.0702
+smooth_muscle_cell,0.0297,0.0128,0.0719

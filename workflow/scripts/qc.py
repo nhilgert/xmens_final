@@ -8,7 +8,7 @@ Procedure (Scanpy + DoubletDetection), faithful to qc notebook:
   2. Hard floor: >= min_counts (500) total counts.
   3. Mito %: fixed upper bound (8%).
   4. MAD outliers on total_counts and n_genes_by_counts, thresholded on a
-     LOG10(x+1) scale with RAW MAD (no 1.4826 scaling), nmads=3.
+     LOG10(x+1) scale with raw MAD, nmads=3.
   5. DoubletDetection (BoostClassifier, leiden, standard_scaling, 40 iters,
      n_top_var_genes=3000, p_thresh=1e-7, voter_thresh=0.5); remove doublets.
      Requires the doubletdetection package (separate env via 01_qc.smk `conda:`);
@@ -44,7 +44,7 @@ def _inv_log10p(y):
 
 
 def outlier_bounds(values, nmads):
-    """Raw-MAD bounds at +/- nmads from the median (no 1.4826 scaling)."""
+    """Raw-MAD bounds at +/- nmads from the median."""
     med = np.nanmedian(values)
     mad = median_abs_deviation(values, nan_policy="omit")  # scale=1.0 (raw)
     return med - nmads * mad, med + nmads * mad, mad

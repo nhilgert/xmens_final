@@ -1,0 +1,218 @@
+{
+  "species": "mouse",
+  "variant": "v2_induced_no_apop",
+  "seed": 0,
+  "jax_backend": "gpu",
+  "n_cells_full": 43197,
+  "dropped_subtypes": [
+    "decidual_apoptotic"
+  ],
+  "dropped_timepoints": [
+    "uninduced"
+  ],
+  "n_cells_dropped": 10240,
+  "n_cells": 32957,
+  "cell_type_counts": {
+    "decidual_cell": 21949,
+    "endometrial_fibroblast": 11008
+  },
+  "cell_subtype_counts": {
+    "decidual_proliferative": 14402,
+    "efib_middle_induced": 8164,
+    "decidual_mature": 3853,
+    "decidual_boundary": 3694,
+    "efib_subluminal": 1097,
+    "efib_outer": 1066,
+    "efib_proliferative": 346,
+    "efib_middle": 335
+  },
+  "n_timepoints": 5,
+  "n_transitions": 4,
+  "scvi_source": "retrained: 32957 cells, 3000 HVGs, n_latent=30, max_epochs=200/es20",
+  "scvi_epochs_run": 200,
+  "rtk_repair": {
+    "needed": true,
+    "n_dead_rows": 12,
+    "n_nonstochastic_after": 0
+  },
+  "root_direction": "near",
+  "root_source": "cell_subtype=efib_proliferative",
+  "root_pool": 346,
+  "root_obs_name": "CCTATCGGTAATTAGG-1-2_dpi_mck15",
+  "root_timepoint": "2_dpi",
+  "root_subtype": "efib_proliferative",
+  "anchor_available": true,
+  "pt_min": 0.0,
+  "pt_max": 1.0,
+  "pt_non_finite": 0,
+  "stats": {
+    "all_cells": {
+      "n": 32957,
+      "spearman_rho": 0.308291945840633,
+      "spearman_p": 0.0,
+      "per_day": {
+        "1.0": {
+          "median": 0.1273355931043625,
+          "mean": 0.1350758820772171,
+          "std": 0.05882973223924637,
+          "count": 2686.0
+        },
+        "1.5": {
+          "median": 0.1304732859134674,
+          "mean": 0.14730782806873322,
+          "std": 0.08265566825866699,
+          "count": 10656.0
+        },
+        "2.0": {
+          "median": 0.1346396505832672,
+          "mean": 0.15436621010303497,
+          "std": 0.08231598883867264,
+          "count": 3524.0
+        },
+        "3.0": {
+          "median": 0.16629387438297272,
+          "mean": 0.20119698345661163,
+          "std": 0.12099173665046692,
+          "count": 10649.0
+        },
+        "4.0": {
+          "median": 0.1837332844734192,
+          "mean": 0.2222960740327835,
+          "std": 0.1283508837223053,
+          "count": 5442.0
+        }
+      }
+    },
+    "fibroblasts_only": {
+      "n": 11008,
+      "spearman_rho": 0.059927454673111724,
+      "spearman_p": 3.124515163833961e-10,
+      "per_day": {
+        "1.0": {
+          "median": 0.14027324318885803,
+          "mean": 0.1484145224094391,
+          "std": 0.06986165046691895,
+          "count": 1425.0
+        },
+        "1.5": {
+          "median": 0.13203883171081543,
+          "mean": 0.14481809735298157,
+          "std": 0.06897978484630585,
+          "count": 5133.0
+        },
+        "2.0": {
+          "median": 0.12733806669712067,
+          "mean": 0.13975374400615692,
+          "std": 0.0686383992433548,
+          "count": 1170.0
+        },
+        "3.0": {
+          "median": 0.13147464394569397,
+          "mean": 0.15280933678150177,
+          "std": 0.08111898601055145,
+          "count": 1998.0
+        },
+        "4.0": {
+          "median": 0.14763745665550232,
+          "mean": 0.16491176187992096,
+          "std": 0.06289906799793243,
+          "count": 1282.0
+        }
+      }
+    },
+    "decidual_only": {
+      "n": 21949,
+      "spearman_rho": 0.36001828216358595,
+      "spearman_p": 0.0,
+      "per_day": {
+        "1.0": {
+          "median": 0.11758499592542648,
+          "mean": 0.12000248581171036,
+          "std": 0.03782298415899277,
+          "count": 1261.0
+        },
+        "1.5": {
+          "median": 0.128944531083107,
+          "mean": 0.14962173998355865,
+          "std": 0.09353804588317871,
+          "count": 5523.0
+        },
+        "2.0": {
+          "median": 0.14136457443237305,
+          "mean": 0.16162899136543274,
+          "std": 0.08743925392627716,
+          "count": 2354.0
+        },
+        "3.0": {
+          "median": 0.18198394775390625,
+          "mean": 0.21237239241600037,
+          "std": 0.12583903968334198,
+          "count": 8651.0
+        },
+        "4.0": {
+          "median": 0.20300008356571198,
+          "mean": 0.23998035490512848,
+          "std": 0.1378607153892517,
+          "count": 4160.0
+        }
+      }
+    },
+    "subtype_rank": {
+      "n": 32957,
+      "spearman_rho": 0.4019145257852704,
+      "spearman_p": 0.0
+    },
+    "by_subtype": {
+      "efib_outer": {
+        "median": 0.2890225052833557,
+        "mean": 0.2829006612300873,
+        "std": 0.09858556091785431,
+        "count": 1066.0
+      },
+      "efib_middle": {
+        "median": 0.1255560964345932,
+        "mean": 0.13705195486545563,
+        "std": 0.06881702691316605,
+        "count": 335.0
+      },
+      "efib_middle_induced": {
+        "median": 0.1281178593635559,
+        "mean": 0.1285092979669571,
+        "std": 0.038190726190805435,
+        "count": 8164.0
+      },
+      "efib_subluminal": {
+        "median": 0.17813415825366974,
+        "mean": 0.18792976438999176,
+        "std": 0.0751567929983139,
+        "count": 1097.0
+      },
+      "efib_proliferative": {
+        "median": 0.08889375627040863,
+        "mean": 0.09332475066184998,
+        "std": 0.028310922905802727,
+        "count": 346.0
+      },
+      "decidual_boundary": {
+        "median": 0.09340181201696396,
+        "mean": 0.0998525470495224,
+        "std": 0.03420521318912506,
+        "count": 3694.0
+      },
+      "decidual_proliferative": {
+        "median": 0.15736070275306702,
+        "mean": 0.16613410413265228,
+        "std": 0.06334823369979858,
+        "count": 14402.0
+      },
+      "decidual_mature": {
+        "median": 0.33256345987319946,
+        "mean": 0.3717082142829895,
+        "std": 0.1514681875705719,
+        "count": 3853.0
+      }
+    }
+  },
+  "orientation_ok": true,
+  "cells_with_coords": 20304
+}

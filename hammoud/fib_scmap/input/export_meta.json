@@ -1,0 +1,10 @@
+{
+  "object": "/n/lab_storage/eddy_lab/users/nhilgert/xmens_final/data/deliverables/2026_08_28_Cevrim_Human_Only_Fib_Dec_Cells.h5ad",
+  "n_cells": 47533,
+  "n_genes": 36601,
+  "shared_with_atlas": 33791,
+  "n_atlas_subtypes": 39,
+  "normalisation": "log1p CP10K (checked: median expm1 row-sum in [8k,12k])",
+  "label_source": "/n/lab_storage/eddy_lab/users/nhilgert/xmens_final/hammoud/fib_centroid_results/cluster_assignments.csv",
+  "run_utc": "2026-09-11 17:11:32"
+}

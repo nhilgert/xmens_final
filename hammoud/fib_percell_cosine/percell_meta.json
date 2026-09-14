@@ -1,0 +1,14 @@
+{
+  "purpose": "per-cell analogue of the contrastive cosine to the 6 Ulrich fibroblast subtypes, plotted spatially",
+  "run_utc": "2026-09-03 21:13:31",
+  "object": "/n/lab_storage/eddy_lab/users/nhilgert/xmens_final/data/deliverables/2026_08_28_Cevrim_Human_Only_Fib_Dec_Cells.h5ad",
+  "n_cells": 47533,
+  "panel_genes": 3000,
+  "panel_definition": "top 3000 by variance across the 6 fibroblast subtypes in S5B (same as the published run)",
+  "query_centring": "per gene, across ALL cells in the object",
+  "atlas_centring": "per gene, across the 6 fibroblast subtype centroids",
+  "cells_with_coordinates": 33250,
+  "checks": 2,
+  "mismatches": 0,
+  "IMPORTANT": "these per-cell values are a NEW quantity introduced by this job. The published cosines are cluster-centroid-level. Do not quote per-cell values as the published numbers; the cluster means agree on the argmax but not in magnitude."
+}

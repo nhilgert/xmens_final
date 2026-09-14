@@ -31,7 +31,13 @@ def load_choices(csv) -> dict:
     need = {"cluster", "label"}
     if not need <= set(df.columns):
         raise ValueError(f"{csv}: needs columns {need}, has {list(df.columns)}")
-    return dict(zip(df["cluster"].str.strip(), df["label"].str.strip()))
+    cluster = df["cluster"].str.strip()
+    label = df["label"].str.strip()
+    if cluster.isna().any() or label.isna().any() or (cluster == "").any() or (label == "").any():
+        raise ValueError(f"{csv}: blank cluster or label")
+    if cluster.duplicated().any():
+        raise ValueError(f"{csv}: duplicate cluster keys {sorted(set(cluster[cluster.duplicated(False)]))}")
+    return dict(zip(cluster, label))
 
 
 def build_rollup(fine_cfg: dict, coarse: str) -> dict:
@@ -87,9 +93,15 @@ def validate_canonical_annotations(adata, vocab: dict, *, context: str = "object
     bad_missing = sorted(set(subtypes.str.lower()) & {"nan", "none", "na", "<na>"})
     if bad_missing:
         raise ValueError(f"{context}: invalid missing-value strings in cell_subtype {bad_missing}")
+    if (subtypes == "").any():
+        raise ValueError(
+            f"{context}: cell_subtype contains {int((subtypes == '').sum())} empty values; "
+            "kept cells must use a real subtype or the coarse-fill cell_type")
+    # A kept cell_subtype is valid if it is a real subtype allowed under its
+    # cell_type OR equals its cell_type under the coarse-fill policy.
     bad_pairs = []
     for cell_type, subtype in zip(types, subtypes):
-        if subtype and subtype not in set(vocab["allowed"][cell_type] or []):
+        if subtype and subtype != cell_type and subtype not in set(vocab["allowed"][cell_type] or []):
             bad_pairs.append((cell_type, subtype))
     if bad_pairs:
         raise ValueError(f"{context}: invalid cell_type/cell_subtype pairs {sorted(set(bad_pairs))}")
@@ -128,9 +140,13 @@ def apply_map(adata, res: str, choices: dict, rollup: dict | None = None,
         adata.obs["cell_type"] = np.where(
             adata.obs.excluded, "EXCLUDE",
             adata.obs[label_col].map(lambda value: rollup.get(value, value)))
+        # cell_subtype policy: a real fine subtype where one exists; otherwise FILL WITH THE
+        # COARSE cell_type (not empty). Excluded cells stay "" (they are dropped downstream).
         adata.obs["cell_subtype"] = np.where(
             adata.obs.excluded, "",
-            np.where(adata.obs[label_col].isin(rollup), adata.obs[label_col], ""))
+            np.where(adata.obs[label_col].isin(rollup),
+                     adata.obs[label_col],          # has a real fine subtype -> use it
+                     adata.obs["cell_type"]))        # no finer subtype -> fill with coarse cell_type
     else:
         raise ValueError(f"unknown output_mode {output_mode!r}")
 

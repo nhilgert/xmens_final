@@ -1,28 +1,29 @@
+# COMPLEMENTARY to 10b_samap_raw.smk: this file is the TRANSFER arm; 10b is the vanilla/raw arm. Both are live. (2026-09-13)
 # workflow/rules/10_samap.smk        (supersedes 10_samap_transfer.smk)
 # =============================================================================
 # SAMap arm, now HOOKED UP to the annotation pipeline:
-#   refined_{human,mouse}.h5ad --(prep_samap_input)--> inputs/h5ads_samap/*.h5ad
+#   v2 deliverables --(prep_samap_input)--> inputs/h5ads_samap/*.h5ad
 #     --(run_samap)--> runs/<run>/samap.pkl --(samap_label_stain)--> results/.../*.png
 # Env is STOCK sc-samap v3. Everything hangs off SAMAP_ROOT; rules run from the xmens_final root.
 #
-# ── The bridge (prep_samap_input) ────────────────────────────────────────────
-# The old inputs/h5ads_samap/*.h5ad were built (Apr) from a pre-July annotation and are STALE.
-# prep_samap_input regenerates them from your CURRENT refined_* objects: subset fib/dec on the
-# coarse cell-type column, rename to the shared schema (cell_type_annotations /
-# cell_subtype_annotations), drop counts/.raw (log data already in .X), split by timepoint.
-# The two refined objects use different column names -> _REFINED below (config, not hardcoding).
+# ── UPDATED 2026-08-29 ──────────────────────────────────────────────────────
+# Now reads the v2 fib/dec deliverables instead of refined_* (which carry the wrong column
+# names and pre-vocabulary labels). The deliverables have pseudotime, correct v2 labels, and
+# the fib/dec subset already done, so prep_samap_input's role becomes a no-op assertion.
+# 
+# Updated columns in _REFINED to match what's actually in each object:
+#   - human: cell_type (coarse), cell_subtype (fine)  ✓ both present
+#   - mouse: cell_type (coarse), cell_subtype (fine)  ✓ both present
 #
-# ── refined_* is ancient() ON PURPOSE ────────────────────────────────────────
-# It isolates the SAMap arm from the annotation DAG: `snakemake samap_all` will NOT pull in or
-# rebuild any 04* rule (important while the annotation-side config paths are still un-migrated).
-# Trade-off: a future re-annotation won't auto-cascade here — re-trigger by deleting the stale
-# SAMap input h5ad (or --touch refined_*). Fine, since annotation is done.
+# Input scale changed to CP10K (library-size normalized to 1e4, NOT logged) on 2026-08-29.
+# This retains 99.7% of nonzeros under SAMap's min_expression=1 threshold, vs 71% for raw counts.
+# Guard now requires rowsums == 1e4 and .X max > 20, still blocking any pre-logged matrix.
 #
-# ── First run: delete the stale artifacts so the DAG rebuilds them fresh ──────
+# ── First run: delete the stale inputs/artifacts so the DAG rebuilds them fresh ──────
 #   rm $SAMAP_ROOT/inputs/h5ads_samap/{hs_fib_dec_menstrual,hs_fib_dec_secretory,mm_fib_dec_4_dpi_bleeding,mm_fib_dec_1_dpi_late}.h5ad
 #   rm $SAMAP_ROOT/runs/{menstrual_x_4dpi_hmmer,secretory_x_1dpi_late_hmmer}/samap.pkl
 # Then `snakemake samap_all` runs: 4x prep -> 2x run_samap -> 2x stain. (The old v3-unreadable
-# pkls MUST go regardless — anndata 0.12 can't open them.)
+# pkls MUST go regardless — anndata 0.12 can't open them. The inputs use the pre-CP10K scale.)
 #
 # ENV — config[samap][python] = stock-v3 venv (.../envs/samap/.venv/bin/python), ABSOLUTE.
 # run_samap.py + prep_samap_input.py + transfer_label_staining.py live in workflow/scripts/.
@@ -57,10 +58,14 @@ assert all(_manifest[r]["homology"] == "hmmer" for r in SAMAP_PAIRS), \
     "paper deliverables are scoped to hmmer; a requested pair is blast"
 PAIRS = {r: _manifest[r] for r in SAMAP_PAIRS}
 
-# per-species source object + canonical annotation columns + expected fib/dec count
+# per-species SOURCE object + canonical annotation columns + expected fib/dec count.
+# UPDATED 2026-08-29: now reading the v2 deliverables instead of refined_*
+# Both deliverables carry human/mouse subsets with cell_type (coarse) and cell_subtype (fine).
 _REFINED = {
-    "hs": dict(path="data/interim/refined_human.h5ad", coarse="cell_type", fine="cell_subtype", expect=47533),
-    "mm": dict(path="data/interim/refined_mouse.h5ad", coarse="cell_type", fine="cell_subtype", expect=43197),
+    "hs": dict(path="data/deliverables/2026_08_28_Cevrim_Human_Only_Fib_Dec_Cells.h5ad",
+                coarse="cell_type", fine="cell_subtype", expect=47533),
+    "mm": dict(path="data/deliverables/2026_08_28_Cevrim_XMens_Only_Fib_Dec_Cells.h5ad",
+                coarse="cell_type", fine="cell_subtype", expect=43197),
 }
 
 # the SAMap input basenames the two pairings need, e.g. {hs_fib_dec_secretory, mm_fib_dec_4_dpi_bleeding, ...}
@@ -92,13 +97,13 @@ wildcard_constraints:
     basename = "|".join(re.escape(b) for b in _NEEDED_INPUTS),
 
 # -----------------------------------------------------------------------------
-# BRIDGE — refined_{species} -> one per-timepoint SAMap input. Cheap.
+# BRIDGE — v2 deliverable -> one per-timepoint SAMap input. Subset to the timepoint,
+# rename columns to the shared schema, validate the CP10K scale. Since deliverables already
+# carry fib/dec and v2 labels, this is mostly a pass-through with sanity checks.
 rule prep_samap_input:
     input:
-        # ancient() -> isolates samap_all from the annotation DAG (no 04* rebuilds). refined_*
-        # is used as-is; delete a stale output to force regen after a re-annotation.
-        refined = lambda wc: ancient(_REFINED[_parse_input_basename(wc.basename)[0]]["path"]),
-        script  = "workflow/scripts/prep_samap_input.py",   # non-ancient: cheap, re-run on edit
+        refined = lambda wc: _REFINED[_parse_input_basename(wc.basename)[0]]["path"],
+        script  = "workflow/scripts/prep_samap_input.py",
     output:
         h5ad = f"{SAMAP_ROOT}/inputs/h5ads_samap/{{basename}}.h5ad",
     params:
@@ -231,4 +236,7 @@ rule samap_all:
     input:
         expand("results/figures/samap_transfer/{run}_labelstain.png", run=list(PAIRS)),
         expand("results/tables/samap_transfer/{run}_labelstain.json", run=list(PAIRS)),
-        expand("results/samap_transfer/{run}_transferred.h5ad", run=list(PAIRS)),
+        # transferred-object deliverables only exist for runs with a pt_h5ad entry
+        # (the two paper pairings); the 12-pairing sweep added pairs without one,
+        # which made this expand KeyError at DAG time (fixed 2026-09-01).
+        expand("results/samap_transfer/{run}_transferred.h5ad", run=list(PT_H5AD)),

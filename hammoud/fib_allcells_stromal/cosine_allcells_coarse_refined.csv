@@ -1,0 +1,7 @@
+,Stro-1_PV MYH11 FOXC1hi CTGFlo,Stro-2_PV MYH11 FOXC1lo CTGFhi,Stro-3_PV STEAP4,Stro-4_Tissue resident vascular progenitor,Stro-5_RUNX3+ Fibroblast,Stro-6_uSMC,Stro-7_C7 Fibroblast,Stro-8_dS1,Stro-9_dS2,Stro-10_dS3,Stro-11_Stromal progenitor
+epithelial cells,0.0477,0.0813,-0.0849,0.0002,0.0793,-0.0688,-0.1264,-0.0466,0.0238,-0.0383,0.0518
+decidual cells,-0.2155,-0.2892,-0.0695,-0.2488,-0.0913,-0.0855,0.1337,0.3499,0.3112,0.291,0.0977
+endometrial fibroblasts,-0.1973,-0.2355,-0.1021,-0.2913,-0.1526,0.0043,0.3216,0.1691,0.2372,0.3126,0.0675
+perivascular cells,0.169,0.2139,0.2628,0.442,-0.1599,-0.1725,-0.0676,-0.1563,-0.2418,-0.2257,-0.1327
+immune cells,0.0169,0.0527,-0.0757,0.0283,0.3815,-0.0994,-0.1209,-0.0724,-0.1071,-0.1325,0.0308
+smooth muscle cells,0.1457,0.1184,0.0989,0.0119,-0.272,0.5014,-0.0227,-0.1974,-0.152,-0.1023,-0.1308

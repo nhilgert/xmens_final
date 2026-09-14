@@ -1,0 +1,7 @@
+claim,recomputed,recorded,status
+all 11 stromal centroid columns found,11,11,PASS
+shared-gene universe matches the published run,33791,33791,PASS
+gene panel size matches the published run,3000,3000,PASS
+the saved leiden_0.8 has the 8 clusters the C7 notebook reported,8,8,PASS
+Stro-7 clears the impossible-subtype ceiling at every resolution tested,1,1,PASS
+no impossible subtype ever outscores Stro-7 at any resolution,1,1,PASS

@@ -1,0 +1,1010 @@
+[
+ {
+  "item": ".ipynb_checkpoints",
+  "kind": "dir",
+  "size": "28M (28 items)",
+  "mtime": "2026-09-04",
+  "git": "untracked",
+  "dest": "REVIEW",
+  "why": "directory - needs your call"
+ },
+ {
+  "item": ".venv",
+  "kind": "dir",
+  "size": "1.1M (7 items)",
+  "mtime": "2026-08-28",
+  "git": "untracked",
+  "dest": "REVIEW",
+  "why": "directory - needs your call"
+ },
+ {
+  "item": "01b_spatial_qc_mouse.ipynb",
+  "kind": "file",
+  "size": "4.4MB",
+  "mtime": "2026-07-25",
+  "git": "untracked",
+  "dest": "notebooks/exploratory/",
+  "why": "session notebook"
+ },
+ {
+  "item": "2026_08_21_clean_objs.ipynb",
+  "kind": "file",
+  "size": "1.6MB",
+  "mtime": "2026-08-26",
+  "git": "untracked",
+  "dest": "notebooks/exploratory/",
+  "why": "session notebook"
+ },
+ {
+  "item": "AFK_PROMOTE_PREP_REPORT.md",
+  "kind": "file",
+  "size": "27KB",
+  "mtime": "2026-08-11",
+  "git": "untracked",
+  "dest": "reports/",
+  "why": "session/agent report"
+ },
+ {
+  "item": "APPROVE_AND_PROMOTE.sh",
+  "kind": "file",
+  "size": "2KB",
+  "mtime": "2026-08-13",
+  "git": "untracked",
+  "dest": "attic/root_files/",
+  "why": "one-off script"
+ },
+ {
+  "item": "ARTIFACT_INDEX.md",
+  "kind": "file",
+  "size": "20KB",
+  "mtime": "2026-08-31",
+  "git": "untracked",
+  "dest": "reports/",
+  "why": "session/agent report"
+ },
+ {
+  "item": "DAYTIME_AGENT_REPORT.md",
+  "kind": "file",
+  "size": "15KB",
+  "mtime": "2026-08-11",
+  "git": "untracked",
+  "dest": "reports/",
+  "why": "session/agent report"
+ },
+ {
+  "item": "DENOVO_REGEN_REPORT.md",
+  "kind": "file",
+  "size": "8KB",
+  "mtime": "2026-08-12",
+  "git": "untracked",
+  "dest": "reports/",
+  "why": "session/agent report"
+ },
+ {
+  "item": "HANDOFF_NEXT_SESSION.md",
+  "kind": "file",
+  "size": "7KB",
+  "mtime": "2026-08-31",
+  "git": "untracked",
+  "dest": "reports/",
+  "why": "session/agent report"
+ },
+ {
+  "item": "LABEL_AUDIT.md",
+  "kind": "file",
+  "size": "13KB",
+  "mtime": "2026-09-02",
+  "git": "untracked",
+  "dest": "reports/",
+  "why": "session/agent report"
+ },
+ {
+  "item": "MIGRATION_OVERNIGHT_REPORT.md",
+  "kind": "file",
+  "size": "14KB",
+  "mtime": "2026-08-11",
+  "git": "tracked",
+  "dest": "reports/",
+  "why": "session/agent report"
+ },
+ {
+  "item": "MIGRATION_VERIFY_REPORT.md",
+  "kind": "file",
+  "size": "15KB",
+  "mtime": "2026-08-11",
+  "git": "tracked",
+  "dest": "reports/",
+  "why": "session/agent report"
+ },
+ {
+  "item": "NOTEBOOK_TRIAGE.md",
+  "kind": "file",
+  "size": "47KB",
+  "mtime": "2026-08-11",
+  "git": "untracked",
+  "dest": "reports/",
+  "why": "session/agent report"
+ },
+ {
+  "item": "PROGRESS.md",
+  "kind": "file",
+  "size": "7KB",
+  "mtime": "2026-06-30",
+  "git": "tracked",
+  "dest": "reports/",
+  "why": "session/agent report"
+ },
+ {
+  "item": "QUEUE_STATUS.md",
+  "kind": "file",
+  "size": "5KB",
+  "mtime": "2026-08-31",
+  "git": "untracked",
+  "dest": "reports/",
+  "why": "session/agent report"
+ },
+ {
+  "item": "README.md",
+  "kind": "file",
+  "size": "5KB",
+  "mtime": "2026-06-30",
+  "git": "tracked",
+  "dest": "KEEP",
+  "why": "pipeline core"
+ },
+ {
+  "item": "SAMAP_INTEGRATION_RUNBOOK.md",
+  "kind": "file",
+  "size": "8KB",
+  "mtime": "2026-08-04",
+  "git": "tracked",
+  "dest": "reports/",
+  "why": "session/agent report"
+ },
+ {
+  "item": "SESSION_HANDOFF.md",
+  "kind": "file",
+  "size": "49KB",
+  "mtime": "2026-09-01",
+  "git": "untracked",
+  "dest": "reports/",
+  "why": "session/agent report"
+ },
+ {
+  "item": "SESSION_HANDOFF.md.2026-09-01-morning.bak",
+  "kind": "file",
+  "size": "33KB",
+  "mtime": "2026-09-01",
+  "git": "untracked",
+  "dest": "REVIEW",
+  "why": "unclassified file"
+ },
+ {
+  "item": "Untitled.ipynb",
+  "kind": "file",
+  "size": "1KB",
+  "mtime": "2026-08-04",
+  "git": "untracked",
+  "dest": "notebooks/exploratory/",
+  "why": "session notebook"
+ },
+ {
+  "item": "Untitled1.ipynb",
+  "kind": "file",
+  "size": "11KB",
+  "mtime": "2026-08-04",
+  "git": "untracked",
+  "dest": "notebooks/exploratory/",
+  "why": "session notebook"
+ },
+ {
+  "item": "Untitled2.ipynb",
+  "kind": "file",
+  "size": "314KB",
+  "mtime": "2026-08-05",
+  "git": "untracked",
+  "dest": "notebooks/exploratory/",
+  "why": "session notebook"
+ },
+ {
+  "item": "Untitled3.ipynb",
+  "kind": "file",
+  "size": "2KB",
+  "mtime": "2026-08-26",
+  "git": "untracked",
+  "dest": "notebooks/exploratory/",
+  "why": "session notebook"
+ },
+ {
+  "item": "WORKFLOW_INDEX.md",
+  "kind": "file",
+  "size": "5KB",
+  "mtime": "2026-09-14",
+  "git": "untracked",
+  "dest": "KEEP",
+  "why": "pipeline core"
+ },
+ {
+  "item": "_scratch",
+  "kind": "dir",
+  "size": "2.7M (43 items)",
+  "mtime": "2026-08-31",
+  "git": "untracked",
+  "dest": "REVIEW",
+  "why": "directory - needs your call"
+ },
+ {
+  "item": "analysis",
+  "kind": "dir",
+  "size": "9.0K (2 items)",
+  "mtime": "2026-06-29",
+  "git": "untracked",
+  "dest": "REVIEW",
+  "why": "directory - needs your call"
+ },
+ {
+  "item": "aucell_3dpi_from_allcells.png",
+  "kind": "file",
+  "size": "2.4MB",
+  "mtime": "2026-08-21",
+  "git": "untracked",
+  "dest": "figures_scratch/",
+  "why": "top-level figure"
+ },
+ {
+  "item": "aucell_3dpi_from_fibdec.png",
+  "kind": "file",
+  "size": "2.4MB",
+  "mtime": "2026-08-21",
+  "git": "untracked",
+  "dest": "figures_scratch/",
+  "why": "top-level figure"
+ },
+ {
+  "item": "check_new_coords.ipynb",
+  "kind": "file",
+  "size": "1.3MB",
+  "mtime": "2026-09-01",
+  "git": "untracked",
+  "dest": "notebooks/exploratory/",
+  "why": "session notebook"
+ },
+ {
+  "item": "cluster_abundance_leiden_0.8.png",
+  "kind": "file",
+  "size": "118KB",
+  "mtime": "2026-09-04",
+  "git": "untracked",
+  "dest": "figures_scratch/",
+  "why": "top-level figure"
+ },
+ {
+  "item": "compute_mouse_pseudotime.ipynb",
+  "kind": "file",
+  "size": "1.7MB",
+  "mtime": "2026-08-05",
+  "git": "untracked",
+  "dest": "notebooks/exploratory/",
+  "why": "session notebook"
+ },
+ {
+  "item": "compute_mouse_pseudotime_1dpi_late.ipynb",
+  "kind": "file",
+  "size": "1.6MB",
+  "mtime": "2026-08-26",
+  "git": "untracked",
+  "dest": "notebooks/exploratory/",
+  "why": "session notebook"
+ },
+ {
+  "item": "compute_mouse_pseudotime_4dpi.ipynb",
+  "kind": "file",
+  "size": "1.3MB",
+  "mtime": "2026-08-26",
+  "git": "untracked",
+  "dest": "notebooks/exploratory/",
+  "why": "session notebook"
+ },
+ {
+  "item": "config",
+  "kind": "dir",
+  "size": "1023K (24 items)",
+  "mtime": "2026-09-11",
+  "git": "tracked",
+  "dest": "KEEP",
+  "why": "pipeline core"
+ },
+ {
+  "item": "coord_sync_report.json",
+  "kind": "file",
+  "size": "18KB",
+  "mtime": "2026-09-02",
+  "git": "untracked",
+  "dest": "attic/root_files/",
+  "why": "one-off report/table"
+ },
+ {
+  "item": "cosine_heatmap_leiden_1.2.png",
+  "kind": "file",
+  "size": "466KB",
+  "mtime": "2026-09-04",
+  "git": "untracked",
+  "dest": "figures_scratch/",
+  "why": "top-level figure"
+ },
+ {
+  "item": "data",
+  "kind": "dir",
+  "size": "171G (3 items)",
+  "mtime": "2026-08-28",
+  "git": "untracked",
+  "dest": "KEEP",
+  "why": "pipeline core"
+ },
+ {
+  "item": "dataverse",
+  "kind": "dir",
+  "size": "3.1T (3 items)",
+  "mtime": "2026-08-11",
+  "git": "untracked",
+  "dest": "REVIEW",
+  "why": "directory - needs your call"
+ },
+ {
+  "item": "decidual_zones.ipynb",
+  "kind": "file",
+  "size": "1KB",
+  "mtime": "2026-09-12",
+  "git": "untracked",
+  "dest": "notebooks/exploratory/",
+  "why": "session notebook"
+ },
+ {
+  "item": "decidual_zones.png",
+  "kind": "file",
+  "size": "186KB",
+  "mtime": "2026-08-21",
+  "git": "untracked",
+  "dest": "figures_scratch/",
+  "why": "top-level figure"
+ },
+ {
+  "item": "decidual_zones_dark.png",
+  "kind": "file",
+  "size": "204KB",
+  "mtime": "2026-08-21",
+  "git": "untracked",
+  "dest": "figures_scratch/",
+  "why": "top-level figure"
+ },
+ {
+  "item": "ds3_regulon_axis_leiden08.csv",
+  "kind": "file",
+  "size": "0KB",
+  "mtime": "2026-09-04",
+  "git": "untracked",
+  "dest": "attic/root_files/",
+  "why": "one-off report/table"
+ },
+ {
+  "item": "ds_markers_spatial.png",
+  "kind": "file",
+  "size": "3.0MB",
+  "mtime": "2026-09-04",
+  "git": "untracked",
+  "dest": "figures_scratch/",
+  "why": "top-level figure"
+ },
+ {
+  "item": "envs",
+  "kind": "dir",
+  "size": "4.4G (9 items)",
+  "mtime": "2026-09-11",
+  "git": "tracked",
+  "dest": "KEEP",
+  "why": "pipeline core"
+ },
+ {
+  "item": "expected_sections.json",
+  "kind": "file",
+  "size": "0KB",
+  "mtime": "2026-09-02",
+  "git": "untracked",
+  "dest": "attic/root_files/",
+  "why": "one-off report/table"
+ },
+ {
+  "item": "explore_epi_fig2_tissue.ipynb",
+  "kind": "file",
+  "size": "796KB",
+  "mtime": "2026-08-04",
+  "git": "untracked",
+  "dest": "notebooks/exploratory/",
+  "why": "session notebook"
+ },
+ {
+  "item": "explore_epi_ref_states.ipynb",
+  "kind": "file",
+  "size": "765KB",
+  "mtime": "2026-08-04",
+  "git": "untracked",
+  "dest": "notebooks/exploratory/",
+  "why": "session notebook"
+ },
+ {
+  "item": "external",
+  "kind": "dir",
+  "size": "2.8M (1 items)",
+  "mtime": "2026-06-29",
+  "git": "tracked",
+  "dest": "KEEP",
+  "why": "pipeline core"
+ },
+ {
+  "item": "figures",
+  "kind": "dir",
+  "size": "2.9M (5 items)",
+  "mtime": "2026-09-04",
+  "git": "untracked",
+  "dest": "REVIEW",
+  "why": "directory - needs your call"
+ },
+ {
+  "item": "hammoud",
+  "kind": "dir",
+  "size": "1.1G (95 items)",
+  "mtime": "2026-09-12",
+  "git": "untracked",
+  "dest": "REVIEW",
+  "why": "directory - needs your call"
+ },
+ {
+  "item": "inspect_samap_outputs-Copy1.ipynb",
+  "kind": "file",
+  "size": "3.3MB",
+  "mtime": "2026-08-10",
+  "git": "untracked",
+  "dest": "notebooks/exploratory/",
+  "why": "session notebook"
+ },
+ {
+  "item": "inspect_samap_outputs.ipynb",
+  "kind": "file",
+  "size": "2.9MB",
+  "mtime": "2026-08-10",
+  "git": "untracked",
+  "dest": "notebooks/exploratory/",
+  "why": "session notebook"
+ },
+ {
+  "item": "inspect_samap_transfer-Copy1.ipynb",
+  "kind": "file",
+  "size": "1.3MB",
+  "mtime": "2026-08-04",
+  "git": "untracked",
+  "dest": "notebooks/exploratory/",
+  "why": "session notebook"
+ },
+ {
+  "item": "inspect_samap_transfer.ipynb",
+  "kind": "file",
+  "size": "627KB",
+  "mtime": "2026-08-04",
+  "git": "untracked",
+  "dest": "notebooks/exploratory/",
+  "why": "session notebook"
+ },
+ {
+  "item": "leiden_0.8_spatial.png",
+  "kind": "file",
+  "size": "1.7MB",
+  "mtime": "2026-09-04",
+  "git": "untracked",
+  "dest": "figures_scratch/",
+  "why": "top-level figure"
+ },
+ {
+  "item": "logs",
+  "kind": "dir",
+  "size": "189M (91 items)",
+  "mtime": "2026-09-09",
+  "git": "untracked",
+  "dest": "KEEP",
+  "why": "pipeline core"
+ },
+ {
+  "item": "module_scoring_all_methods.ipynb",
+  "kind": "file",
+  "size": "22KB",
+  "mtime": "2026-09-08",
+  "git": "untracked",
+  "dest": "notebooks/exploratory/",
+  "why": "session notebook"
+ },
+ {
+  "item": "module_scoring_aucell.ipynb",
+  "kind": "file",
+  "size": "26KB",
+  "mtime": "2026-08-26",
+  "git": "untracked",
+  "dest": "notebooks/exploratory/",
+  "why": "session notebook"
+ },
+ {
+  "item": "modules_spatial_3dpi.png",
+  "kind": "file",
+  "size": "4.1MB",
+  "mtime": "2026-08-20",
+  "git": "untracked",
+  "dest": "figures_scratch/",
+  "why": "top-level figure"
+ },
+ {
+  "item": "modules_spatial_3dpi_aucell_dark.png",
+  "kind": "file",
+  "size": "3.3MB",
+  "mtime": "2026-08-21",
+  "git": "untracked",
+  "dest": "figures_scratch/",
+  "why": "top-level figure"
+ },
+ {
+  "item": "modules_spatial_3dpi_binarized.png",
+  "kind": "file",
+  "size": "1.7MB",
+  "mtime": "2026-08-21",
+  "git": "untracked",
+  "dest": "figures_scratch/",
+  "why": "top-level figure"
+ },
+ {
+  "item": "modules_spatial_3dpi_dark.png",
+  "kind": "file",
+  "size": "4.0MB",
+  "mtime": "2026-08-21",
+  "git": "untracked",
+  "dest": "figures_scratch/",
+  "why": "top-level figure"
+ },
+ {
+  "item": "modules_spatial_3dpi_gmm.png",
+  "kind": "file",
+  "size": "3.8MB",
+  "mtime": "2026-08-21",
+  "git": "untracked",
+  "dest": "figures_scratch/",
+  "why": "top-level figure"
+ },
+ {
+  "item": "modules_spatial_3dpi_gmm_denoised.png",
+  "kind": "file",
+  "size": "4.3MB",
+  "mtime": "2026-08-21",
+  "git": "untracked",
+  "dest": "figures_scratch/",
+  "why": "top-level figure"
+ },
+ {
+  "item": "modules_spatial_3dpi_quantile.png",
+  "kind": "file",
+  "size": "4.1MB",
+  "mtime": "2026-08-21",
+  "git": "untracked",
+  "dest": "figures_scratch/",
+  "why": "top-level figure"
+ },
+ {
+  "item": "modules_spatial_3dpi_zscore.png",
+  "kind": "file",
+  "size": "4.0MB",
+  "mtime": "2026-08-21",
+  "git": "untracked",
+  "dest": "figures_scratch/",
+  "why": "top-level figure"
+ },
+ {
+  "item": "notebooks",
+  "kind": "dir",
+  "size": "5.7G (35 items)",
+  "mtime": "2026-09-12",
+  "git": "tracked",
+  "dest": "KEEP",
+  "why": "pipeline core"
+ },
+ {
+  "item": "out",
+  "kind": "dir",
+  "size": "88K (2 items)",
+  "mtime": "2026-09-02",
+  "git": "untracked",
+  "dest": "REVIEW",
+  "why": "directory - needs your call"
+ },
+ {
+  "item": "patch_boxes.py",
+  "kind": "file",
+  "size": "1KB",
+  "mtime": "2026-09-02",
+  "git": "untracked",
+  "dest": "attic/root_files/",
+  "why": "one-off script"
+ },
+ {
+  "item": "patch_boxes3.py",
+  "kind": "file",
+  "size": "2KB",
+  "mtime": "2026-09-02",
+  "git": "untracked",
+  "dest": "attic/root_files/",
+  "why": "one-off script"
+ },
+ {
+  "item": "patch_sections.py",
+  "kind": "file",
+  "size": "4KB",
+  "mtime": "2026-09-02",
+  "git": "untracked",
+  "dest": "attic/root_files/",
+  "why": "one-off script"
+ },
+ {
+  "item": "pnas.2404775121.sd05.xlsx",
+  "kind": "file",
+  "size": "22.3MB",
+  "mtime": "2026-08-21",
+  "git": "untracked",
+  "dest": "resources/",
+  "why": "supplementary data file"
+ },
+ {
+  "item": "preprocessing",
+  "kind": "dir",
+  "size": "94K (1 items)",
+  "mtime": "2026-06-30",
+  "git": "tracked",
+  "dest": "REVIEW",
+  "why": "directory - needs your call"
+ },
+ {
+  "item": "profiles",
+  "kind": "dir",
+  "size": "323K (2 items)",
+  "mtime": "2026-07-01",
+  "git": "tracked",
+  "dest": "KEEP",
+  "why": "pipeline core"
+ },
+ {
+  "item": "pseudotime_by_leiden08.png",
+  "kind": "file",
+  "size": "109KB",
+  "mtime": "2026-09-04",
+  "git": "untracked",
+  "dest": "figures_scratch/",
+  "why": "top-level figure"
+ },
+ {
+  "item": "pseudotime_mouse_v2_induced_no_apop",
+  "kind": "dir",
+  "size": "2.5G (5 items)",
+  "mtime": "2026-08-30",
+  "git": "untracked",
+  "dest": "REVIEW",
+  "why": "directory - needs your call"
+ },
+ {
+  "item": "pyproject.toml",
+  "kind": "file",
+  "size": "0KB",
+  "mtime": "2026-06-29",
+  "git": "tracked",
+  "dest": "KEEP",
+  "why": "pipeline core"
+ },
+ {
+  "item": "qc",
+  "kind": "dir",
+  "size": "3.0K (0 items)",
+  "mtime": "2026-06-29",
+  "git": "untracked",
+  "dest": "REVIEW",
+  "why": "directory - needs your call"
+ },
+ {
+  "item": "qc_output_mck1_compare",
+  "kind": "dir",
+  "size": "1.8M (2 items)",
+  "mtime": "2026-06-30",
+  "git": "tracked",
+  "dest": "REVIEW",
+  "why": "directory - needs your call"
+ },
+ {
+  "item": "regulon_heatmap_leiden_0.8.png",
+  "kind": "file",
+  "size": "525KB",
+  "mtime": "2026-09-04",
+  "git": "untracked",
+  "dest": "figures_scratch/",
+  "why": "top-level figure"
+ },
+ {
+  "item": "regulon_heatmap_leiden_1.2.png",
+  "kind": "file",
+  "size": "598KB",
+  "mtime": "2026-09-04",
+  "git": "untracked",
+  "dest": "figures_scratch/",
+  "why": "top-level figure"
+ },
+ {
+  "item": "resources",
+  "kind": "dir",
+  "size": "14M (15 items)",
+  "mtime": "2026-09-10",
+  "git": "tracked",
+  "dest": "KEEP",
+  "why": "pipeline core"
+ },
+ {
+  "item": "results",
+  "kind": "dir",
+  "size": "31G (25 items)",
+  "mtime": "2026-09-11",
+  "git": "untracked",
+  "dest": "KEEP",
+  "why": "pipeline core"
+ },
+ {
+  "item": "rollback_report.json",
+  "kind": "file",
+  "size": "1KB",
+  "mtime": "2026-09-14",
+  "git": "untracked",
+  "dest": "attic/root_files/",
+  "why": "one-off report/table"
+ },
+ {
+  "item": "run_pseudotime_v2.py",
+  "kind": "file",
+  "size": "21KB",
+  "mtime": "2026-08-29",
+  "git": "untracked",
+  "dest": "attic/root_files/",
+  "why": "one-off script"
+ },
+ {
+  "item": "samap_data",
+  "kind": "dir",
+  "size": "49K (1 items)",
+  "mtime": "2026-08-29",
+  "git": "untracked",
+  "dest": "REVIEW",
+  "why": "directory - needs your call"
+ },
+ {
+  "item": "scaffold.sh",
+  "kind": "file",
+  "size": "15KB",
+  "mtime": "2026-06-29",
+  "git": "tracked",
+  "dest": "attic/root_files/",
+  "why": "one-off script"
+ },
+ {
+  "item": "shim.py",
+  "kind": "file",
+  "size": "1KB",
+  "mtime": "2026-09-02",
+  "git": "untracked",
+  "dest": "attic/root_files/",
+  "why": "one-off script"
+ },
+ {
+  "item": "spatial_outlier_comparison.ipynb",
+  "kind": "file",
+  "size": "5.2MB",
+  "mtime": "2026-07-25",
+  "git": "untracked",
+  "dest": "notebooks/exploratory/",
+  "why": "session notebook"
+ },
+ {
+  "item": "spatial_qc_mouse_3sigma.csv",
+  "kind": "file",
+  "size": "0KB",
+  "mtime": "2026-09-02",
+  "git": "untracked",
+  "dest": "attic/root_files/",
+  "why": "one-off report/table"
+ },
+ {
+  "item": "spatial_qc_mouse_5mad.csv",
+  "kind": "file",
+  "size": "0KB",
+  "mtime": "2026-09-02",
+  "git": "untracked",
+  "dest": "attic/root_files/",
+  "why": "one-off report/table"
+ },
+ {
+  "item": "spatial_qc_obs_mouse_3sigma.csv",
+  "kind": "file",
+  "size": "6.8MB",
+  "mtime": "2026-09-02",
+  "git": "untracked",
+  "dest": "attic/root_files/",
+  "why": "one-off report/table"
+ },
+ {
+  "item": "spatial_qc_obs_mouse_5mad.csv",
+  "kind": "file",
+  "size": "5.9MB",
+  "mtime": "2026-09-02",
+  "git": "untracked",
+  "dest": "attic/root_files/",
+  "why": "one-off report/table"
+ },
+ {
+  "item": "src",
+  "kind": "dir",
+  "size": "394K (1 items)",
+  "mtime": "2026-06-29",
+  "git": "tracked",
+  "dest": "REVIEW",
+  "why": "directory - needs your call"
+ },
+ {
+  "item": "tf_transcript_heatmap_leiden_0.8.png",
+  "kind": "file",
+  "size": "343KB",
+  "mtime": "2026-09-04",
+  "git": "untracked",
+  "dest": "figures_scratch/",
+  "why": "top-level figure"
+ },
+ {
+  "item": "tf_transcript_heatmap_leiden_1.2.png",
+  "kind": "file",
+  "size": "407KB",
+  "mtime": "2026-09-04",
+  "git": "untracked",
+  "dest": "figures_scratch/",
+  "why": "top-level figure"
+ },
+ {
+  "item": "tools",
+  "kind": "dir",
+  "size": "1.2M (19 items)",
+  "mtime": "2026-08-11",
+  "git": "tracked",
+  "dest": "REVIEW",
+  "why": "directory - needs your call"
+ },
+ {
+  "item": "untitled.txt",
+  "kind": "file",
+  "size": "0KB",
+  "mtime": "2026-08-04",
+  "git": "untracked",
+  "dest": "REVIEW",
+  "why": "unclassified file"
+ },
+ {
+  "item": "uv.lock",
+  "kind": "file",
+  "size": "0KB",
+  "mtime": "2026-08-28",
+  "git": "untracked",
+  "dest": "REVIEW",
+  "why": "unclassified file"
+ },
+ {
+  "item": "varD_two_roots_pt.csv",
+  "kind": "file",
+  "size": "10.0MB",
+  "mtime": "2026-09-02",
+  "git": "untracked",
+  "dest": "attic/root_files/",
+  "why": "one-off report/table"
+ },
+ {
+  "item": "varD_two_roots_report.json",
+  "kind": "file",
+  "size": "2KB",
+  "mtime": "2026-09-02",
+  "git": "untracked",
+  "dest": "attic/root_files/",
+  "why": "one-off report/table"
+ },
+ {
+  "item": "verify_sections.py",
+  "kind": "file",
+  "size": "1KB",
+  "mtime": "2026-09-02",
+  "git": "untracked",
+  "dest": "attic/root_files/",
+  "why": "one-off script"
+ },
+ {
+  "item": "visualize_all_transfers-Copy1.ipynb",
+  "kind": "file",
+  "size": "3.8MB",
+  "mtime": "2026-08-05",
+  "git": "untracked",
+  "dest": "notebooks/exploratory/",
+  "why": "session notebook"
+ },
+ {
+  "item": "visualize_all_transfers.ipynb",
+  "kind": "file",
+  "size": "3.2MB",
+  "mtime": "2026-08-05",
+  "git": "untracked",
+  "dest": "notebooks/exploratory/",
+  "why": "session notebook"
+ },
+ {
+  "item": "visualize_final_objects-Copy1.ipynb",
+  "kind": "file",
+  "size": "1.4MB",
+  "mtime": "2026-08-11",
+  "git": "untracked",
+  "dest": "notebooks/exploratory/",
+  "why": "session notebook"
+ },
+ {
+  "item": "visualize_final_objects.ipynb",
+  "kind": "file",
+  "size": "431KB",
+  "mtime": "2026-08-11",
+  "git": "untracked",
+  "dest": "notebooks/exploratory/",
+  "why": "session notebook"
+ },
+ {
+  "item": "visualize_transferred_object-Copy1.ipynb",
+  "kind": "file",
+  "size": "2.0MB",
+  "mtime": "2026-08-04",
+  "git": "untracked",
+  "dest": "notebooks/exploratory/",
+  "why": "session notebook"
+ },
+ {
+  "item": "visualize_transferred_object.ipynb",
+  "kind": "file",
+  "size": "1.9MB",
+  "mtime": "2026-08-05",
+  "git": "untracked",
+  "dest": "notebooks/exploratory/",
+  "why": "session notebook"
+ },
+ {
+  "item": "workflow",
+  "kind": "dir",
+  "size": "7.1M (13 items)",
+  "mtime": "2026-09-14",
+  "git": "tracked",
+  "dest": "KEEP",
+  "why": "pipeline core"
+ },
+ {
+  "item": "xmens_pipeline",
+  "kind": "dir",
+  "size": "317K (7 items)",
+  "mtime": "2026-06-30",
+  "git": "tracked",
+  "dest": "REVIEW",
+  "why": "directory - needs your call"
+ },
+ {
+  "item": "zones",
+  "kind": "dir",
+  "size": "3.0K (0 items)",
+  "mtime": "2026-08-19",
+  "git": "untracked",
+  "dest": "REVIEW",
+  "why": "directory - needs your call"
+ }
+]

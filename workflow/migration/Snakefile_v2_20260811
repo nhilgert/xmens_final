@@ -1,0 +1,264 @@
+"""Staging-only xmens.annotation.v1 migration, v2 coarse-fill rerun.
+
+This standalone workflow intentionally cannot infer or write any live 04c/04d/
+04e target.  Frozen lineage latents are terminal inputs; every generated H5AD
+is under the immutable migration run root.
+"""
+import yaml
+
+configfile: "config/config.yaml"
+
+RUN_ID = "xmens_annotation_v2_20260811"
+ROOT = f"data/interim/migrated/{RUN_ID}"
+DEPOSIT_ROOT = f"dataverse/objects_migrated/{RUN_ID}"
+VOCAB = "resources/annotation_vocabulary.yaml"
+SPEC_PATH = "resources/lineage_spec.yaml"
+SPEC = yaml.safe_load(open(SPEC_PATH))
+SPECIES = ["human", "mouse"]
+LINEAGES = config["lineages"]
+PYTHON = "/n/lab_storage/eddy_lab/users/nhilgert/.uv/envs/rsc_uv/bin/python"
+
+wildcard_constraints:
+    species="human|mouse",
+    lineage="epithelial|immune|perimetrium|perivascular|smc|stromal|vascular",
+
+
+def lineage_resolution(wildcards):
+    cfg = SPEC["species"][wildcards.species]["lineages"][wildcards.lineage]
+    return cfg.get("res", SPEC.get("defaults", {}).get("res", "leiden_scVI_3.0"))
+
+
+def reannotated_parts(wildcards):
+    return expand(
+        f"{ROOT}/reannotated_migrated/{{species}}_{{lineage}}.h5ad",
+        species=wildcards.species,
+        lineage=LINEAGES[wildcards.species],
+    )
+
+
+rule capture_protected_live_baseline:
+    output:
+        manifest=f"{ROOT}/manifests/protected_live_before.json",
+    params:
+        repo=config["repo"],
+    threads: 1
+    resources:
+        mem_mb=4000,
+        runtime=60,
+        cpus_per_task=1,
+    shell:
+        "{PYTHON} tools/protected_live_manifest.py --repo {params.repo} "
+        "--capture {output.manifest} --hash-content"
+
+
+rule reannotate_lineage_migrated:
+    input:
+        h5ad="data/interim/latent_{species}_{lineage}.h5ad",
+        csv="resources/annotations/{species}_{lineage}.csv",
+        spec=SPEC_PATH,
+        vocab=VOCAB,
+        preflight=f"{ROOT}/manifests/protected_live_before.json",
+    output:
+        h5ad=f"{ROOT}/reannotated_migrated/{{species}}_{{lineage}}.h5ad",
+    params:
+        level="fine",
+        species=lambda w: w.species,
+        lineage=lambda w: w.lineage,
+        res=lineage_resolution,
+        repo=config["repo"],
+    log:
+        f"logs/migration/{RUN_ID}/04c_{{species}}_{{lineage}}.log",
+    threads: 4
+    resources:
+        mem_mb=16000,
+        runtime=120,
+        cpus_per_task=4,
+    script:
+        "../scripts/apply_annotation.py"
+
+
+rule merge_reannotated_migrated:
+    input:
+        parts=reannotated_parts,
+        vocab=VOCAB,
+    output:
+        h5ad=f"{ROOT}/refined_{{species}}_migrated.h5ad",
+        report=f"{ROOT}/manifests/merge_{{species}}_count_gates.tsv",
+    params:
+        species=lambda w: w.species,
+        ref=lambda w: config["annotation_references"][w.species],
+        vocab=VOCAB,
+    log:
+        f"logs/migration/{RUN_ID}/04d_{{species}}.log",
+    threads: 4
+    resources:
+        mem_mb=32000,
+        runtime=120,
+        cpus_per_task=4,
+    script:
+        "../scripts/merge_reannotated.py"
+
+
+rule reembed_migrated:
+    input:
+        h5ad=f"{ROOT}/refined_{{species}}_migrated.h5ad",
+        vocab=VOCAB,
+    output:
+        h5ad=f"{ROOT}/final_{{species}}_migrated.h5ad",
+    params:
+        counts_layer="counts",
+    log:
+        f"logs/migration/{RUN_ID}/04e_{{species}}.log",
+    threads: 8
+    resources:
+        slurm_partition="eddy",
+        runtime=240,
+        mem_mb=64000,
+        cpus_per_task=8,
+        gres="gpu:1",
+        slurm_extra="",
+    script:
+        "../scripts/integrate.py"
+
+
+rule export_migrated_human:
+    input:
+        final=f"{ROOT}/final_human_migrated.h5ad",
+        vocab=VOCAB,
+    output:
+        fibdec=f"{ROOT}/final_human_fib_dec_migrated.h5ad",
+        deposit_all=f"{DEPOSIT_ROOT}/2026_08_05_Cevrim_Human_All_Cells.h5ad",
+        deposit_fibdec=f"{DEPOSIT_ROOT}/2026_08_05_Cevrim_Human_Only_Fib_Dec_Cells.h5ad",
+        manifest=f"{ROOT}/manifests/export_human.json",
+    params:
+        species="human",
+    log:
+        f"logs/migration/{RUN_ID}/export_human.log",
+    threads: 4
+    resources:
+        mem_mb=64000,
+        runtime=180,
+        cpus_per_task=4,
+    script:
+        "../scripts/export_migrated.py"
+
+
+rule export_migrated_mouse:
+    input:
+        final=f"{ROOT}/final_mouse_migrated.h5ad",
+        vocab=VOCAB,
+    output:
+        fibdec=f"{ROOT}/final_mouse_fib_dec_migrated.h5ad",
+        deposit_all=f"{DEPOSIT_ROOT}/2026_08_05_Cevrim_XMens_All_Cells.h5ad",
+        deposit_fibdec=f"{DEPOSIT_ROOT}/2026_08_05_Cevrim_XMens_Only_Fib_Dec_Cells.h5ad",
+        manifest=f"{ROOT}/manifests/export_mouse.json",
+    params:
+        species="mouse",
+    log:
+        f"logs/migration/{RUN_ID}/export_mouse.log",
+    threads: 4
+    resources:
+        mem_mb=64000,
+        runtime=180,
+        cpus_per_task=4,
+    script:
+        "../scripts/export_migrated.py"
+
+
+rule validate_migrated:
+    input:
+        refined=f"{ROOT}/refined_{{species}}_migrated.h5ad",
+        final=f"{ROOT}/final_{{species}}_migrated.h5ad",
+        fibdec=f"{ROOT}/final_{{species}}_fib_dec_migrated.h5ad",
+        deposit_all=lambda w: (
+            f"{DEPOSIT_ROOT}/2026_08_05_Cevrim_Human_All_Cells.h5ad"
+            if w.species == "human" else
+            f"{DEPOSIT_ROOT}/2026_08_05_Cevrim_XMens_All_Cells.h5ad"),
+        deposit_fibdec=lambda w: (
+            f"{DEPOSIT_ROOT}/2026_08_05_Cevrim_Human_Only_Fib_Dec_Cells.h5ad"
+            if w.species == "human" else
+            f"{DEPOSIT_ROOT}/2026_08_05_Cevrim_XMens_Only_Fib_Dec_Cells.h5ad"),
+        vocab=VOCAB,
+    output:
+        report=f"{ROOT}/manifests/validation_{{species}}.json",
+        counts=f"{ROOT}/manifests/count_gates_{{species}}.tsv",
+    params:
+        species=lambda w: w.species,
+    log:
+        f"logs/migration/{RUN_ID}/validate_{{species}}.log",
+    threads: 4
+    resources:
+        mem_mb=32000,
+        runtime=180,
+        cpus_per_task=4,
+    script:
+        "../scripts/validate_migration_bundle.py"
+
+
+rule check_annotations_migrated:
+    input:
+        reannotated=reannotated_parts,
+        refined=f"{ROOT}/refined_{{species}}_migrated.h5ad",
+        final=f"{ROOT}/final_{{species}}_migrated.h5ad",
+        fibdec=f"{ROOT}/final_{{species}}_fib_dec_migrated.h5ad",
+        deposit_all=lambda w: (
+            f"{DEPOSIT_ROOT}/2026_08_05_Cevrim_Human_All_Cells.h5ad"
+            if w.species == "human" else
+            f"{DEPOSIT_ROOT}/2026_08_05_Cevrim_XMens_All_Cells.h5ad"),
+        deposit_fibdec=lambda w: (
+            f"{DEPOSIT_ROOT}/2026_08_05_Cevrim_Human_Only_Fib_Dec_Cells.h5ad"
+            if w.species == "human" else
+            f"{DEPOSIT_ROOT}/2026_08_05_Cevrim_XMens_Only_Fib_Dec_Cells.h5ad"),
+        vocab=VOCAB,
+    output:
+        report=f"{ROOT}/manifests/check_annotations_{{species}}.json",
+    params:
+        species=lambda w: w.species,
+        repo=config["repo"],
+    threads: 2
+    resources:
+        mem_mb=16000,
+        runtime=120,
+        cpus_per_task=2,
+    script:
+        "../scripts/check_migrated_annotations.py"
+
+
+rule migration_complete:
+    input:
+        validation=expand(f"{ROOT}/manifests/validation_{{species}}.json", species=SPECIES),
+        annotation_checks=expand(f"{ROOT}/manifests/check_annotations_{{species}}.json", species=SPECIES),
+        exports=expand(f"{ROOT}/manifests/export_{{species}}.json", species=SPECIES),
+        protected=f"{ROOT}/manifests/protected_live_after.json",
+        drafts="notebooks/public/DRAFT_04c_MANIFEST.json",
+    output:
+        status=f"{ROOT}/manifests/MIGRATION_STATUS.json",
+        ready=f"{ROOT}/MIGRATION_REVIEW_READY",
+    params:
+        run_id=RUN_ID,
+    script:
+        "../scripts/finalize_migration.py"
+
+
+rule verify_protected_live:
+    input:
+        before=f"{ROOT}/manifests/protected_live_before.json",
+        validation=expand(f"{ROOT}/manifests/validation_{{species}}.json", species=SPECIES),
+    output:
+        report=f"{ROOT}/manifests/protected_live_after.json",
+    params:
+        repo=config["repo"],
+    threads: 1
+    resources:
+        mem_mb=4000,
+        runtime=30,
+        cpus_per_task=1,
+    shell:
+        "{PYTHON} tools/protected_live_manifest.py --repo {params.repo} "
+        "--verify {input.before} --report {output.report} --nonfatal"
+
+
+rule all:
+    default_target: True
+    input:
+        f"{ROOT}/MIGRATION_REVIEW_READY"

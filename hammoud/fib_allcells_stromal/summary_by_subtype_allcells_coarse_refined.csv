@@ -1,0 +1,12 @@
+subtype,stro_num,highest_in,cosine,runner_up,margin
+Stro-1_PV MYH11 FOXC1hi CTGFlo,1,perivascular cells,0.169,smooth muscle cells,0.0233
+Stro-2_PV MYH11 FOXC1lo CTGFhi,2,perivascular cells,0.2139,smooth muscle cells,0.0956
+Stro-3_PV STEAP4,3,perivascular cells,0.2628,smooth muscle cells,0.1639
+Stro-4_Tissue resident vascular progenitor,4,perivascular cells,0.442,immune cells,0.4137
+Stro-5_RUNX3+ Fibroblast,5,immune cells,0.3815,epithelial cells,0.3022
+Stro-6_uSMC,6,smooth muscle cells,0.5014,endometrial fibroblasts,0.4971
+Stro-7_C7 Fibroblast,7,endometrial fibroblasts,0.3216,decidual cells,0.1879
+Stro-8_dS1,8,decidual cells,0.3499,endometrial fibroblasts,0.1809
+Stro-9_dS2,9,decidual cells,0.3112,endometrial fibroblasts,0.0741
+Stro-10_dS3,10,endometrial fibroblasts,0.3126,decidual cells,0.0216
+Stro-11_Stromal progenitor,11,decidual cells,0.0977,endometrial fibroblasts,0.0302

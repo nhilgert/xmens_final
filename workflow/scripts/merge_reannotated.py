@@ -89,6 +89,29 @@ merged.uns["annotation_schema_version"] = vocab["schema_version"]
 merged.uns["display_names"] = vocab["display_names"]
 print(f"\nmerged: {merged.n_obs:,} cells x {merged.n_vars:,} genes")
 
+# Enforce the post-04c coarse-fill contract before writing a staged atlas.
+types = merged.obs["cell_type"].astype(str)
+subtypes = merged.obs["cell_subtype"].astype(str)
+empty_count = int((subtypes == "").sum())
+if empty_count:
+    raise ValueError(f"merged {species}: cell_subtype has {empty_count} empty values")
+allowed_types = set(vocab["expected_coarse_counts"][species])
+invalid_types = sorted(set(types) - allowed_types)
+if invalid_types:
+    raise ValueError(f"merged {species}: invalid cell_type values {invalid_types}")
+subtype_parent = {
+    subtype: parent
+    for parent, values in vocab["allowed"].items()
+    for subtype in (values or [])
+}
+invalid_pairs = sorted({
+    (parent, subtype)
+    for parent, subtype in zip(types, subtypes)
+    if subtype != parent and subtype_parent.get(subtype) != parent
+})
+if invalid_pairs:
+    raise ValueError(f"merged {species}: invalid subtype-parent pairs {invalid_pairs}")
+
 # Count gates are evidence, not mutation instructions.
 rows = []
 expected_types = vocab["expected_coarse_counts"][species]
@@ -97,6 +120,7 @@ for label, expected in expected_types.items():
     rows.append(gate_row(f"cell_type:{label}", expected, int(actual_types.get(label, 0))))
 rows.append(gate_row("total_cells", vocab["expected_coarse_counts"]["totals"][species],
                      merged.n_obs))
+rows.append(gate_row("cell_subtype_empty", 0, empty_count))
 if species == "human":
     actual_sub = merged.obs["cell_subtype"].astype(str).value_counts()
     rows.extend([
@@ -104,9 +128,20 @@ if species == "human":
                  int(actual_sub.get("endothelial_blood", 0))),
         gate_row("cell_subtype:endothelial_lymph", 506,
                  int(actual_sub.get("endothelial_lymph", 0))),
-        gate_row("perivascular_blank_subtype", 471,
+        gate_row("perivascular_coarse_subtype", 471,
                  int(((merged.obs.cell_type.astype(str) == "perivascular_cell") &
-                      (merged.obs.cell_subtype.astype(str) == "")).sum())),
+                      (merged.obs.cell_subtype.astype(str) == "perivascular_cell")).sum())),
+        gate_row("decidual_coarse_subtype", 21648,
+                 int(((types == "decidual_cell") & (subtypes == "decidual_cell")).sum())),
+        gate_row("fibroblast_coarse_subtype", 25885,
+                 int(((types == "endometrial_fibroblast") &
+                      (subtypes == "endometrial_fibroblast")).sum())),
+        gate_row("epithelial_coarse_subtype", 10608,
+                 int(((types == "epithelial_cell") &
+                      (subtypes == "epithelial_cell")).sum())),
+        gate_row("smooth_muscle_coarse_subtype", 2084,
+                 int(((types == "smooth_muscle_cell") &
+                      (subtypes == "smooth_muscle_cell")).sum())),
     ])
 else:
     actual_sub = merged.obs["cell_subtype"].astype(str).value_counts()
@@ -115,6 +150,15 @@ else:
                  int(actual_sub.get("endothelial_blood", 0))),
         gate_row("cell_subtype:endothelial_lymph", 0,
                  int(actual_sub.get("endothelial_lymph", 0))),
+        gate_row("epithelial_coarse_subtype", 6265,
+                 int(((types == "epithelial_cell") &
+                      (subtypes == "epithelial_cell")).sum())),
+        gate_row("smooth_muscle_coarse_subtype", 1443,
+                 int(((types == "smooth_muscle_cell") &
+                      (subtypes == "smooth_muscle_cell")).sum())),
+        gate_row("mesothelial_coarse_subtype", 550,
+                 int(((types == "perimetrial_cell") &
+                      (subtypes == "perimetrial_cell")).sum())),
     ])
 
 # Reference agreement is partial because legacy human "perivascular cells" is

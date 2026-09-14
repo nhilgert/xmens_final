@@ -1,0 +1,34 @@
+{
+  "purpose": "grouped (fine_refined) and group-free readouts of the per-cell atlas correspondence",
+  "run_utc": "2026-09-03 23:10:58",
+  "object": "/n/netscratch/eddy_lab/Everyone/nhilgert/2026_09_02_samap_raw_all.h5ad",
+  "n_bins": 40,
+  "markers_per_curve": 12,
+  "per_species": {
+    "human": {
+      "n_cells": 47533,
+      "shared_genes": 33791,
+      "panel": 3000,
+      "markers_held_out": 449,
+      "would_have_leaked": 449,
+      "label_columns": [
+        "hs_fine_refined",
+        "hs_cell_subtype"
+      ]
+    },
+    "mouse": {
+      "n_cells": 43197,
+      "shared_genes": 15606,
+      "panel": 3000,
+      "markers_held_out": 374,
+      "would_have_leaked": 374,
+      "label_columns": [
+        "mm_fine_refined",
+        "mm_cell_subtype"
+      ]
+    }
+  },
+  "checks": 6,
+  "mismatches": 0,
+  "NOTE": "the group-free curves bin along a CONTINUOUS cosine axis (a running average); cells are never partitioned into types. Per-cell cosines are a new quantity and are not comparable in magnitude to the published cluster-level cosines."
+}

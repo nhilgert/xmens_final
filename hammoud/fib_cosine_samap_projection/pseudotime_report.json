@@ -1,0 +1,152 @@
+{
+  "run_utc": "2026-09-04 17:04:22",
+  "sources": {
+    "joint": {
+      "path": "/n/netscratch/eddy_lab/Everyone/nhilgert/2026_09_02_samap_raw_all.h5ad",
+      "n_obs": 90730,
+      "columns": [
+        "hs_dpt_pseudotime_provenance"
+      ],
+      "sample_column": "sample",
+      "detail": {
+        "hs_dpt_pseudotime_provenance": {
+          "coverage": 0.0,
+          "vmin": null,
+          "vmax": null
+        }
+      }
+    },
+    "human": {
+      "path": "/n/lab_storage/eddy_lab/users/nhilgert/xmens_final/data/deliverables/2026_08_28_Cevrim_Human_Only_Fib_Dec_Cells.h5ad",
+      "n_obs": 47533,
+      "columns": [
+        "dpt_pseudotime",
+        "dpt_pseudotime_provenance"
+      ],
+      "sample_column": "sample",
+      "detail": {
+        "dpt_pseudotime": {
+          "coverage": 1.0,
+          "vmin": 0.0,
+          "vmax": 1.0,
+          "per_sample": {
+            "menstrual_mck5a": {
+              "min": 0.0122,
+              "max": 1.0,
+              "median": 0.4164,
+              "size": 8237
+            },
+            "menstrual_mck5b": {
+              "min": 0.0065,
+              "max": 0.904,
+              "median": 0.4172,
+              "size": 8361
+            },
+            "menstrual_mck5c": {
+              "min": 0.0,
+              "max": 0.9928,
+              "median": 0.4171,
+              "size": 7494
+            },
+            "secretory_mck6a": {
+              "min": 0.0043,
+              "max": 0.5925,
+              "median": 0.4026,
+              "size": 9122
+            },
+            "secretory_mck6b": {
+              "min": 0.0069,
+              "max": 0.7346,
+              "median": 0.4025,
+              "size": 8926
+            },
+            "secretory_mck6c": {
+              "min": 0.0069,
+              "max": 0.6151,
+              "median": 0.4037,
+              "size": 5393
+            }
+          },
+          "all_samples_span_full_range": false
+        },
+        "dpt_pseudotime_provenance": {
+          "coverage": 0.0,
+          "vmin": null,
+          "vmax": null
+        }
+      }
+    },
+    "mouse": {
+      "path": "/n/lab_storage/eddy_lab/users/nhilgert/xmens_final/data/deliverables/2026_08_28_Cevrim_XMens_Only_Fib_Dec_Cells.h5ad",
+      "n_obs": 43197,
+      "columns": [
+        "dpt_pseudotime"
+      ],
+      "sample_column": "sample",
+      "detail": {
+        "dpt_pseudotime": {
+          "coverage": 1.0,
+          "vmin": 0.0,
+          "vmax": 1.0,
+          "per_sample": {
+            "1_dpi_early_mck1": {
+              "min": 0.0141,
+              "max": 0.4699,
+              "median": 0.4048,
+              "size": 2688
+            },
+            "1_dpi_late_mck12a": {
+              "min": 0.1334,
+              "max": 0.7588,
+              "median": 0.4102,
+              "size": 5743
+            },
+            "1_dpi_late_mck12b": {
+              "min": 0.166,
+              "max": 0.5027,
+              "median": 0.4108,
+              "size": 5044
+            },
+            "2_dpi_mck15": {
+              "min": 0.2302,
+              "max": 0.7606,
+              "median": 0.4222,
+              "size": 3574
+            },
+            "3_dpi_mck10a": {
+              "min": 0.3178,
+              "max": 0.8219,
+              "median": 0.4364,
+              "size": 4938
+            },
+            "3_dpi_mck10b": {
+              "min": 0.2962,
+              "max": 0.5719,
+              "median": 0.4367,
+              "size": 5735
+            },
+            "4_dpi_bleeding_mck11a": {
+              "min": 0.3364,
+              "max": 1.0,
+              "median": 0.444,
+              "size": 6141
+            },
+            "uninduced_mck8a": {
+              "min": 0.005,
+              "max": 0.4251,
+              "median": 0.3945,
+              "size": 4991
+            },
+            "uninduced_mck8b": {
+              "min": 0.0,
+              "max": 0.4192,
+              "median": 0.3954,
+              "size": 4343
+            }
+          },
+          "all_samples_span_full_range": false
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "object": "/n/netscratch/eddy_lab/Everyone/nhilgert/2026_08_28_Cevrim_XMens_Only_Fib_Dec_Cells.h5ad",
+  "cluster_key": "fine_refined",
+  "n_cells": 43197,
+  "panel_genes": 15606,
+  "atlas_genes_translated": 15681,
+  "ortholog_policy": "Ensembl116 strict one2one, symbol-unique both ways",
+  "note": "cross-species arm; contrastive cosine headline, raw Spearman for continuity"
+}

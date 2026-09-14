@@ -1,0 +1,94 @@
+{
+ "rootA_globalmax": {
+  "spec": {
+   "dc": 1,
+   "side": "high",
+   "pct": 0
+  },
+  "root_barcode": "TGGTTAGCAGACCCGT-1-1_dpi_late_mck12b",
+  "root_idx": 17820,
+  "root_subtype": "efib_subluminal",
+  "root_timepoint": "1_dpi_late",
+  "root_DC1": 0.006672555580735207,
+  "root_DC1_global_pct": 1.0,
+  "dpt": {
+   "rho_subtype_rank": 0.7519,
+   "rho_timepoint": 0.7404,
+   "rho_timepoint_decidual_only": 0.4506,
+   "verdict": "OK"
+  },
+  "palantir": {
+   "rho_subtype_rank": 0.8117,
+   "rho_timepoint": 0.5838,
+   "rho_timepoint_decidual_only": 0.4308,
+   "verdict": "OK"
+  },
+  "spearman_dpt_vs_palantir": 0.8496,
+  "subtype_median_palantir_rank": {
+   "efib_proliferative": 0.4599,
+   "efib_middle": 0.2553,
+   "efib_middle_induced": 0.2204,
+   "efib_subluminal": 0.0909,
+   "decidual_boundary": 0.5437,
+   "decidual_proliferative": 0.7227,
+   "decidual_mature": 0.9468
+  },
+  "timepoint_median_palantir_rank": {
+   "uninduced": 0.2269,
+   "1_dpi_early": 0.4529,
+   "1_dpi_late": 0.4646,
+   "2_dpi": 0.5777,
+   "3_dpi": 0.7413,
+   "4_dpi_bleeding": 0.7603
+  }
+ },
+ "rootB_uninduced_efibmiddle": {
+  "spec": {
+   "timepoint": "uninduced",
+   "subtype": "efib_middle",
+   "dc": 1,
+   "side": "high",
+   "pct": 2
+  },
+  "root_barcode": "CCTCACATCTGAGAAA-1-uninduced_mck8a",
+  "root_idx": 245,
+  "root_subtype": "efib_middle",
+  "root_timepoint": "uninduced",
+  "root_DC1": 0.004480084870010614,
+  "root_DC1_global_pct": 0.944,
+  "dpt": {
+   "rho_subtype_rank": 0.7968,
+   "rho_timepoint": 0.5663,
+   "rho_timepoint_decidual_only": 0.4617,
+   "verdict": "OK"
+  },
+  "palantir": {
+   "rho_subtype_rank": 0.8117,
+   "rho_timepoint": 0.5838,
+   "rho_timepoint_decidual_only": 0.4308,
+   "verdict": "OK"
+  },
+  "spearman_dpt_vs_palantir": 0.7472,
+  "subtype_median_palantir_rank": {
+   "efib_proliferative": 0.4599,
+   "efib_middle": 0.2553,
+   "efib_middle_induced": 0.2204,
+   "efib_subluminal": 0.0909,
+   "decidual_boundary": 0.5437,
+   "decidual_proliferative": 0.7227,
+   "decidual_mature": 0.9468
+  },
+  "timepoint_median_palantir_rank": {
+   "uninduced": 0.2269,
+   "1_dpi_early": 0.4529,
+   "1_dpi_late": 0.4646,
+   "2_dpi": 0.5777,
+   "3_dpi": 0.7413,
+   "4_dpi_bleeding": 0.7603
+  }
+ },
+ "agreement_between_roots": {
+  "dpt": 0.7869,
+  "palantir": 1.0
+ }
+}

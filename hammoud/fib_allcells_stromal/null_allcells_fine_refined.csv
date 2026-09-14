@@ -1,0 +1,12 @@
+,mean,std,max
+ciliated epithelium,0.0285,0.0121,0.0742
+Macrophages,0.0284,0.011,0.0604
+CD8 T Cells,0.0309,0.0105,0.0631
+GZMB hi. ITGAX hi uNK Cells,0.029,0.0101,0.0588
+Gamma/Delta T Cells,0.0294,0.0118,0.0676
+GZMB lo. ITGAX lo. uNK Cells,0.0333,0.0118,0.0662
+Mast Cells,0.0294,0.0113,0.0614
+Regulatory T Cells,0.0308,0.0115,0.0629
+CD4 T Cells,0.0303,0.0113,0.0617
+blood endothelium,0.0343,0.0118,0.0708
+lymphatic endothelium,0.0308,0.0109,0.0716

@@ -1,0 +1,19 @@
+{
+  "purpose": "all 11 Ulrich stromal centroids against the human ALL-CELLS object, plus the fib/dec cells grouped by leiden_0.5 imported by barcode",
+  "run_utc": "2026-09-04 13:27:46",
+  "object": "/n/lab_storage/eddy_lab/users/nhilgert/xmens_final/data/deliverables/2026_08_28_Cevrim_Human_All_Cells.h5ad",
+  "n_cells": 66830,
+  "shared_genes": 33791,
+  "n_panel": 3000,
+  "n_perm": 100,
+  "annotation_columns": [
+    "coarse_refined",
+    "cell_type",
+    "fine_refined",
+    "cell_subtype"
+  ],
+  "leiden_cells_labelled": 47533,
+  "CONTROL_NOTE": "the 5 subtypes used as negative controls in the fib/dec object (Stro-1/2/3/4/6) are EXPECTED to be present in whole tissue, so that floor does not apply here; a gene-label permutation null replaces it and cross-class specificity is the informative control.",
+  "checks": 4,
+  "mismatches": 0
+}

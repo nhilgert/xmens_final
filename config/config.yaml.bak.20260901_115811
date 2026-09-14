@@ -1,0 +1,238 @@
+seed: 0
+genome_references:
+  mouse:
+    name: transgenic_mus
+    path: /n/lab_storage/eddy_lab/users/nhilgert/reference/transgenic_mus
+    mkref_version: 7.2.0
+    transgenes:
+    - CHRM3_Jax026220 (GqD / Chrm3*)
+    - GsD_Berdeaux (GsD)
+    note: custom build; not a stock refdata. See preprocessing/reference/.
+  human:
+    name: refdata-gex-GRCh38-2024-A
+    path: /n/lab_storage/eddy_lab/users/nhilgert/reference/human/refdata-gex-GRCh38-2024-A
+cellranger:
+  count_version: 7.2.0
+  mkfastq_version: 8.0.1
+cellbender:
+  version: 0.2.2
+  total_droplets_included: 50000
+  env: cellbender_022
+  cellranger_raw: /n/lab_storage/eddy_lab/users/nhilgert/decidualization/revisions/velocity/{lane}/cellranger/outs/raw_feature_bc_matrix.h5
+  output_dir: /n/lab_storage/eddy_lab/users/nhilgert/decidualization/xmens_inputs_regen
+coords:
+  dir: /n/lab_storage/eddy_lab/users/nhilgert/Slide-tags/coords
+  pattern: '{coords_id}_coords.csv'
+  x_col: dbscan_1
+  y_col: dbscan_2
+envs:
+  doubletdetection: /n/lab_storage/eddy_lab/users/nhilgert/.conda/envs/cuda11.8_env
+  scenic: /n/lab_storage/eddy_lab/users/nhilgert/.conda/envs/pyscenic
+  samap: /n/lab_storage/eddy_lab/users/nhilgert/.conda/envs/SAMap
+qc:
+  min_counts: 500
+  n_mads: 3
+  max_pct_mito: 8
+mito_prefix:
+  mouse: mt-
+  human: MT-
+doublet:
+  package: doubletdetection
+  version: '4.2'
+  n_iters: 40
+  voter_thresh: 0.5
+  p_thresh: 1.0e-07
+  n_top_var_genes: 3000
+scvi:
+  n_hvg: 3000
+  hvg_flavor: seurat_v3
+  n_latent: 30
+  n_layers: 2
+  batch_key: sample
+  exclude_mito_ribo: true
+leiden:
+  resolution: 0.1
+  knn: 100
+pseudotime:
+  knn: 15
+  n_diffmap: 10
+pseudotime_tests:
+  input_h5ad: data/interim/migrated/xmens_annotation_v1_20260810/final_mouse_migrated.h5ad
+  test_output_dir: data/interim/_pt_test_20260811
+  n_hvg: 3000
+  n_latent: 30
+  n_neighbors: 15
+  n_diffmap: 15
+  max_epochs: 400
+  seed: 0
+  timepoints:
+    1dpi_late:
+      timepoint: 1_dpi_late
+      stage_tag: 1dpi_late
+      root_dc: 1
+      root_sign: 1
+      root_subtype: null
+      apop_quantile: null
+      exclude_apoptotic_subtype: true
+    4dpi:
+      timepoint: 4_dpi_bleeding
+      stage_tag: 4dpi
+      root_dc: 1
+      root_sign: 1
+      root_subtype: null
+      apop_quantile: null
+      exclude_apoptotic_subtype: true
+    3dpi:
+      timepoint: 3_dpi
+      stage_tag: 3dpi
+      root_dc: null
+      root_sign: null
+      root_subtype: null
+      apop_quantile: null
+      exclude_apoptotic_subtype: true
+mi:
+  n_neighbors: 3
+  n_perm: 1000
+  q_thresh: 0.05
+  top_percentile: 90
+expected_cells:
+  mouse_postqc: 57242
+  human_postqc: 64553
+lineages:
+  mouse:
+  - stromal
+  - epithelial
+  - immune
+  - vascular
+  - smc
+  - perimetrium
+  human:
+  - stromal
+  - epithelial
+  - immune
+  - perivascular
+  - smc
+repo: /n/lab_storage/eddy_lab/users/nhilgert/xmens_final
+annotation_references:
+  mouse: /n/lab_storage/eddy_lab/users/nhilgert/decidualization/revisions/adatas/submission/20251008_Cevrim_XMens_All_Cells.h5ad
+  human: /n/lab_storage/eddy_lab/users/nhilgert/decidualization/revisions/adatas/submission/20251008_Cevrim_Human_All_Cells.h5ad
+published_n:
+  mouse: 57242
+  human: 64553
+annotate_res:
+  mouse: leiden_scVI_3.0
+  human: leiden_scVI_3.0
+clustree:
+  targets:
+  - mouse_stromal
+  range:
+    start: 0.1
+    stop: 0.8
+    step: 0.1
+samap:
+  root: /n/lab_storage/eddy_lab/users/nhilgert/decidualization/revisions/samap_integrate
+  coords_root: /n/lab_storage/eddy_lab/users/nhilgert/decidualization/revisions/crossspecies_radial_gp
+  proteomes_root: /n/lab_storage/eddy_lab/users/nhilgert/data/proteomes
+  python: /n/lab_storage/eddy_lab/users/nhilgert/xmens_final/envs/samap/.venv/bin/python
+  saturn_python: /n/lab_storage/eddy_lab/users/nhilgert/.uv/envs/saturn_uv/bin/python
+  phmmer: /n/lab_storage/eddy_lab/users/nhilgert/software/hmmer-3.4/src/phmmer
+  n_iter: 3
+  pairs:
+  - menstrual_x_uninduced_hmmer
+  - menstrual_x_1dpi_early_hmmer
+  - menstrual_x_1dpi_late_hmmer
+  - menstrual_x_2dpi_hmmer
+  - menstrual_x_3dpi_hmmer
+  - menstrual_x_4dpi_hmmer
+  - secretory_x_uninduced_hmmer
+  - secretory_x_1dpi_early_hmmer
+  - secretory_x_1dpi_late_hmmer
+  - secretory_x_2dpi_hmmer
+  - secretory_x_3dpi_hmmer
+  - secretory_x_4dpi_hmmer
+  pt_h5ad:
+    menstrual_x_4dpi_hmmer: /n/lab_storage/eddy_lab/users/nhilgert/decidualization/revisions/adatas/pseudotime/adata_4dpi.h5ad
+    secretory_x_1dpi_late_hmmer: /n/lab_storage/eddy_lab/users/nhilgert/decidualization/revisions/adatas/pseudotime/adata_1dpi.h5ad
+mi_pseudotime:
+  python: /n/lab_storage/eddy_lab/users/nhilgert/.uv/envs/rsc_uv/bin/python
+  n_chunks: 200
+  perms: 1001
+  min_counts: 10
+  layer: log1p
+  runs:
+    mouse_dpt:
+      h5ad: pseudotime_mouse_v2_induced_no_apop/2026_08_28_mouse_fibdec_pseudotime_rooted.h5ad
+      pt_key: dpt_pseudotime
+    mouse_palantir_rtk:
+      h5ad: pseudotime_mouse_v2_induced_no_apop/2026_08_28_mouse_fibdec_pseudotime_rooted.h5ad
+      pt_key: palantir_pt_rtk
+    human_dpt:
+      h5ad: results/isodepth/human_fibdec_isodepth.h5ad
+      pt_key: dpt_pseudotime
+    human_isodepth:
+      h5ad: results/isodepth/human_fibdec_isodepth.h5ad
+      pt_key: isodepth_consensus
+    mouse_isodepth:
+      h5ad: results/isodepth/mouse_fibdec_isodepth.h5ad
+      pt_key: isodepth_consensus
+spatial_gp:
+  python: /n/lab_storage/eddy_lab/users/nhilgert/.uv/envs/rsc_uv/bin/python
+  runs:
+    mouse_dpt_1dpi_late:
+      h5ad: pseudotime_mouse_v2_induced_no_apop/2026_08_28_mouse_fibdec_pseudotime_rooted.h5ad
+      pt_key: dpt_pseudotime
+      timepoint: 1_dpi_late
+    mouse_dpt_4dpi:
+      h5ad: pseudotime_mouse_v2_induced_no_apop/2026_08_28_mouse_fibdec_pseudotime_rooted.h5ad
+      pt_key: dpt_pseudotime
+      timepoint: 4_dpi_bleeding
+scenic:
+  python: /n/lab_storage/eddy_lab/users/nhilgert/.conda/envs/pyscenic/bin/python
+  rev: /n/lab_storage/eddy_lab/users/nhilgert/decidualization/revisions/scenic
+  n_seeds: 50
+  base_seed: 1000
+  sketch: 15k
+  mode: weighted_soft
+  species:
+  - mouse
+  - human
+liana:
+  python: /n/lab_storage/eddy_lab/users/nhilgert/.uv/envs/rsc_uv/bin/python
+  dir: /n/lab_storage/eddy_lab/users/nhilgert/decidualization/revisions/liana_pipeline_final
+  expr_prop: 0.1
+  cell_type_key: cell_type_annotations
+  runs:
+    human:
+      h5ad: liana_input_human_subset.h5ad
+      timepoints:
+      - menstrual
+      - secretory
+    mouse:
+      h5ad: liana_input_mouse_fine_v2.h5ad
+      timepoints:
+      - uninduced
+      - 1dpi_early
+      - 1dpi_late
+      - 2dpi
+      - 3dpi
+      - 4dpi_menstrual
+pt_per_timepoint:
+  python: /n/lab_storage/eddy_lab/users/nhilgert/.uv/envs/rsc_uv/bin/python
+  drop_subtypes:
+    mouse:
+    - decidual_apoptotic
+    human: []
+  h5ad:
+    mouse: data/deliverables/2026_08_28_Cevrim_XMens_Only_Fib_Dec_Cells.h5ad
+    human: data/deliverables/2026_08_28_Cevrim_Human_Only_Fib_Dec_Cells.h5ad
+  timepoints:
+    mouse:
+    - uninduced
+    - 1_dpi_early
+    - 1_dpi_late
+    - 2_dpi
+    - 3_dpi
+    - 4_dpi_bleeding
+    human:
+    - secretory
+    - menstrual

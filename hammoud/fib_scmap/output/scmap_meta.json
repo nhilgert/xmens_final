@@ -1,0 +1,11 @@
+{
+  "scmap_version": "1.28.0",
+  "R": "R version 4.4.3 (2025-02-28)",
+  "threshold": 0.7,
+  "n_features": 500,
+  "run_utc": "2026-09-11 17:32:28",
+  "departures": ["S5B centroids are means (linear pseudobulk then log1p); scmap indexes are per-gene medians", "direction A features selected on the QUERY (our data) because the atlas provides no cells", "direction A also run with a variance-500 panel over the atlas columns as a sensitivity"],
+  "expectation": "scmap uses RAW cosine/Pearson/Spearman with a fixed 0.7 threshold; across the snRNA-vs-scRNA gap raw similarities sit below 0.7 for most cells, so a high unassigned fraction in A is the documented cross-batch behaviour, not evidence against the correspondence. Read the unthresholded best-centroid tables alongside.",
+  "checks": 7,
+  "mismatches": 0
+}

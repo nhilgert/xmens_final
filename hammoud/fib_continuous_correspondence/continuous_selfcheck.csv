@@ -1,0 +1,21 @@
+claim,recomputed,recorded,status
+stromal subtype columns in S5B,11,11,PASS
+C7 is a published Stro-7 marker,True,True,PASS
+Fitzgerald C12 gene list length,30,30,PASS
+C7 has a strict 1:1 mouse ortholog,True,True,PASS
+gene axis is species-prefixed,True,True,PASS
+human: cell count,47533,47533,PASS
+human: no atlas marker in panel1,0,0,PASS
+human: C7 held out of panel1,True,True,PASS
+human: no Fitzgerald gene in panel2,0,0,PASS
+human: C7 correlates most with the Stro-7 cosine of all 11,Stro-7,Stro-7,PASS
+human: Fitzgerald C12 module correlates most with the Stro-7 cosine,Stro-7,Stro-7,PASS
+human: all 11 subtypes have a marker score,11,11,PASS
+human: C7~Stro-7 is positive in every sample,True,True,PASS
+mouse: cell count,43197,43197,PASS
+mouse: no atlas marker in panel1,0,0,PASS
+mouse: C7 held out of panel1,True,True,PASS
+mouse: no Fitzgerald gene in panel2,0,0,PASS
+mouse: C7 correlates most with the Stro-7 cosine of all 11,Stro-3,Stro-7,MISMATCH
+mouse: all 11 subtypes have a marker score,11,11,PASS
+mouse: C7~Stro-7 is positive in every sample,False,True,MISMATCH

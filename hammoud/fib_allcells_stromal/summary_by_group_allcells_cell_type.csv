@@ -1,0 +1,8 @@
+group,best_subtype,cosine,runner_up,margin,perm_null_max,above_null
+epithelial_cell,Stro-5_RUNX3+ Fibroblast,0.1046,Stro-11_Stromal progenitor,0.0382,0.0628,True
+decidual_cell,Stro-8_dS1,0.3718,Stro-9_dS2,0.0286,0.0729,True
+endometrial_fibroblast,Stro-10_dS3,0.3247,Stro-7_C7 Fibroblast,0.0038,0.0618,True
+perivascular_cell,Stro-3_PV STEAP4,0.5192,Stro-2_PV MYH11 FOXC1lo CTGFhi,0.1986,0.0682,True
+immune_cell,Stro-5_RUNX3+ Fibroblast,0.3943,Stro-11_Stromal progenitor,0.352,0.0713,True
+endothelial_cell,Stro-4_Tissue resident vascular progenitor,0.4697,Stro-2_PV MYH11 FOXC1lo CTGFhi,0.3873,0.0702,True
+smooth_muscle_cell,Stro-6_uSMC,0.5152,Stro-1_PV MYH11 FOXC1hi CTGFlo,0.4029,0.0719,True

@@ -7,7 +7,7 @@
 # to another cluster, edit this file only (partition names, exclude list, paths).
 
 executor: slurm
-jobs: 20                          # max concurrent submitted jobs
+jobs: 200                          # max concurrent submitted jobs
 rerun-incomplete: true
 printshellcmds: true
 
@@ -43,6 +43,20 @@ set-resources:
     cpus_per_task: 16
     runtime: 480
     mem_mb: 64000
+  # SCENIC seed sweep (13_scenic.smk). cpus_per_task MUST match the rule's threads: the
+  # slurm executor lets default-resources cpus_per_task (4) override `threads`, which on
+  # 2026-09-07 launched 16-worker GRNBoost2 jobs on 4-core allocations. mem/runtime come
+  # from the rules (64G/3d, 96G/8h, 128G/4h, 64G/2h).
+  scenic_pooled:
+    cpus_per_task: 4
+  scenic_sketch:
+    cpus_per_task: 2
+  scenic_grn:
+    cpus_per_task: 16
+  scenic_ctx:
+    cpus_per_task: 8
+  scenic_consensus:
+    cpus_per_task: 8
   samap:
     cpus_per_task: 8
     runtime: 240

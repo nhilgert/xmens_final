@@ -1,0 +1,81 @@
+[01:05:54] loading atlas centroids
+[01:06:12]   atlas: 43,090 genes x 39 subtypes
+[01:06:12] loading human object
+[01:06:21]   47,533 nuclei x 36,601 genes
+[01:06:21]   33,791 genes shared with the atlas
+[01:06:21]   donors: {'mck5': 24092, 'mck6': 23441}
+[01:06:21]   samples: {'secretory_mck6a': 9122, 'secretory_mck6b': 8926, 'menstrual_mck5b': 8361, 'menstrual_mck5a': 8237, 'menstrual_mck5c': 7494, 'secretory_mck6c': 5393}
+[01:06:21] building neighbor graph on X_scVI
+[01:07:13] resolution sweep
+[01:07:16]   res=0.3: 2 clusters, 2/6 reciprocal
+[01:07:20]   res=0.5: 6 clusters, 3/6 reciprocal
+[01:07:23]   res=0.8: 6 clusters, 3/6 reciprocal
+[01:07:26]   res=1.2: 12 clusters, 3/6 reciprocal
+[01:07:30]   res=2.0: 22 clusters, 4/6 reciprocal
+[01:07:30] chosen resolution: 2.0 (22 clusters)
+[01:07:30] primary mapping
+[01:07:32]   fib: 4/6 subtypes reciprocal
+[01:07:32]   stro: 5/11 subtypes reciprocal
+[01:07:32] 
+                           best_query  score  margin  reciprocal  n_in_best_query
+Stro-5_RUNX3+ Fibroblast           19  0.080   0.009        True              250
+Stro-7_C7 Fibroblast               16  0.429   0.208        True             3756
+Stro-8_dS1                         21  0.296   0.023        True             1106
+Stro-9_dS2                         21  0.164   0.020       False             1106
+Stro-10_dS3                        10  0.241   0.007        True             4150
+Stro-11_Stromal progenitor          0  0.112   0.039       False             2694
+[01:07:32] per-sample and per-phase replication
+[01:07:33] 
+                      subtype modal  agreement  n_samples
+0                 Stro-10_dS3     0        0.5          6
+1  Stro-11_Stromal progenitor     0        1.0          6
+2    Stro-5_RUNX3+ Fibroblast    21        0.5          6
+3        Stro-7_C7 Fibroblast    16        1.0          6
+4                  Stro-8_dS1    21        0.5          6
+5                  Stro-9_dS2    21        0.5          6
+[01:07:33] marker ablation
+[01:07:33] gene bootstrap (500 draws)
+[01:07:35] 
+                      subtype modal_query  frequency runner_up  runner_up_freq  mean_score  sd_score
+0    Stro-5_RUNX3+ Fibroblast          19      0.710        10           0.236       0.082     0.011
+1        Stro-7_C7 Fibroblast          16      1.000      None           0.000       0.429     0.015
+2                  Stro-8_dS1          21      0.978        20           0.022       0.296     0.014
+3                  Stro-9_dS2          21      0.884        20           0.116       0.164     0.018
+4                 Stro-10_dS3          10      0.634         0           0.362       0.245     0.011
+5  Stro-11_Stromal progenitor           0      1.000      None           0.000       0.113     0.011
+[01:07:35] held-out gene splits
+[01:07:47] 
+                      subtype  validation_agreement  median_validation_margin  n_rep
+0    Stro-5_RUNX3+ Fibroblast                 0.012                     0.023    500
+1        Stro-7_C7 Fibroblast                 0.442                     0.050    500
+2                  Stro-8_dS1                 0.922                     0.081    500
+3                  Stro-9_dS2                 0.998                     0.139    500
+4                 Stro-10_dS3                 0.348                     0.033    500
+5  Stro-11_Stromal progenitor                 0.148                     0.035    500
+[01:07:47] marker sets and per-cell scores
+[01:07:55] 
+            score_Stro-5  score_Stro-7  score_Stro-8  score_Stro-9  score_Stro-10  score_Stro-11
+leiden_2.0                                                                                      
+0                 -0.012         0.237         0.468         0.250          0.706         -0.016
+1                 -0.010         0.363         0.558         0.241          0.702          0.036
+2                 -0.010         0.215         0.545         0.297          0.670         -0.024
+3                 -0.012         0.253         0.364         0.220          0.468         -0.014
+4                 -0.010         0.194         0.227         0.206          0.394         -0.014
+5                 -0.011         0.329         0.547         0.256          0.693          0.005
+6                 -0.013         0.321         0.420         0.207          0.604         -0.003
+7                 -0.010         0.178         0.194         0.213          0.382         -0.008
+8                 -0.010         0.283         0.477         0.242          0.708         -0.014
+9                 -0.009         0.235         0.233         0.206          0.424         -0.017
+10                -0.010         0.180         0.341         0.239          0.545         -0.030
+11                -0.010         0.173         0.469         0.321          0.564         -0.035
+12                -0.011         0.239         0.343         0.240          0.570         -0.002
+13                -0.009         0.208         0.184         0.198          0.333         -0.016
+14                -0.014         0.253         0.410         0.260          0.566         -0.001
+15                -0.013         0.269         0.267         0.226          0.429         -0.010
+16                -0.002         0.376         0.234         0.201          0.320         -0.021
+17                -0.014         0.205         0.261         0.199          0.399         -0.014
+18                -0.014         0.191         0.266         0.219          0.444         -0.020
+19                -0.009         0.157         0.199         0.228          0.376         -0.029
+20                -0.010         0.141         0.527         0.381          0.432          0.018
+21                 0.003         0.124         0.517         0.445          0.429         -0.038
+[01:07:55] done -> /n/lab_storage/eddy_lab/users/nhilgert/xmens_final/hammoud/fib_centroid_results

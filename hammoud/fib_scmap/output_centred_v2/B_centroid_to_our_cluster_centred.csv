@@ -1,0 +1,12 @@
+"centroid","control","agree_label","siml","label_nullthr","best_cosine","max_cosine","best_pearson","best_spearman","max_spearman"
+"Stro-1_PV MYH11 FOXC1hi CTGFlo",TRUE,"4",0.0127,"unassigned","5",0.0588,"5","4",0.0456
+"Stro-2_PV MYH11 FOXC1lo CTGFhi",TRUE,"4",0.0269,"unassigned","5",0.0423,"5","4",0.0499
+"Stro-3_PV STEAP4",TRUE,"unassigned",-Inf,"unassigned","5",0.0621,"5","4",0.0641
+"Stro-4_Tissue resident vascular progenitor",TRUE,"4",0.0172,"unassigned","4",0.0489,"4","4",0.0466
+"Stro-5_RUNX3+ Fibroblast",FALSE,"3",0.0251,"unassigned","1",0.0518,"1","1",0.058
+"Stro-6_uSMC",TRUE,"3",0.0215,"unassigned","3",0.0568,"3","4",0.012
+"Stro-7_C7 Fibroblast",FALSE,"3",0.0193,"unassigned","3",0.1105,"3","3",0.077
+"Stro-8_dS1",FALSE,"3",0.028,"unassigned","0",0.083,"0","4",0.0708
+"Stro-9_dS2",FALSE,"3",0.0353,"unassigned","1",0.0645,"1","0",0.0386
+"Stro-10_dS3",FALSE,"3",0.0268,"unassigned","1",0.1694,"1","0",0.1412
+"Stro-11_Stromal progenitor",FALSE,"2",0.011,"unassigned","1",0.0679,"1","1",0.078

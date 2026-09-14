@@ -1,0 +1,616 @@
+{
+ "note": "04f run 2026-09-02: far = 5 plain MADs (n_mads 5.0, mad_scale 1.0), 10 exclusion boxes, degenerate (dup coords / <10um); tissue_section = {sample}__A with uninduced split by y > x - 500. Human = degenerate-only per user decision; its tissue_section uses the same single-section default. obsm['X_spatial'] now holds the QC'd coordinates (it previously held raw). x_um_dbscan/y_um_dbscan left untouched.",
+ "objects": {
+  "lab:2026_09_02_Cevrim_XMens_All_Cells.h5ad": {
+   "tag": "lab  mouse All   2026_09_02",
+   "path": "/n/lab_storage/eddy_lab/users/nhilgert/xmens_final/data/deliverables/2026_09_02_Cevrim_XMens_All_Cells.h5ad",
+   "backup": "2026_09_02_Cevrim_XMens_All_Cells.h5ad.pre_5mad_coords.bak",
+   "n_obs": 57033,
+   "status": "already synced (verified, not rewritten)",
+   "joined_frac": 1.0,
+   "n_qc_coords_after": 29678,
+   "raw_finite": 31630,
+   "qc_finite": 29678,
+   "qc_finite_but_raw_nan": 0,
+   "readback_ok": true,
+   "obsm_updated": [
+    "X_spatial"
+   ],
+   "size_gb": 1.87,
+   "reasons": {
+    "kept": 29678,
+    "unmapped": 25403,
+    "degenerate": 1272,
+    "far": 544,
+    "boxed": 136
+   },
+   "sections": {
+    "4_dpi_bleeding_mck11a__A": 5703,
+    "1_dpi_late_mck12a__A": 4093,
+    "3_dpi_mck10b__A": 4071,
+    "3_dpi_mck10a__A": 3639,
+    "2_dpi_mck15__A": 2500,
+    "uninduced_mck8a__B": 1733,
+    "1_dpi_late_mck12b__A": 1659,
+    "uninduced_mck8b__B": 1631,
+    "1_dpi_early_mck1__A": 1607,
+    "uninduced_mck8a__A": 1565,
+    "uninduced_mck8b__A": 1477
+   }
+  },
+  "lab:2026_09_02_Cevrim_XMens_Only_Fib_Dec_Cells.h5ad": {
+   "tag": "lab  mouse FibDec 2026_09_02",
+   "path": "/n/lab_storage/eddy_lab/users/nhilgert/xmens_final/data/deliverables/2026_09_02_Cevrim_XMens_Only_Fib_Dec_Cells.h5ad",
+   "backup": "2026_09_02_Cevrim_XMens_Only_Fib_Dec_Cells.h5ad.pre_5mad_coords.bak",
+   "n_obs": 43197,
+   "status": "already synced (verified, not rewritten)",
+   "joined_frac": 1.0,
+   "n_qc_coords_after": 23647,
+   "raw_finite": 24880,
+   "qc_finite": 23647,
+   "qc_finite_but_raw_nan": 0,
+   "readback_ok": true,
+   "obsm_updated": [
+    "X_spatial"
+   ],
+   "size_gb": 1.46,
+   "reasons": {
+    "kept": 23647,
+    "unmapped": 18217,
+    "degenerate": 961,
+    "far": 298,
+    "boxed": 74
+   },
+   "sections": {
+    "4_dpi_bleeding_mck11a__A": 4536,
+    "3_dpi_mck10b__A": 3582,
+    "1_dpi_late_mck12a__A": 3451,
+    "3_dpi_mck10a__A": 3187,
+    "2_dpi_mck15__A": 2127,
+    "1_dpi_late_mck12b__A": 1458,
+    "1_dpi_early_mck1__A": 1407,
+    "uninduced_mck8a__B": 1066,
+    "uninduced_mck8b__B": 966,
+    "uninduced_mck8a__A": 961,
+    "uninduced_mck8b__A": 906
+   }
+  },
+  "lab:2026_08_28_Cevrim_XMens_All_Cells.h5ad": {
+   "tag": "lab  mouse All   2026_08_28",
+   "path": "/n/lab_storage/eddy_lab/users/nhilgert/xmens_final/data/deliverables/2026_08_28_Cevrim_XMens_All_Cells.h5ad",
+   "backup": "2026_08_28_Cevrim_XMens_All_Cells.h5ad.pre_5mad_coords.bak",
+   "n_obs": 57033,
+   "status": "already synced (verified, not rewritten)",
+   "joined_frac": 1.0,
+   "n_qc_coords_after": 29678,
+   "raw_finite": 31630,
+   "qc_finite": 29678,
+   "qc_finite_but_raw_nan": 0,
+   "readback_ok": true,
+   "obsm_updated": [
+    "X_spatial"
+   ],
+   "size_gb": 1.87,
+   "reasons": {
+    "kept": 29678,
+    "unmapped": 25403,
+    "degenerate": 1272,
+    "far": 544,
+    "boxed": 136
+   },
+   "sections": {
+    "4_dpi_bleeding_mck11a__A": 5703,
+    "1_dpi_late_mck12a__A": 4093,
+    "3_dpi_mck10b__A": 4071,
+    "3_dpi_mck10a__A": 3639,
+    "2_dpi_mck15__A": 2500,
+    "uninduced_mck8a__B": 1733,
+    "1_dpi_late_mck12b__A": 1659,
+    "uninduced_mck8b__B": 1631,
+    "1_dpi_early_mck1__A": 1607,
+    "uninduced_mck8a__A": 1565,
+    "uninduced_mck8b__A": 1477
+   }
+  },
+  "lab:2026_08_28_Cevrim_XMens_Only_Fib_Dec_Cells.h5ad": {
+   "tag": "lab  mouse FibDec 2026_08_28",
+   "path": "/n/lab_storage/eddy_lab/users/nhilgert/xmens_final/data/deliverables/2026_08_28_Cevrim_XMens_Only_Fib_Dec_Cells.h5ad",
+   "backup": "2026_08_28_Cevrim_XMens_Only_Fib_Dec_Cells.h5ad.pre_5mad_coords.bak",
+   "n_obs": 43197,
+   "status": "already synced (verified, not rewritten)",
+   "joined_frac": 1.0,
+   "n_qc_coords_after": 23647,
+   "raw_finite": 24880,
+   "qc_finite": 23647,
+   "qc_finite_but_raw_nan": 0,
+   "readback_ok": true,
+   "obsm_updated": [
+    "X_spatial"
+   ],
+   "size_gb": 1.46,
+   "reasons": {
+    "kept": 23647,
+    "unmapped": 18217,
+    "degenerate": 961,
+    "far": 298,
+    "boxed": 74
+   },
+   "sections": {
+    "4_dpi_bleeding_mck11a__A": 4536,
+    "3_dpi_mck10b__A": 3582,
+    "1_dpi_late_mck12a__A": 3451,
+    "3_dpi_mck10a__A": 3187,
+    "2_dpi_mck15__A": 2127,
+    "1_dpi_late_mck12b__A": 1458,
+    "1_dpi_early_mck1__A": 1407,
+    "uninduced_mck8a__B": 1066,
+    "uninduced_mck8b__B": 966,
+    "uninduced_mck8a__A": 961,
+    "uninduced_mck8b__A": 906
+   }
+  },
+  "lab:2026_08_28_Cevrim_Human_All_Cells.h5ad": {
+   "tag": "lab  human All   2026_08_28",
+   "path": "/n/lab_storage/eddy_lab/users/nhilgert/xmens_final/data/deliverables/2026_08_28_Cevrim_Human_All_Cells.h5ad",
+   "backup": "2026_08_28_Cevrim_Human_All_Cells.h5ad.pre_5mad_coords.bak",
+   "n_obs": 66830,
+   "status": "already synced (verified, not rewritten)",
+   "joined_frac": 1.0,
+   "n_qc_coords_after": 45730,
+   "raw_finite": 45734,
+   "qc_finite": 45730,
+   "qc_finite_but_raw_nan": 0,
+   "readback_ok": true,
+   "obsm_updated": [
+    "X_spatial"
+   ],
+   "size_gb": 2.1,
+   "reasons": {
+    "kept": 45730,
+    "unmapped": 21096,
+    "degenerate": 4
+   },
+   "sections": {
+    "secretory_mck6a__A": 9425,
+    "secretory_mck6b__A": 9186,
+    "menstrual_mck5b__A": 7595,
+    "menstrual_mck5a__A": 7284,
+    "menstrual_mck5c__A": 6634,
+    "secretory_mck6c__A": 5606
+   }
+  },
+  "lab:2026_08_28_Cevrim_Human_Only_Fib_Dec_Cells.h5ad": {
+   "tag": "lab  human FibDec 2026_08_28",
+   "path": "/n/lab_storage/eddy_lab/users/nhilgert/xmens_final/data/deliverables/2026_08_28_Cevrim_Human_Only_Fib_Dec_Cells.h5ad",
+   "backup": "2026_08_28_Cevrim_Human_Only_Fib_Dec_Cells.h5ad.pre_5mad_coords.bak",
+   "n_obs": 47533,
+   "status": "already synced (verified, not rewritten)",
+   "joined_frac": 1.0,
+   "n_qc_coords_after": 33247,
+   "raw_finite": 33250,
+   "qc_finite": 33247,
+   "qc_finite_but_raw_nan": 0,
+   "readback_ok": true,
+   "obsm_updated": [
+    "X_spatial"
+   ],
+   "size_gb": 1.44,
+   "reasons": {
+    "kept": 33247,
+    "unmapped": 14283,
+    "degenerate": 3
+   },
+   "sections": {
+    "secretory_mck6a__A": 7293,
+    "secretory_mck6b__A": 7131,
+    "menstrual_mck5b__A": 5148,
+    "menstrual_mck5a__A": 4863,
+    "menstrual_mck5c__A": 4487,
+    "secretory_mck6c__A": 4325
+   }
+  },
+  "lab:mouse_fibdec_isodepth_2026_09_02.h5ad": {
+   "tag": "lab  mouse isodepth 2026_09_02",
+   "path": "/n/lab_storage/eddy_lab/users/nhilgert/xmens_final/results/isodepth/mouse_fibdec_isodepth_2026_09_02.h5ad",
+   "backup": "mouse_fibdec_isodepth_2026_09_02.h5ad.pre_5mad_coords.bak",
+   "n_obs": 43197,
+   "status": "already synced (verified, not rewritten)",
+   "joined_frac": 1.0,
+   "n_qc_coords_after": 23647,
+   "raw_finite": 24880,
+   "qc_finite": 23647,
+   "qc_finite_but_raw_nan": 0,
+   "readback_ok": true,
+   "obsm_updated": [
+    "X_spatial"
+   ],
+   "size_gb": 1.47,
+   "reasons": {
+    "kept": 23647,
+    "unmapped": 18217,
+    "degenerate": 961,
+    "far": 298,
+    "boxed": 74
+   },
+   "sections": {
+    "4_dpi_bleeding_mck11a__A": 4536,
+    "3_dpi_mck10b__A": 3582,
+    "1_dpi_late_mck12a__A": 3451,
+    "3_dpi_mck10a__A": 3187,
+    "2_dpi_mck15__A": 2127,
+    "1_dpi_late_mck12b__A": 1458,
+    "1_dpi_early_mck1__A": 1407,
+    "uninduced_mck8a__B": 1066,
+    "uninduced_mck8b__B": 966,
+    "uninduced_mck8a__A": 961,
+    "uninduced_mck8b__A": 906
+   }
+  },
+  "lab:mouse_fibdec_isodepth.h5ad": {
+   "tag": "lab  mouse isodepth",
+   "path": "/n/lab_storage/eddy_lab/users/nhilgert/xmens_final/results/isodepth/mouse_fibdec_isodepth.h5ad",
+   "backup": "mouse_fibdec_isodepth.h5ad.pre_5mad_coords.bak",
+   "n_obs": 43197,
+   "status": "already synced (verified, not rewritten)",
+   "joined_frac": 1.0,
+   "n_qc_coords_after": 23647,
+   "raw_finite": 24880,
+   "qc_finite": 23647,
+   "qc_finite_but_raw_nan": 0,
+   "readback_ok": true,
+   "obsm_updated": [
+    "X_spatial"
+   ],
+   "size_gb": 1.47,
+   "reasons": {
+    "kept": 23647,
+    "unmapped": 18217,
+    "degenerate": 961,
+    "far": 298,
+    "boxed": 74
+   },
+   "sections": {
+    "4_dpi_bleeding_mck11a__A": 4536,
+    "3_dpi_mck10b__A": 3582,
+    "1_dpi_late_mck12a__A": 3451,
+    "3_dpi_mck10a__A": 3187,
+    "2_dpi_mck15__A": 2127,
+    "1_dpi_late_mck12b__A": 1458,
+    "1_dpi_early_mck1__A": 1407,
+    "uninduced_mck8a__B": 1066,
+    "uninduced_mck8b__B": 966,
+    "uninduced_mck8a__A": 961,
+    "uninduced_mck8b__A": 906
+   }
+  },
+  "lab:human_fibdec_isodepth.h5ad": {
+   "tag": "lab  human isodepth",
+   "path": "/n/lab_storage/eddy_lab/users/nhilgert/xmens_final/results/isodepth/human_fibdec_isodepth.h5ad",
+   "backup": "human_fibdec_isodepth.h5ad.pre_5mad_coords.bak",
+   "n_obs": 47533,
+   "status": "already synced (verified, not rewritten)",
+   "joined_frac": 1.0,
+   "n_qc_coords_after": 33247,
+   "raw_finite": 33250,
+   "qc_finite": 33247,
+   "qc_finite_but_raw_nan": 0,
+   "readback_ok": true,
+   "obsm_updated": [
+    "X_spatial"
+   ],
+   "size_gb": 1.46,
+   "reasons": {
+    "kept": 33247,
+    "unmapped": 14283,
+    "degenerate": 3
+   },
+   "sections": {
+    "secretory_mck6a__A": 7293,
+    "secretory_mck6b__A": 7131,
+    "menstrual_mck5b__A": 5148,
+    "menstrual_mck5a__A": 4863,
+    "menstrual_mck5c__A": 4487,
+    "secretory_mck6c__A": 4325
+   }
+  },
+  "net:2026_09_02_Cevrim_XMens_All_Cells.h5ad": {
+   "tag": "net  mouse All   2026_09_02",
+   "path": "/n/netscratch/eddy_lab/Everyone/nhilgert/2026_09_02_Cevrim_XMens_All_Cells.h5ad",
+   "backup": "2026_09_02_Cevrim_XMens_All_Cells.h5ad.pre_5mad_coords.bak",
+   "n_obs": 57033,
+   "status": "already synced (verified, not rewritten)",
+   "joined_frac": 1.0,
+   "n_qc_coords_after": 29678,
+   "raw_finite": 31630,
+   "qc_finite": 29678,
+   "qc_finite_but_raw_nan": 0,
+   "readback_ok": true,
+   "obsm_updated": [
+    "X_spatial"
+   ],
+   "size_gb": 1.87,
+   "reasons": {
+    "kept": 29678,
+    "unmapped": 25403,
+    "degenerate": 1272,
+    "far": 544,
+    "boxed": 136
+   },
+   "sections": {
+    "4_dpi_bleeding_mck11a__A": 5703,
+    "1_dpi_late_mck12a__A": 4093,
+    "3_dpi_mck10b__A": 4071,
+    "3_dpi_mck10a__A": 3639,
+    "2_dpi_mck15__A": 2500,
+    "uninduced_mck8a__B": 1733,
+    "1_dpi_late_mck12b__A": 1659,
+    "uninduced_mck8b__B": 1631,
+    "1_dpi_early_mck1__A": 1607,
+    "uninduced_mck8a__A": 1565,
+    "uninduced_mck8b__A": 1477
+   }
+  },
+  "net:2026_09_02_Cevrim_XMens_Only_Fib_Dec_Cells.h5ad": {
+   "tag": "net  mouse FibDec 2026_09_02",
+   "path": "/n/netscratch/eddy_lab/Everyone/nhilgert/2026_09_02_Cevrim_XMens_Only_Fib_Dec_Cells.h5ad",
+   "backup": "2026_09_02_Cevrim_XMens_Only_Fib_Dec_Cells.h5ad.pre_5mad_coords.bak",
+   "n_obs": 43197,
+   "status": "already synced (verified, not rewritten)",
+   "joined_frac": 1.0,
+   "n_qc_coords_after": 23647,
+   "raw_finite": 24880,
+   "qc_finite": 23647,
+   "qc_finite_but_raw_nan": 0,
+   "readback_ok": true,
+   "obsm_updated": [
+    "X_spatial"
+   ],
+   "size_gb": 1.46,
+   "reasons": {
+    "kept": 23647,
+    "unmapped": 18217,
+    "degenerate": 961,
+    "far": 298,
+    "boxed": 74
+   },
+   "sections": {
+    "4_dpi_bleeding_mck11a__A": 4536,
+    "3_dpi_mck10b__A": 3582,
+    "1_dpi_late_mck12a__A": 3451,
+    "3_dpi_mck10a__A": 3187,
+    "2_dpi_mck15__A": 2127,
+    "1_dpi_late_mck12b__A": 1458,
+    "1_dpi_early_mck1__A": 1407,
+    "uninduced_mck8a__B": 1066,
+    "uninduced_mck8b__B": 966,
+    "uninduced_mck8a__A": 961,
+    "uninduced_mck8b__A": 906
+   }
+  },
+  "net:2026_08_28_Cevrim_XMens_All_Cells.h5ad": {
+   "tag": "net  mouse All   2026_08_28",
+   "path": "/n/netscratch/eddy_lab/Everyone/nhilgert/2026_08_28_Cevrim_XMens_All_Cells.h5ad",
+   "backup": "2026_08_28_Cevrim_XMens_All_Cells.h5ad.pre_5mad_coords.bak",
+   "n_obs": 57033,
+   "status": "already synced (verified, not rewritten)",
+   "joined_frac": 1.0,
+   "n_qc_coords_after": 29678,
+   "raw_finite": 31630,
+   "qc_finite": 29678,
+   "qc_finite_but_raw_nan": 0,
+   "readback_ok": true,
+   "obsm_updated": [
+    "X_spatial"
+   ],
+   "size_gb": 1.87,
+   "reasons": {
+    "kept": 29678,
+    "unmapped": 25403,
+    "degenerate": 1272,
+    "far": 544,
+    "boxed": 136
+   },
+   "sections": {
+    "4_dpi_bleeding_mck11a__A": 5703,
+    "1_dpi_late_mck12a__A": 4093,
+    "3_dpi_mck10b__A": 4071,
+    "3_dpi_mck10a__A": 3639,
+    "2_dpi_mck15__A": 2500,
+    "uninduced_mck8a__B": 1733,
+    "1_dpi_late_mck12b__A": 1659,
+    "uninduced_mck8b__B": 1631,
+    "1_dpi_early_mck1__A": 1607,
+    "uninduced_mck8a__A": 1565,
+    "uninduced_mck8b__A": 1477
+   }
+  },
+  "net:2026_08_28_Cevrim_XMens_Only_Fib_Dec_Cells.h5ad": {
+   "tag": "net  mouse FibDec 2026_08_28",
+   "path": "/n/netscratch/eddy_lab/Everyone/nhilgert/2026_08_28_Cevrim_XMens_Only_Fib_Dec_Cells.h5ad",
+   "backup": "2026_08_28_Cevrim_XMens_Only_Fib_Dec_Cells.h5ad.pre_5mad_coords.bak",
+   "n_obs": 43197,
+   "status": "already synced (verified, not rewritten)",
+   "joined_frac": 1.0,
+   "n_qc_coords_after": 23647,
+   "raw_finite": 24880,
+   "qc_finite": 23647,
+   "qc_finite_but_raw_nan": 0,
+   "readback_ok": true,
+   "obsm_updated": [
+    "X_spatial"
+   ],
+   "size_gb": 1.46,
+   "reasons": {
+    "kept": 23647,
+    "unmapped": 18217,
+    "degenerate": 961,
+    "far": 298,
+    "boxed": 74
+   },
+   "sections": {
+    "4_dpi_bleeding_mck11a__A": 4536,
+    "3_dpi_mck10b__A": 3582,
+    "1_dpi_late_mck12a__A": 3451,
+    "3_dpi_mck10a__A": 3187,
+    "2_dpi_mck15__A": 2127,
+    "1_dpi_late_mck12b__A": 1458,
+    "1_dpi_early_mck1__A": 1407,
+    "uninduced_mck8a__B": 1066,
+    "uninduced_mck8b__B": 966,
+    "uninduced_mck8a__A": 961,
+    "uninduced_mck8b__A": 906
+   }
+  },
+  "net:2026_08_28_Cevrim_Human_All_Cells.h5ad": {
+   "tag": "net  human All   2026_08_28",
+   "path": "/n/netscratch/eddy_lab/Everyone/nhilgert/2026_08_28_Cevrim_Human_All_Cells.h5ad",
+   "backup": "2026_08_28_Cevrim_Human_All_Cells.h5ad.pre_5mad_coords.bak",
+   "n_obs": 66830,
+   "status": "already synced (verified, not rewritten)",
+   "joined_frac": 1.0,
+   "n_qc_coords_after": 45730,
+   "raw_finite": 45734,
+   "qc_finite": 45730,
+   "qc_finite_but_raw_nan": 0,
+   "readback_ok": true,
+   "obsm_updated": [
+    "X_spatial"
+   ],
+   "size_gb": 2.1,
+   "reasons": {
+    "kept": 45730,
+    "unmapped": 21096,
+    "degenerate": 4
+   },
+   "sections": {
+    "secretory_mck6a__A": 9425,
+    "secretory_mck6b__A": 9186,
+    "menstrual_mck5b__A": 7595,
+    "menstrual_mck5a__A": 7284,
+    "menstrual_mck5c__A": 6634,
+    "secretory_mck6c__A": 5606
+   }
+  },
+  "net:2026_08_28_Cevrim_Human_Only_Fib_Dec_Cells.h5ad": {
+   "tag": "net  human FibDec 2026_08_28",
+   "path": "/n/netscratch/eddy_lab/Everyone/nhilgert/2026_08_28_Cevrim_Human_Only_Fib_Dec_Cells.h5ad",
+   "backup": "2026_08_28_Cevrim_Human_Only_Fib_Dec_Cells.h5ad.pre_5mad_coords.bak",
+   "n_obs": 47533,
+   "status": "already synced (verified, not rewritten)",
+   "joined_frac": 1.0,
+   "n_qc_coords_after": 33247,
+   "raw_finite": 33250,
+   "qc_finite": 33247,
+   "qc_finite_but_raw_nan": 0,
+   "readback_ok": true,
+   "obsm_updated": [
+    "X_spatial"
+   ],
+   "size_gb": 1.44,
+   "reasons": {
+    "kept": 33247,
+    "unmapped": 14283,
+    "degenerate": 3
+   },
+   "sections": {
+    "secretory_mck6a__A": 7293,
+    "secretory_mck6b__A": 7131,
+    "menstrual_mck5b__A": 5148,
+    "menstrual_mck5a__A": 4863,
+    "menstrual_mck5c__A": 4487,
+    "secretory_mck6c__A": 4325
+   }
+  },
+  "net:2026_08_31_samap_vanilla_fibdec_joint.h5ad": {
+   "tag": "net  samap vanilla joint",
+   "path": "/n/netscratch/eddy_lab/Everyone/nhilgert/2026_08_31_samap_vanilla_fibdec_joint.h5ad",
+   "backup": "2026_08_31_samap_vanilla_fibdec_joint.h5ad.pre_5mad_coords.bak",
+   "n_obs": 90730,
+   "status": "already synced (verified, not rewritten)",
+   "joined_frac": 1.0,
+   "n_qc_coords_after": 56894,
+   "raw_finite": 56820,
+   "qc_finite": 56894,
+   "qc_finite_but_raw_nan": 88,
+   "readback_ok": true,
+   "obsm_updated": [
+    "X_spatial"
+   ],
+   "size_gb": 2.74,
+   "reasons": {
+    "kept": 56894,
+    "unmapped": 32500,
+    "degenerate": 964,
+    "far": 298,
+    "boxed": 74
+   },
+   "sections": {
+    "secretory_mck6a__A": 7293,
+    "secretory_mck6b__A": 7131,
+    "menstrual_mck5b__A": 5148,
+    "menstrual_mck5a__A": 4863,
+    "4_dpi_bleeding_mck11a__A": 4536,
+    "menstrual_mck5c__A": 4487,
+    "secretory_mck6c__A": 4325,
+    "3_dpi_mck10b__A": 3582,
+    "1_dpi_late_mck12a__A": 3451,
+    "3_dpi_mck10a__A": 3187,
+    "2_dpi_mck15__A": 2127,
+    "1_dpi_late_mck12b__A": 1458,
+    "1_dpi_early_mck1__A": 1407,
+    "uninduced_mck8a__B": 1066,
+    "uninduced_mck8b__B": 966,
+    "uninduced_mck8a__A": 961,
+    "uninduced_mck8b__A": 906
+   },
+   "raw_layer_warning": "x_um_dbscan has fewer placed cells than x_um_qc: this object's 'raw' column is itself filtered and is NOT the true raw layer"
+  },
+  "net:2026_09_02_samap_raw_all.h5ad": {
+   "tag": "net  samap raw all",
+   "path": "/n/netscratch/eddy_lab/Everyone/nhilgert/2026_09_02_samap_raw_all.h5ad",
+   "backup": "2026_09_02_samap_raw_all.h5ad.pre_5mad_coords.bak",
+   "n_obs": 90730,
+   "status": "already synced (verified, not rewritten)",
+   "joined_frac": 1.0,
+   "n_qc_coords_after": 56894,
+   "raw_finite": 58230,
+   "qc_finite": 56894,
+   "qc_finite_but_raw_nan": 0,
+   "readback_ok": true,
+   "obsm_updated": [
+    "X_spatial"
+   ],
+   "size_gb": 1.53,
+   "reasons": {
+    "kept": 56894,
+    "unmapped": 32500,
+    "degenerate": 964,
+    "far": 298,
+    "boxed": 74
+   },
+   "sections": {
+    "secretory_mck6a__A": 7293,
+    "secretory_mck6b__A": 7131,
+    "menstrual_mck5b__A": 5148,
+    "menstrual_mck5a__A": 4863,
+    "4_dpi_bleeding_mck11a__A": 4536,
+    "menstrual_mck5c__A": 4487,
+    "secretory_mck6c__A": 4325,
+    "3_dpi_mck10b__A": 3582,
+    "1_dpi_late_mck12a__A": 3451,
+    "3_dpi_mck10a__A": 3187,
+    "2_dpi_mck15__A": 2127,
+    "1_dpi_late_mck12b__A": 1458,
+    "1_dpi_early_mck1__A": 1407,
+    "uninduced_mck8a__B": 1066,
+    "uninduced_mck8b__B": 966,
+    "uninduced_mck8a__A": 961,
+    "uninduced_mck8b__A": 906
+   }
+  }
+ },
+ "skipped": {
+  "20251008_* (4 objects, Aug 21 vintage)": "bare 16-mer barcodes with no -1-<sample> suffix: 0 of them appear in the 04f index, and cell counts differ (57,242 vs 57,033). Cannot be joined by barcode; would need sample-aware reconstruction.",
+  "donttouch/, heca/, *.bak": "left alone"
+ }
+}

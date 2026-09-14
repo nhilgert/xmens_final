@@ -1,0 +1,51 @@
+{
+  "object": "/n/netscratch/eddy_lab/Everyone/nhilgert/2026_09_02_samap_raw_all.h5ad",
+  "run_utc": "2026-09-04 16:18:45",
+  "columns": [
+    "hs_spatial_qc_reason",
+    "mm_spatial_qc_reason",
+    "x_um_dbscan",
+    "y_um_dbscan",
+    "x_um_qc",
+    "y_um_qc",
+    "spatial_qc_reason"
+  ],
+  "coverage": {
+    "hs_spatial_qc_reason": {
+      "overall": 0.0,
+      "mouse": 0.0,
+      "human": 0.0
+    },
+    "mm_spatial_qc_reason": {
+      "overall": 0.0,
+      "mouse": 0.0,
+      "human": 0.0
+    },
+    "x_um_dbscan": {
+      "overall": 0.6418,
+      "mouse": 0.5783,
+      "human": 0.6995
+    },
+    "y_um_dbscan": {
+      "overall": 0.6418,
+      "mouse": 0.5783,
+      "human": 0.6995
+    },
+    "x_um_qc": {
+      "overall": 0.6271,
+      "mouse": 0.5474,
+      "human": 0.6995
+    },
+    "y_um_qc": {
+      "overall": 0.6271,
+      "mouse": 0.5474,
+      "human": 0.6995
+    },
+    "spatial_qc_reason": {
+      "overall": 0.0,
+      "mouse": 0.0,
+      "human": 0.0
+    }
+  },
+  "n_obs": 90730
+}

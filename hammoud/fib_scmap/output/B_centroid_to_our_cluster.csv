@@ -1,0 +1,40 @@
+"centroid","stromal","scmap_label","scmap_siml","best_cosine","max_cosine","best_pearson","max_pearson","best_spearman","max_spearman","metrics_agree"
+"L_Endo",FALSE,"unassigned",0.2862,"4",0.2862,"4",0.1516,"0",0.281,2
+"Endo-1_Artery",FALSE,"unassigned",0.3149,"4",0.3149,"4",0.1896,"4",0.3025,3
+"Endo-2_EndoMT",FALSE,"unassigned",0.2979,"4",0.2979,"4",0.1646,"0",0.3176,2
+"Endo-3_PCV",FALSE,"unassigned",0.2625,"4",0.2459,"4",0.1256,"4",0.2625,3
+"Endo-4_tPCV",FALSE,"unassigned",0.2814,"4",0.2521,"4",0.1354,"4",0.2814,3
+"Endo-5_Capillary",FALSE,"unassigned",0.2705,"4",0.2705,"4",0.1503,"0",0.2802,2
+"Endo-6_aPCV",FALSE,"unassigned",0.2835,"4",0.2835,"4",0.1651,"0",0.2968,2
+"Endo-7_Tip",FALSE,"unassigned",0.3154,"4",0.3154,"4",0.1945,"4",0.3145,3
+"Endo-8_HEV",FALSE,"unassigned",0.2916,"4",0.2916,"4",0.1692,"0",0.2929,2
+"Stro-1_PV MYH11 FOXC1hi CTGFlo",TRUE,"unassigned",0.3007,"4",0.2731,"4",0.1333,"4",0.3007,3
+"Stro-2_PV MYH11 FOXC1lo CTGFhi",TRUE,"unassigned",0.2625,"4",0.2625,"4",0.1285,"0",0.2637,2
+"Stro-3_PV STEAP4",TRUE,"unassigned",0.3061,"4",0.3061,"4",0.167,"0",0.3193,2
+"Stro-4_Tissue resident vascular progenitor",TRUE,"unassigned",0.285,"4",0.285,"4",0.1515,"1",0.3024,2
+"Stro-5_RUNX3+ Fibroblast",TRUE,"unassigned",NA,"1",0.3181,"4",0.1772,"0",0.3689,1
+"Stro-6_uSMC",TRUE,"unassigned",0.2782,"4",0.2782,"4",0.1412,"1",0.3436,2
+"Stro-7_C7 Fibroblast",TRUE,"unassigned",0.2898,"4",0.2898,"4",0.1445,"1",0.3054,2
+"Stro-8_dS1",TRUE,"unassigned",0.3428,"4",0.3428,"4",0.2133,"0",0.3857,2
+"Stro-9_dS2",TRUE,"unassigned",0.3161,"4",0.3161,"4",0.1761,"1",0.3863,2
+"Stro-10_dS3",TRUE,"unassigned",0.3898,"1",0.3399,"4",0.1821,"1",0.3898,2
+"Stro-11_Stromal progenitor",TRUE,"unassigned",0.3019,"4",0.3019,"4",0.1716,"1",0.3458,2
+"1_Ciliated",FALSE,"unassigned",0.3014,"4",0.3014,"4",0.1717,"0",0.2846,2
+"2_MUC16+ Gland_sec",FALSE,"unassigned",0.3936,"4",0.3936,"4",0.2623,"4",0.3487,3
+"3_Sox9_Glandular",FALSE,"unassigned",0.3165,"4",0.2754,"4",0.1634,"4",0.3165,3
+"4_Lumenal",FALSE,"unassigned",0.3519,"4",0.2854,"4",0.1717,"4",0.3519,3
+"5_Gland_sec-progenitor A",FALSE,"unassigned",0.3425,"4",0.2934,"4",0.1823,"4",0.3425,3
+"6_Gland_sec-progenitor B",FALSE,"unassigned",0.3227,"4",0.2965,"4",0.1836,"4",0.3227,3
+"7_Myoepithelial",FALSE,"unassigned",0.325,"4",0.325,"4",0.1894,"0",0.3594,2
+"8_OLFM4_Prolif",FALSE,"unassigned",0.3234,"4",0.276,"4",0.1617,"4",0.3234,3
+"9_Tissue Res Mem T cell",FALSE,"unassigned",0.3341,"4",0.2836,"4",0.1643,"4",0.3341,3
+"Imm-1_Mast",FALSE,"unassigned",0.2948,"4",0.2524,"4",0.1429,"4",0.2948,3
+"Imm-2_Fibrocytes",FALSE,"unassigned",0.301,"4",0.301,"4",0.1691,"0",0.354,2
+"Imm-3_TMEM/CD8",FALSE,"unassigned",0.3238,"4",0.2152,"4",0.1112,"4",0.3238,3
+"Imm-4_TMEM/CD4",FALSE,"unassigned",0.3064,"4",0.2023,"4",0.0993,"4",0.3064,3
+"Imm-5_Treg",FALSE,"unassigned",0.206,"4",0.206,"4",0.1006,"0",0.2673,2
+"Imm-6_ILC",FALSE,"unassigned",0.3064,"4",0.2067,"4",0.1019,"4",0.3064,3
+"Imm-7_B cells",FALSE,"unassigned",0.2951,"4",0.1903,"4",0.092,"4",0.2951,3
+"Imm-8_Macrophage",FALSE,"unassigned",0.336,"4",0.2583,"4",0.1483,"4",0.336,3
+"Imm-9_NK cells",FALSE,"unassigned",0.3249,"4",0.2157,"4",0.1094,"4",0.3249,3
+"Imm-10_Hematopoietic progenitor",FALSE,"unassigned",0.3149,"4",0.2257,"4",0.1205,"4",0.3149,3

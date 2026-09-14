@@ -44,7 +44,7 @@ species:
 
       perimetrium:
         res: leiden_scVI_3.0
-        coarse: mesothelial_cell
+        coarse: perimetrial_cell
         markers:
           peri:   [Sox6, Msln, Upk3b, Wt1]   # real peri = Sox6 AND the trio
           epi:    [Cdh1, Pax8]
@@ -69,8 +69,8 @@ species:
           # vote. See HANDOFF_mouse_stromal.md section 3.
           h5ad: 20251008_Cevrim_XMens_Only_Fib_Dec_Cells.h5ad   # REPO_SUB, 97.1% join
           col: cell_subtype_annotations
-          labels: [decidual_border, decidual_proliferative, decidual_mature,
-                   decidual_apoptotic, efib_myometrial, efib_middle,
+          labels: [decidual_boundary, decidual_proliferative, decidual_mature,
+                   decidual_apoptotic, efib_outer, efib_middle,
                    efib_middle_induced, efib_subluminal, efib_proliferative]
           rollup_prefix:                  # fine label prefix -> coarse label
             decidual_: decidual_cell

@@ -1,0 +1,46 @@
+==============================================================================
+Detectability of each subtype's published marker panel in our nuclei
+==============================================================================
+           subtype  n_markers  n_in_object  mean_detection_rate
+     Stro-5 RUNX3+         50           50               0.0074
+         Stro-7 C7         50           50               0.2428
+        Stro-8 dS1         50           50               0.2656
+        Stro-9 dS2         37           37               0.1760
+       Stro-10 dS3         50           50               0.3603
+Stro-11 progenitor         50           50               0.0556
+
+==============================================================================
+The three programs that cannot map, quantified
+==============================================================================
+
+cycling (defines Stro-11)
+  nuclei positive for >=1 of the panel: 2.97%
+  MKI67=0.006%, TOP2A=0.168%, CENPF=0.421%, UBE2C=0.011%, BIRC5=0.236%, CDK1=2.121%, ASPM=0.038%
+
+immune (defines Stro-5)
+  nuclei positive for >=1 of the panel: 1.03%
+  PTPRC=0.810%, GNLY=0.076%, NKG7=0.004%, CCL5=0.097%, TYROBP=0.008%, TPSAB1=0.013%, GZMA=0.057%
+
+immediate-early / stress (defines Stro-9)
+  nuclei positive for >=1 of the panel: 39.60%
+  FOSB=1.096%, JUND=33.831%, ATF3=2.308%, NR4A1=3.497%, IER2=6.951%, SOCS3=4.340%
+
+C7 program (defines Stro-7)
+  nuclei positive for >=1 of the panel: 48.53%
+  C7=0.900%, CFH=2.640%, CTSK=16.654%, APOD=5.554%, CCDC80=10.262%, IGFBP5=28.172%
+
+decidual (defines Stro-8/9/10)
+  nuclei positive for >=1 of the panel: 76.00%
+  IGFBP1=3.865%, PRL=0.696%, FOXO1=74.555%, WNT4=6.320%
+
+==============================================================================
+Rebuilt marker panels: specific in the atlas AND detectable in our nuclei
+==============================================================================
+Stro-5 RUNX3+        STK17A, STK4, EVL, CDC42SE2, REL, TAGLN
+Stro-7 C7            MGP, IGFBP5, CCDC80, GSN, ASPN, OGN
+Stro-8 dS1           WTAP, MMP10, PLIN2, ID4, S100A6, ID2
+Stro-9 dS2           IER5L, HSP90AA1, JUND, MYADM, IER3, HNRNPU
+Stro-10 dS3          COL3A1, HOXA10, GABPB1-AS1, APCDD1, MARCKSL1, WNT2
+Stro-11 progenitor   STMN1, TUBB, HMGN2, HMGB1, DUT, H2AFV
+
+wrote /n/lab_storage/eddy_lab/users/nhilgert/xmens_final/hammoud/fib_centroid_results/fig7_detectable_markers_dotplot.png

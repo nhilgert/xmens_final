@@ -1,0 +1,6 @@
+rung,kind,score,note
+"1. split-half, same donors + same assay",positive control (absolute ceiling),0.8521,two halves of the same cells
+"2. cross-sample, same assay",positive control (realistic ceiling),0.6477,biological variation between the two sides
+3a. real atlas -> Stro-7 C7 fibroblast,OBSERVED,0.343,"cross-assay, cross-donor, cross-lab"
+3b. real atlas -> Stro-10 dS3,OBSERVED,0.3894,"cross-assay, cross-donor, cross-lab"
+4. impossible subtypes (negative control band),negative control (floor),0.0813-0.1235,"Stro-1/2/3/4/6, cannot be present"

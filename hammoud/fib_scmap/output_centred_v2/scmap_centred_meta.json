@@ -1,0 +1,10 @@
+{
+  "scmap_version": "1.28.0",
+  "n_perm_A": 100,
+  "n_perm_B": 500,
+  "null_quantile": 0.95,
+  "modifications": ["per-gene centring of index (across atlas columns) and query (across our cells) before scmapCluster; scmap code unchanged", "threshold = -1 inside scmapCluster (keeps only its >=2-of-3 agreement rule); assignment floor from a gene-permutation null, and separately from the impossible-subtype controls", "features = variance across the 11 stromal atlas columns (500 and 3000), because scmap's dropout model needs reference cells", "direction A additionally run on kNN-smoothed cells: each cell replaced by the connectivity-weighted mean of itself and its neighbors_scVI_100 neighbours (a local pseudobulk) before centring"],
+  "run_utc": "2026-09-11 18:44:57",
+  "checks": 4,
+  "mismatches": 1
+}

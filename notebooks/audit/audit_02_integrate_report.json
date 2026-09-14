@@ -1,0 +1,128 @@
+[
+ {
+  "label": "config scvi.n_hvg",
+  "ok": true,
+  "warn": false,
+  "got": "3000",
+  "want": "3000"
+ },
+ {
+  "label": "config scvi.exclude_mito_ribo",
+  "ok": true,
+  "warn": false,
+  "got": "True",
+  "want": "True"
+ },
+ {
+  "label": "config scvi.n_latent",
+  "ok": true,
+  "warn": false,
+  "got": "30",
+  "want": "30"
+ },
+ {
+  "label": "config leiden.knn",
+  "ok": true,
+  "warn": false,
+  "got": "100",
+  "want": "100"
+ },
+ {
+  "label": "mouse: latent is 68069 x 30",
+  "ok": true,
+  "warn": false,
+  "got": "(68069, 30)",
+  "want": "None"
+ },
+ {
+  "label": "mouse: n HVG == 3000",
+  "ok": true,
+  "warn": false,
+  "got": "3000",
+  "want": "3000"
+ },
+ {
+  "label": "mouse: zero mito/ribo genes among HVGs",
+  "ok": true,
+  "warn": false,
+  "got": "0",
+  "want": "0"
+ },
+ {
+  "label": "mouse: k=100 graph params",
+  "ok": true,
+  "warn": false,
+  "got": "{'method': 'umap', 'metric': 'euclidean', 'n_neighbors': 100, 'random_state': 0, 'use_rep': 'X_scVI'}",
+  "want": "None"
+ },
+ {
+  "label": "mouse: leiden ladder present",
+  "ok": true,
+  "warn": false,
+  "got": "21",
+  "want": ">=10 resolutions"
+ },
+ {
+  "label": "human: latent is 70363 x 30",
+  "ok": true,
+  "warn": false,
+  "got": "(70363, 30)",
+  "want": "None"
+ },
+ {
+  "label": "human: n HVG == 3000",
+  "ok": true,
+  "warn": false,
+  "got": "3000",
+  "want": "3000"
+ },
+ {
+  "label": "human: zero mito/ribo genes among HVGs",
+  "ok": true,
+  "warn": false,
+  "got": "0",
+  "want": "0"
+ },
+ {
+  "label": "human: k=100 graph params",
+  "ok": true,
+  "warn": false,
+  "got": "{'method': 'umap', 'metric': 'euclidean', 'n_neighbors': 100, 'random_state': 0, 'use_rep': 'X_scVI'}",
+  "want": "None"
+ },
+ {
+  "label": "human: leiden ladder present",
+  "ok": true,
+  "warn": false,
+  "got": "21",
+  "want": ">=10 resolutions"
+ },
+ {
+  "label": "2026_08_28_Cevrim_XMens_All_Cells.h5ad[X_scVI] == latent_mouse subset (max diff)",
+  "ok": false,
+  "warn": false,
+  "got": "11.476592063903809",
+  "want": "0.0"
+ },
+ {
+  "label": "2026_08_28_Cevrim_XMens_Only_Fib_Dec_Cells.h5ad[X_scVI] == latent_mouse subset (max diff)",
+  "ok": false,
+  "warn": false,
+  "got": "10.058606147766113",
+  "want": "0.0"
+ },
+ {
+  "label": "2026_08_28_Cevrim_Human_All_Cells.h5ad: X_scVI_wholetissue present",
+  "ok": false,
+  "warn": true,
+  "got": "['X_scVI', 'X_spatial', 'X_umap_scVI']",
+  "want": "None"
+ },
+ {
+  "label": "2026_08_28_Cevrim_Human_Only_Fib_Dec_Cells.h5ad[X_scVI_wholetissue] == latent_human subset (max diff)",
+  "ok": false,
+  "warn": false,
+  "got": "6.883294105529785",
+  "want": "0.0"
+ }
+]
