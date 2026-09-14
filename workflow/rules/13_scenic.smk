@@ -10,7 +10,7 @@
 #
 # Stages 1-3 wrap the existing scripts under {rev}/scripts/ (grn_only.py / ctx_only.py /
 # build_consensus_aucell.py) UNCHANGED -- they are idempotent + atomic, which composes
-# cleanly with snakemake retries. Stage 0 is workflow/scripts/scenic_make_loom.py, a script
+# cleanly with snakemake retries. Stage 0 is workflow/scripts/scenic/scenic_make_loom.py, a script
 # port of {rev}/scripts/prep_fib_inputs.ipynb (2026-09-07) so the loom is no longer an
 # ancient() hand-made input.
 #
@@ -89,7 +89,7 @@ rule scenic_pooled:
     input:
         h5ad   = lambda wc: SCENIC_SRC[wc.sc_species],
         tfs    = lambda wc: ancient(_sc_tfs(wc.sc_species)),
-        script = "workflow/scripts/scenic_make_loom.py",
+        script = "workflow/scripts/scenic/scenic_make_loom.py",
     output:
         loom     = _sc_pooled_loom("{sc_species}"),
         h5ad     = _sc_pooled_h5ad("{sc_species}"),
@@ -122,7 +122,7 @@ if SCENIC_TAG != "full":
         input:
             h5ad   = _sc_pooled_h5ad("{sc_species}"),
             tfs    = lambda wc: ancient(_sc_tfs(wc.sc_species)),
-            script = "workflow/scripts/scenic_make_loom.py",
+            script = "workflow/scripts/scenic/scenic_make_loom.py",
         output:
             loom     = _sc_loom("{sc_species}", "{sc_seed}"),
             manifest = _sc_sketch_manifest("{sc_species}", "{sc_seed}"),

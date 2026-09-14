@@ -22,4 +22,4 @@ rule integrate:
     log:
         "logs/02_integrate_{species}.log",
     script:
-        "../scripts/integrate.py"
+        "../scripts/atlas/integrate.py"

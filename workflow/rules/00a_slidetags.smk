@@ -25,4 +25,4 @@ rule slidetags:
     log:
         "logs/00a_slidetags_{sample}.log",
     script:
-        "../scripts/slidetags.py"
+        "../scripts/ingest_qc/slidetags.py"

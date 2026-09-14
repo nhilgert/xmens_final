@@ -4,4 +4,4 @@ rule cluster:
     output: "data/interim/clustered_{species}.h5ad"
     params: leiden=config["leiden"]
     log:    "logs/cluster_{species}.log"
-    script: "../scripts/cluster.py"
+    script: "../scripts/atlas/cluster.py"

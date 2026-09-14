@@ -4,4 +4,4 @@ rule pseudotime_global:
     output: "data/interim/pt/global_mouse.h5ad"
     params: pt=config["pseudotime"]
     log:    "logs/pseudotime_global.log"
-    script: "../scripts/pseudotime.py"
+    script: "../scripts/pseudotime/pseudotime.py"

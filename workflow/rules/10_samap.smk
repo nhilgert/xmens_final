@@ -103,7 +103,7 @@ wildcard_constraints:
 rule prep_samap_input:
     input:
         refined = lambda wc: _REFINED[_parse_input_basename(wc.basename)[0]]["path"],
-        script  = "workflow/scripts/prep_samap_input.py",
+        script  = "workflow/scripts/samap/prep_samap_input.py",
     output:
         h5ad = f"{SAMAP_ROOT}/inputs/h5ads_samap/{{basename}}.h5ad",
     params:
@@ -138,7 +138,7 @@ rule run_samap:
         mm         = lambda wc: _mm_input(wc.run),               # <- prep_samap_input output
         map_hm     = lambda wc: ancient(f"{_maps_dir(wc.run)}/hsmm/hs_to_mm.txt"),
         map_mh     = lambda wc: ancient(f"{_maps_dir(wc.run)}/hsmm/mm_to_hs.txt"),
-        fit_script = ancient("workflow/scripts/run_samap.py"),  # ancient: fit is expensive, don't re-fit on edit
+        fit_script = ancient("workflow/scripts/samap/run_samap.py"),  # ancient: fit is expensive, don't re-fit on edit
     output:
         pkl = f"{SAMAP_ROOT}/runs/{{run}}/samap.pkl",           # meta.json + umap left undeclared (crash trail / best-effort)
     params:
@@ -172,7 +172,7 @@ rule samap_label_stain:
         pkl       = f"{SAMAP_ROOT}/runs/{{run}}/samap.pkl",
         hs_coords = lambda wc: ancient(_hs_coords(wc.run)),     # external isodepth/radius npz, frozen
         mm_coords = lambda wc: ancient(_mm_coords(wc.run)),
-        script    = "workflow/scripts/transfer_label_staining.py",
+        script    = "workflow/scripts/samap/transfer_label_staining.py",
     output:
         png   = "results/figures/samap_transfer/{run}_labelstain.png",
         stats = "results/tables/samap_transfer/{run}_labelstain.json",
@@ -207,8 +207,8 @@ rule samap_transferred_object:
         hs_coords = lambda wc: ancient(_hs_coords(wc.run)),
         mm_coords = lambda wc: ancient(_mm_coords(wc.run)),
         pt        = lambda wc: ancient(PT_H5AD[wc.run]),             # mouse per-timepoint pseudotime object
-        script    = "workflow/scripts/make_transferred_object.py",
-        core      = "workflow/scripts/transfer_label_staining.py",   # imported by the script
+        script    = "workflow/scripts/samap/make_transferred_object.py",
+        core      = "workflow/scripts/samap/transfer_label_staining.py",   # imported by the script
     output:
         h5ad = "results/samap_transfer/{run}_transferred.h5ad",
     params:

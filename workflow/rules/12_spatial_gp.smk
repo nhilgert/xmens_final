@@ -23,7 +23,7 @@ wildcard_constraints:
 rule spatial_gp:
     input:
         h5ad   = lambda wc: SGP_RUNS[wc.sgp_run]["h5ad"],
-        script = "workflow/scripts/spatial_pt_gp.py",
+        script = "workflow/scripts/pseudotime/spatial_pt_gp.py",
     output:
         summary = "results/spatial_gp/{sgp_run}/gp_fit_summary.json",
         field   = "results/spatial_gp/{sgp_run}/gp_field.npz",

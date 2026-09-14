@@ -34,4 +34,4 @@ rule reintegrate_lineage:
     log:
         "logs/04b_reintegrate_{species}_{lineage}.log",
     script:
-        "../scripts/reintegrate.py"
+        "../scripts/atlas/reintegrate.py"

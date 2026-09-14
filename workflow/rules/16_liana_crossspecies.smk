@@ -2,7 +2,7 @@
 # =============================================================================
 # Cross-species LIANA conservation deliverable (liana_table.xlsx, liana_immune.xlsx, CSVs, figures).
 # Port (2026-09-10) of liana_pipeline_final/cross_species_lr_explorer_v8-2.ipynb cells 5-31 +
-# lr_analysis.py into workflow/scripts/liana_crossspecies.py. Consumes the NON-SPATIAL no_commot
+# lr_analysis.py into workflow/scripts/liana/liana_crossspecies.py. Consumes the NON-SPATIAL no_commot
 # tables (results/liana/no_commot/{species}/{tp}/{cell_type_key}/tables/liana_res_full.csv) and
 # the Ensembl one2one orthology in resources/orthology/. No spatial statistic enters the table.
 # Entry point: `snakemake --profile profiles/slurm_noconda liana_crossspecies_all`
@@ -21,7 +21,7 @@ rule liana_crossspecies:
         tables  = expand("results/liana/no_commot/{sp}/.liana_complete", sp=list(LX_CFG["runs"])),
         ortho   = LX_CFG["orthology"],
         ctmap   = LX_CFG["cell_type_map"],
-        script  = "workflow/scripts/liana_crossspecies.py",
+        script  = "workflow/scripts/liana/liana_crossspecies.py",
     output:
         xlsx    = f"{LX_OUT}/deliverables/liana_table.xlsx",
         immune  = f"{LX_OUT}/deliverables/liana_immune.xlsx",

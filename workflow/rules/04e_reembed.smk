@@ -18,4 +18,4 @@ rule reembed:
     log:
         "logs/04e_reembed_{species}.log",
     script:
-        "../scripts/integrate.py"
+        "../scripts/atlas/integrate.py"

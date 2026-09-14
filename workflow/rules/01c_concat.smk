@@ -23,4 +23,4 @@ rule concat:
     log:
         "logs/01c_concat_{species}.log",
     script:
-        "../scripts/concat.py"
+        "../scripts/ingest_qc/concat.py"

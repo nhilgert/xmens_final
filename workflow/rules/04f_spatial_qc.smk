@@ -39,7 +39,7 @@ rule spatial_qc:
     log:
         "logs/04f_spatial_qc_{species}.log",
     script:
-        "../scripts/spatial_qc.py"
+        "../scripts/atlas/spatial_qc.py"
 
 
 rule spatial_qc_all:

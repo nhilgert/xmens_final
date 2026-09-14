@@ -125,3 +125,9 @@ recipe is fully pinned; conclusions should be robust to numerical noise.
 
 <!-- TODO: add LICENSE -->
 
+
+## Layout
+
+Four layers: `workflow/ config/ resources/ external/` (the pipeline), `data/ results/` (generated, gitignored), `analysis/` (living human work), `archive/` (fossil record).
+
+**Rule: a new top-level directory requires a README line justifying it. Anything that can't earn the line goes in `analysis/` (living) or `archive/` (dead).**

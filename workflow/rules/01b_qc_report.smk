@@ -23,4 +23,4 @@ rule qc_report:
     log:
         "logs/01b_qc_report_{sample}.log",
     script:
-        "../scripts/qc_report.py"
+        "../scripts/ingest_qc/qc_report.py"

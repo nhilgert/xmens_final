@@ -18,4 +18,4 @@ rule qc:
     log:
         "logs/01_qc_{sample}.log",
     script:
-        "../scripts/qc.py"
+        "../scripts/ingest_qc/qc.py"

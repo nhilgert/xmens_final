@@ -23,7 +23,7 @@ rule pt_notebook:
     input:
         nb=lambda wc: PTNB[wc.v]["nb"],
         src=lambda wc: PTNB[wc.v]["src"],
-        runner="workflow/scripts/run_notebook.py",
+        runner="workflow/scripts/pseudotime/run_notebook.py",
     output:
         executed="results/pt_notebook_rules/{v}/executed.ipynb",
     resources: gpu=1, mem_mb=200000, runtime=480

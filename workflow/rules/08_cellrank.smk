@@ -3,4 +3,4 @@ rule cellrank:
     input:  "data/interim/pt/global_mouse.h5ad"
     output: "data/interim/pt/cellrank_mouse.h5ad"
     log:    "logs/cellrank.log"
-    script: "../scripts/cellrank.py"   # uses envs/cellrank
+    script: "../scripts/pseudotime/cellrank.py"   # uses envs/cellrank

@@ -18,4 +18,4 @@ rule merge_reannotated:
     log:
         "logs/04d_merge_{species}.log",
     script:
-        "../scripts/merge_reannotated.py"
+        "../scripts/atlas/merge_reannotated.py"

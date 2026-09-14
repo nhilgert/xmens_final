@@ -3,7 +3,7 @@ rule de:
     input:  "data/interim/annotated_{species}.h5ad"
     output: "results/tables/markers_{species}.csv"
     log:    "logs/de_{species}.log"
-    script: "../scripts/de.py"
+    script: "../scripts/de/de.py"
 
 
 
@@ -31,7 +31,7 @@ rule de_lineage_clusters:
     log:
         "logs/05_de_{species}_{lineage}_clusters_top{n}.log",
     script:
-        "../scripts/de_lineage.py"
+        "../scripts/de/de_lineage.py"
 
 
 rule de_lineage_subtypes:
@@ -48,7 +48,7 @@ rule de_lineage_subtypes:
     log:
         "logs/05_de_{species}_{lineage}_subtypes_top{n}.log",
     script:
-        "../scripts/de_lineage.py"
+        "../scripts/de/de_lineage.py"
 
 
 rule de_lineages:

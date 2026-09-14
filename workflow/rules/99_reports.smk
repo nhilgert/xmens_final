@@ -8,7 +8,7 @@ import os
 #
 #     snakemake --profile profiles/slurm reports
 #
-# The pipeline and the notebooks share workflow/scripts/apply_annotation.py, so
+# The pipeline and the notebooks share workflow/scripts/atlas/apply_annotation.py, so
 # they cannot drift -- this only re-renders the human-readable record.
 
 REPORT_NOTEBOOKS = [f"04_annotate_{sp}_denovo" for sp in config["lineages"]] + [

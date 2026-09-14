@@ -4,4 +4,4 @@ rule crossspecies:
             mouse="results/tables/mi_mouse.csv"
     output: "results/tables/conservation.csv"
     log:    "logs/crossspecies.log"
-    script: "../scripts/crossspecies.py"
+    script: "../scripts/crossspecies/crossspecies.py"

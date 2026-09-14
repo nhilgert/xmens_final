@@ -4,4 +4,4 @@ rule pt_genes_mi:
     output: "results/tables/mi_{species}.csv"
     params: mi=config["mi"]
     log:    "logs/pt_genes_mi_{species}.log"
-    script: "../scripts/pt_genes_mi.py"
+    script: "../scripts/mi/pt_genes_mi.py"

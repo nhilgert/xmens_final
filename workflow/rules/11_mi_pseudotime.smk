@@ -49,7 +49,7 @@ wildcard_constraints:
 rule mi_prep:
     input:
         h5ad   = lambda wc: _mi_h5ad(wc.mi_run),
-        script = "workflow/scripts/mi_pseudotime.py",
+        script = "workflow/scripts/mi/mi_pseudotime.py",
     output:
         expr     = f"{MI_ROOT}/{{mi_run}}/expr.npz",
         pt       = f"{MI_ROOT}/{{mi_run}}/pseudotime.npy",
@@ -77,7 +77,7 @@ rule mi_prep:
 rule mi_worker:
     input:
         manifest = f"{MI_ROOT}/{{mi_run}}/manifest.json",
-        script   = "workflow/scripts/mi_pseudotime.py",
+        script   = "workflow/scripts/mi/mi_pseudotime.py",
     output:
         csv = f"{MI_ROOT}/{{mi_run}}/results/mi_{{chunk}}.csv",
     params:
@@ -104,7 +104,7 @@ def _mi_chunk_csvs(wc):
 rule mi_merge:
     input:
         chunks = _mi_chunk_csvs,
-        script = "workflow/scripts/mi_pseudotime.py",
+        script = "workflow/scripts/mi/mi_pseudotime.py",
     output:
         mi_all = f"{MI_ROOT}/{{mi_run}}/mi_all.csv",
     params:

@@ -27,7 +27,7 @@ rule clustree_export:
     log:
         "logs/98_clustree_export_{species}_{lineage}.log",
     script:
-        "../scripts/export_clustree.py"
+        "../scripts/atlas/export_clustree.py"
 
 
 rule clustree_plot:
@@ -65,7 +65,7 @@ rule ladder_stability:
     log:
         "logs/98_ladder_stability_{species}_{lineage}.log",
     script:
-        "../scripts/ladder_stability.py"
+        "../scripts/atlas/ladder_stability.py"
 
 
 rule stability_summary:

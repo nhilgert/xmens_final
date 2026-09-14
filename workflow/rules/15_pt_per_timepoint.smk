@@ -31,7 +31,7 @@ wildcard_constraints:
 rule pt_per_timepoint:
     input:
         h5ad   = lambda wc: PTT["h5ad"][wc.ptt_species],
-        script = "workflow/scripts/pt_per_timepoint.py",
+        script = "workflow/scripts/pseudotime/pt_per_timepoint.py",
     output:
         h5   = "results/pt_per_timepoint/{ptt_species}_{ptt_tp}/{ptt_species}_{ptt_tp}_pt.h5ad",
         rep  = "results/pt_per_timepoint/{ptt_species}_{ptt_tp}/{ptt_species}_{ptt_tp}_report.json",

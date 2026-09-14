@@ -28,7 +28,7 @@ rule compute_pseudotime:
     wildcard_constraints:
         pt_stage="1dpi_late|4dpi|3dpi",
     script:
-        "../scripts/compute_pseudotime.py"
+        "../scripts/pseudotime/compute_pseudotime.py"
 
 
 rule diagnose_3dpi_pseudotime_roots:
@@ -45,4 +45,4 @@ rule diagnose_3dpi_pseudotime_roots:
     log:
         f"{PT_TEST_DIR}/logs/diagnose_3dpi_roots.log",
     script:
-        "../scripts/compute_pseudotime.py"
+        "../scripts/pseudotime/compute_pseudotime.py"

@@ -25,4 +25,4 @@ rule ingest:
     log:
         "logs/00b_ingest_{sample}.log",
     script:
-        "../scripts/ingest.py"
+        "../scripts/ingest_qc/ingest.py"

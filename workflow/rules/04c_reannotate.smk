@@ -28,4 +28,4 @@ rule reannotate_lineage:
     log:
         "logs/04c_reannotate_{species}_{lineage}.log",
     script:
-        "../scripts/apply_annotation.py"
+        "../scripts/atlas/apply_annotation.py"

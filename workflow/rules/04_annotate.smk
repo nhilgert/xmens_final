@@ -34,4 +34,4 @@ for _sp, _lins in config["lineages"].items():
         log:
             "logs/04_annotate_{sp}.log".format(sp=_sp),
         script:
-            "../scripts/apply_annotation.py"
+            "../scripts/atlas/apply_annotation.py"

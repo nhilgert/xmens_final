@@ -78,7 +78,7 @@ wildcard_constraints:
 rule samap_raw_prep:
     input:
         src    = lambda wc: ancient(_SR_SRC[wc.rawsp]),
-        script = ancient("workflow/scripts/prep_samap_full_input.py"),
+        script = ancient("workflow/scripts/samap/prep_samap_full_input.py"),
     output:
         h5ad = f"{SR_ROOT}/inputs_raw/{{rawsp}}_fib_dec_all_raw.h5ad",
     params:
@@ -106,7 +106,7 @@ rule samap_raw_fit:
     input:
         hs     = f"{SR_ROOT}/inputs_raw/hs_fib_dec_all_raw.h5ad",
         mm     = f"{SR_ROOT}/inputs_raw/mm_fib_dec_all_raw.h5ad",
-        script = ancient("workflow/scripts/run_samap_arm.py"),
+        script = ancient("workflow/scripts/samap/run_samap_arm.py"),
     output:
         pkl  = f"{SR_ROOT}/runs_raw/{{arm}}/samap.pkl",
         eval = f"{SR_ROOT}/runs_raw/{{arm}}/eval.json",
@@ -142,7 +142,7 @@ rule samap_raw_fit:
 rule samap_raw_stain:
     input:
         pkl    = f"{SR_ROOT}/runs_raw/{{arm}}/samap.pkl",
-        script = ancient("workflow/scripts/samap_label_stain_full.py"),
+        script = ancient("workflow/scripts/samap/samap_label_stain_full.py"),
     output:
         csvs = expand(f"{SR_ROOT}/runs_raw/{{{{arm}}}}/staining/{{stem}}.csv",
                       stem=_SR_STAIN_CSVS),
@@ -171,7 +171,7 @@ rule samap_raw_transferred:
         pkl    = f"{SR_ROOT}/runs_raw/{{arm}}/samap.pkl",
         csvs   = expand(f"{SR_ROOT}/runs_raw/{{{{arm}}}}/staining/{{stem}}.csv",
                         stem=_SR_STAIN_CSVS),
-        script = ancient("workflow/scripts/make_samap_transferred_h5ad.py"),
+        script = ancient("workflow/scripts/samap/make_samap_transferred_h5ad.py"),
     output:
         h5ad = f"{SR_ROOT}/runs_raw/{{arm}}/samap_transferred.h5ad",
     params:
@@ -196,7 +196,7 @@ rule samap_raw_pt_transfer:
     input:
         joint  = f"{SR_ROOT}/runs_raw/{{arm}}/samap_transferred.h5ad",
         pt     = ancient(SR_PT_H5AD),
-        script = ancient("workflow/scripts/samap_transfer_pt.py"),
+        script = ancient("workflow/scripts/samap/samap_transfer_pt.py"),
     output:
         csv     = f"{SR_ROOT}/runs_raw/{{arm}}/pt_transfer/pt_transferred_hs.csv",
         summary = f"{SR_ROOT}/runs_raw/{{arm}}/pt_transfer/summary.json",
@@ -226,7 +226,7 @@ rule samap_raw_attach_pt:
     input:
         joint  = f"{SR_ROOT}/runs_raw/{{arm}}/samap_transferred.h5ad",
         csv    = f"{SR_ROOT}/runs_raw/{{arm}}/pt_transfer/pt_transferred_hs.csv",
-        script = "workflow/scripts/samap_attach_pt.py",
+        script = "workflow/scripts/samap/samap_attach_pt.py",
     output:
         h5ad = f"{SR_ROOT}/runs_raw/{{arm}}/samap_transferred_pt.h5ad",
     params:
@@ -250,7 +250,7 @@ rule samap_raw_attach_pt:
 rule samap_raw_compare:
     input:
         evals  = expand(f"{SR_ROOT}/runs_raw/{{arm}}/eval.json", arm=SR_ARMS),
-        script = ancient("workflow/scripts/compare_samap_arms.py"),
+        script = ancient("workflow/scripts/samap/compare_samap_arms.py"),
     output:
         csv = f"{SR_ROOT}/runs_raw/summary.csv",
     params:

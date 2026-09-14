@@ -6,4 +6,4 @@ rule figures:
         "results/tables/conservation.csv",
     output: "results/figures/.done"
     log:    "logs/figures.log"
-    script: "../scripts/figures.py"
+    script: "../scripts/crossspecies/figures.py"
