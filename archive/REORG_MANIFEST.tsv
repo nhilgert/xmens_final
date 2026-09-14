@@ -108,3 +108,27 @@ config/config.yaml.pre_boxes2.bak	archive/baks/config__config.yaml.pre_boxes2.ba
 config/config.yaml.pre_scenic_v2_20260907.bak	archive/baks/config__config.yaml.pre_scenic_v2_20260907.bak
 config/config.yaml.pre_perseed_20260908.bak	archive/baks/config__config.yaml.pre_perseed_20260908.bak
 # authoritative record for tracked files: git diff 9a484e2..HEAD --name-status
+regulon_heatmap_leiden_0.8.png	analysis/figures/loose/regulon_heatmap_leiden_0.8.png
+regulon_heatmap_leiden_1.2.png	analysis/figures/loose/regulon_heatmap_leiden_1.2.png
+rollback_report.json	archive/root_files/rollback_report.json
+run_pseudotime_v2.py	archive/root_files/run_pseudotime_v2.py
+scaffold.sh	archive/root_files/scaffold.sh
+shim.py	archive/root_files/shim.py
+spatial_outlier_comparison.ipynb	analysis/notebooks/spatial_outlier_comparison.ipynb
+spatial_qc_mouse_3sigma.csv	archive/root_files/spatial_qc_mouse_3sigma.csv
+spatial_qc_mouse_5mad.csv	archive/root_files/spatial_qc_mouse_5mad.csv
+spatial_qc_obs_mouse_3sigma.csv	archive/root_files/spatial_qc_obs_mouse_3sigma.csv
+spatial_qc_obs_mouse_5mad.csv	archive/root_files/spatial_qc_obs_mouse_5mad.csv
+tf_transcript_heatmap_leiden_0.8.png	analysis/figures/loose/tf_transcript_heatmap_leiden_0.8.png
+tf_transcript_heatmap_leiden_1.2.png	analysis/figures/loose/tf_transcript_heatmap_leiden_1.2.png
+varD_two_roots_pt.csv	archive/root_files/varD_two_roots_pt.csv
+varD_two_roots_report.json	archive/root_files/varD_two_roots_report.json
+verify_sections.py	archive/root_files/verify_sections.py
+visualize_all_transfers-Copy1.ipynb	analysis/notebooks/visualize_all_transfers-Copy1.ipynb
+visualize_all_transfers.ipynb	analysis/notebooks/visualize_all_transfers.ipynb
+visualize_final_objects-Copy1.ipynb	analysis/notebooks/visualize_final_objects-Copy1.ipynb
+visualize_final_objects.ipynb	analysis/notebooks/visualize_final_objects.ipynb
+visualize_transferred_object-Copy1.ipynb	analysis/notebooks/visualize_transferred_object-Copy1.ipynb
+visualize_transferred_object.ipynb	analysis/notebooks/visualize_transferred_object.ipynb
+ROOT_TRIAGE.md	archive/reports/ROOT_TRIAGE.md
+root_triage.json	archive/reports/root_triage.json
