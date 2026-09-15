@@ -179,6 +179,19 @@ mi_pseudotime:
   min_counts: 10
   layer: log1p
   runs:
+
+    # settled RTK coordinates carried by the 2026_09_15 release (added 2026-09-15).
+    # Additive: new run names -> new results/mi/<run>/ dirs; existing runs untouched.
+    mouse_dpt_release:
+      h5ad: "data/deliverables/2026_09_15/Cevrim_XMens_Only_Fib_Dec_Cells.h5ad"
+      pt_key: dpt_pseudotime
+    mouse_dpt_noapop_release:
+      h5ad: "data/deliverables/2026_09_15/Cevrim_XMens_Only_Fib_Dec_Cells.h5ad"
+      pt_key: dpt_pseudotime_no_apoptotic
+    human_dpt_release:
+      h5ad: "data/deliverables/2026_09_15/Cevrim_Human_Only_Fib_Dec_Cells.h5ad"
+      pt_key: dpt_pseudotime
+
     mouse_dpt:
       h5ad: archive/pseudotime_mouse_v2_induced_no_apop/2026_08_28_mouse_fibdec_pseudotime_rooted.h5ad
       pt_key: dpt_pseudotime
@@ -353,3 +366,15 @@ spatial_qc:
       - {timepoint: 3_dpi       , y_gt: 9000}
       - {timepoint: 3_dpi       , y_lt: 1500, x_gt: 6500}
       - {timepoint: 3_dpi       , x_gt: 9000, y_gt: 8000}
+
+# ---------------------------------------------------------------------------
+# samap_raw (added 2026-09-15): the pt-transfer variant table. The EMPTY suffix
+# reproduces the pre-existing behaviour exactly (column dpt_pseudotime, legacy
+# output path runs_raw/<arm>/pt_transfer/), so nothing already on disk is
+# re-pointed or overwritten; '_noapop' is the settled no-apoptotic coordinate
+# and lands beside it in runs_raw/<arm>/pt_transfer_noapop/.
+samap_raw:
+  pt_h5ad: "data/deliverables/2026_09_15/Cevrim_XMens_Only_Fib_Dec_Cells.h5ad"
+  pt_variants:
+    "": dpt_pseudotime
+    "_noapop": dpt_pseudotime_no_apoptotic

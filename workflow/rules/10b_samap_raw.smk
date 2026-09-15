@@ -57,6 +57,11 @@ _SR_SRC = {
 }
 SR_PT_H5AD = _SR.get("pt_h5ad", "data/deliverables/2026_09_15/Cevrim_XMens_Only_Fib_Dec_Cells.h5ad")
 SR_PT_COL  = _SR.get("pt_col", "dpt_pseudotime")
+# pt-transfer variants (2026-09-15): suffix -> obs column. "" keeps the legacy
+# path AND column, so existing outputs are never re-pointed; new variants land in
+# sibling directories. Override in config[samap_raw][pt_variants].
+SR_PT_VARIANTS = _SR.get("pt_variants", {"": SR_PT_COL,
+                                         "_noapop": "dpt_pseudotime_no_apoptotic"})
 
 # arm name -> (run_samap_arm.py --arm, --min-expression)
 SR_ARMS = {
@@ -71,6 +76,7 @@ _SR_STAIN_CSVS = ["hs_from_mm_coarse", "hs_from_mm_fine", "mm_from_hs_coarse"]
 
 wildcard_constraints:
     arm   = "|".join(_sr_re.escape(a) for a in SR_ARMS),
+    ptsuf = "(" + "|".join(_sr_re.escape(v) for v in sorted(SR_PT_VARIANTS, key=len)) + ")",
     rawsp = "hs|mm",
 
 # -----------------------------------------------------------------------------
@@ -199,17 +205,17 @@ rule samap_raw_pt_transfer:
         pt     = ancient(SR_PT_H5AD),
         script = ancient("workflow/scripts/samap/samap_transfer_pt.py"),
     output:
-        csv     = f"{SR_ROOT}/runs_raw/{{arm}}/pt_transfer/pt_transferred_hs.csv",
-        summary = f"{SR_ROOT}/runs_raw/{{arm}}/pt_transfer/summary.json",
+        csv     = f"{SR_ROOT}/runs_raw/{{arm}}/pt_transfer{{ptsuf}}/pt_transferred_hs.csv",
+        summary = f"{SR_ROOT}/runs_raw/{{arm}}/pt_transfer{{ptsuf}}/summary.json",
     params:
         py      = SR_PY,
-        pt_col  = SR_PT_COL,
-        out_dir = f"{SR_ROOT}/runs_raw/{{arm}}/pt_transfer",
+        pt_col  = lambda wc: SR_PT_VARIANTS[wc.ptsuf],
+        out_dir = f"{SR_ROOT}/runs_raw/{{arm}}/pt_transfer{{ptsuf}}",
     resources:
         mem_mb  = 128000,
         runtime = 120,
     log:
-        "logs/samap_raw/pt_transfer_{arm}.log",
+        "logs/samap_raw/pt_transfer_{arm}{ptsuf}.log",
     shell:
         r"""
         module load gcc/14.2.0-fasrc01
@@ -226,17 +232,17 @@ rule samap_raw_pt_transfer:
 rule samap_raw_attach_pt:
     input:
         joint  = f"{SR_ROOT}/runs_raw/{{arm}}/samap_transferred.h5ad",
-        csv    = f"{SR_ROOT}/runs_raw/{{arm}}/pt_transfer/pt_transferred_hs.csv",
+        csv    = f"{SR_ROOT}/runs_raw/{{arm}}/pt_transfer{{ptsuf}}/pt_transferred_hs.csv",
         script = "workflow/scripts/samap/samap_attach_pt.py",
     output:
-        h5ad = f"{SR_ROOT}/runs_raw/{{arm}}/samap_transferred_pt.h5ad",
+        h5ad = f"{SR_ROOT}/runs_raw/{{arm}}/samap_transferred_pt{{ptsuf}}.h5ad",
     params:
         py = SR_PY,
     resources:
         mem_mb  = 128000,
         runtime = 90,
     log:
-        "logs/samap_raw/attach_pt_{arm}.log",
+        "logs/samap_raw/attach_pt_{arm}{ptsuf}.log",
     shell:
         r"""
         module load gcc/14.2.0-fasrc01
