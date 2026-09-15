@@ -61,10 +61,10 @@ PAIRS = {r: _manifest[r] for r in SAMAP_PAIRS}
 # per-species SOURCE object + canonical annotation columns + expected fib/dec count.
 # UPDATED 2026-08-29: now reading the v2 deliverables instead of refined_*
 # Both deliverables carry human/mouse subsets with cell_type (coarse) and cell_subtype (fine).
-_REFINED = {
-    "hs": dict(path="data/deliverables/2026_08_28_Cevrim_Human_Only_Fib_Dec_Cells.h5ad",
+_REFINED = {   # 2026-09-15: repointed at the finalized release (04g finalize_deliverables)
+    "hs": dict(path="data/deliverables/2026_09_15/Cevrim_Human_Only_Fib_Dec_Cells.h5ad",
                 coarse="cell_type", fine="cell_subtype", expect=47533),
-    "mm": dict(path="data/deliverables/2026_08_28_Cevrim_XMens_Only_Fib_Dec_Cells.h5ad",
+    "mm": dict(path="data/deliverables/2026_09_15/Cevrim_XMens_Only_Fib_Dec_Cells.h5ad",
                 coarse="cell_type", fine="cell_subtype", expect=43197),
 }
 

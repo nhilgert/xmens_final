@@ -59,7 +59,7 @@ rule reannotate_lineage_migrated:
         runtime=120,
         cpus_per_task=4,
     script:
-        "../scripts/apply_annotation.py"
+        "../scripts/atlas/apply_annotation.py"
 
 
 rule merge_reannotated_migrated:
@@ -81,7 +81,7 @@ rule merge_reannotated_migrated:
         runtime=120,
         cpus_per_task=4,
     script:
-        "../scripts/merge_reannotated.py"
+        "../scripts/atlas/merge_reannotated.py"
 
 
 rule reembed_migrated:
@@ -103,7 +103,7 @@ rule reembed_migrated:
         gres="gpu:1",
         slurm_extra="",
     script:
-        "../scripts/integrate.py"
+        "../scripts/atlas/integrate.py"
 
 
 rule export_migrated_human:
@@ -125,7 +125,7 @@ rule export_migrated_human:
         runtime=180,
         cpus_per_task=4,
     script:
-        "../scripts/export_migrated.py"
+        "../scripts/attic/export_migrated.py"
 
 
 rule export_migrated_mouse:
@@ -147,7 +147,7 @@ rule export_migrated_mouse:
         runtime=180,
         cpus_per_task=4,
     script:
-        "../scripts/export_migrated.py"
+        "../scripts/attic/export_migrated.py"
 
 
 rule validate_migrated:
@@ -177,7 +177,7 @@ rule validate_migrated:
         runtime=180,
         cpus_per_task=4,
     script:
-        "../scripts/validate_migration_bundle.py"
+        "../scripts/attic/validate_migration_bundle.py"
 
 
 rule check_annotations_migrated:
@@ -206,7 +206,7 @@ rule check_annotations_migrated:
         runtime=120,
         cpus_per_task=2,
     script:
-        "../scripts/check_migrated_annotations.py"
+        "../scripts/attic/check_migrated_annotations.py"
 
 
 rule migration_complete:
@@ -222,7 +222,7 @@ rule migration_complete:
     params:
         run_id=RUN_ID,
     script:
-        "../scripts/finalize_migration.py"
+        "../scripts/attic/finalize_migration.py"
 
 
 rule verify_protected_live:

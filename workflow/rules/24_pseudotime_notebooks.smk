@@ -9,11 +9,11 @@ if not config:
 
 PTNB = {
   "mouse_with_uninduced": dict(nb="notebooks/pseudotime_papermill/mouse_with_uninduced_pm.ipynb",
-                               src="data/deliverables/2026_09_02_Cevrim_XMens_Only_Fib_Dec_Cells.h5ad"),
+                               src="data/deliverables/2026_09_15/Cevrim_XMens_Only_Fib_Dec_Cells.h5ad"),
   "mouse_no_uninduced":   dict(nb="notebooks/pseudotime_papermill/mouse_no_uninduced_pm.ipynb",
-                               src="data/deliverables/2026_09_02_Cevrim_XMens_Only_Fib_Dec_Cells.h5ad"),
+                               src="data/deliverables/2026_09_15/Cevrim_XMens_Only_Fib_Dec_Cells.h5ad"),
   "human":                dict(nb="notebooks/pseudotime_papermill/human_pm.ipynb",
-                               src="data/deliverables/2026_08_28_Cevrim_Human_Only_Fib_Dec_Cells.h5ad"),
+                               src="data/deliverables/2026_09_15/Cevrim_Human_Only_Fib_Dec_Cells.h5ad"),
 }
 
 rule pt_nb_all:

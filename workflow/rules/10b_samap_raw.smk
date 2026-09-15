@@ -50,11 +50,12 @@ SR_MAPS   = _SR.get("maps_dir", "/n/lab_storage/eddy_lab/users/nhilgert/decidual
 SR_NITER  = _SR.get("n_iter", 3)
 
 # same v2 deliverables 10_samap reads; ancient() so the annotation DAG stays isolated
+# 2026-09-15: repointed at the finalized release (04g finalize_deliverables)
 _SR_SRC = {
-    "hs": "data/deliverables/2026_08_28_Cevrim_Human_Only_Fib_Dec_Cells.h5ad",
-    "mm": "data/deliverables/2026_08_28_Cevrim_XMens_Only_Fib_Dec_Cells.h5ad",
+    "hs": "data/deliverables/2026_09_15/Cevrim_Human_Only_Fib_Dec_Cells.h5ad",
+    "mm": "data/deliverables/2026_09_15/Cevrim_XMens_Only_Fib_Dec_Cells.h5ad",
 }
-SR_PT_H5AD = _SR.get("pt_h5ad", "data/deliverables/2026_09_02_Cevrim_XMens_Only_Fib_Dec_Cells.h5ad")
+SR_PT_H5AD = _SR.get("pt_h5ad", "data/deliverables/2026_09_15/Cevrim_XMens_Only_Fib_Dec_Cells.h5ad")
 SR_PT_COL  = _SR.get("pt_col", "dpt_pseudotime")
 
 # arm name -> (run_samap_arm.py --arm, --min-expression)

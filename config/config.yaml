@@ -129,6 +129,25 @@ clustree:
     start: 0.1
     stop: 0.8
     step: 0.1
+deliverables:
+  # 04g finalize_deliverables: promote the canonical source objects into an
+  # immutable, sha256-manifested release dir. Cut a release deliberately:
+  # bump `release`, update `sources`, then
+  #   snakemake --rerun-triggers mtime finalize_deliverables
+  # 2026_09_15 canonicalizes the NETSCRATCH copies -- the versions SCENIC/LIANA
+  # consumed. Fib/dec are supersets of the 2026_08_28 repo copies (add
+  # rank-normalised DPT + diffmap; human also donor + a leiden ladder). NOTE:
+  # the XMens All netscratch copy differs at VALUE level from the repo copy
+  # (same size, 11 min apart, cause unrecorded); netscratch chosen for
+  # consistency with the arms that consumed it. Supersedes
+  # data/deliverables/2026_08_28_* and 2026_09_02_* (retained, untouched).
+  release: "2026_09_15"   # quoted: bare 2026_09_15 parses as the integer 20260915 in YAML
+  note: netscratch copies canonicalized 2026-09-15; see release MANIFEST.json
+  sources:
+    Cevrim_Human_All_Cells: /n/netscratch/eddy_lab/Everyone/nhilgert/2026_08_28_Cevrim_Human_All_Cells.h5ad
+    Cevrim_Human_Only_Fib_Dec_Cells: /n/netscratch/eddy_lab/Everyone/nhilgert/2026_08_28_Cevrim_Human_Only_Fib_Dec_Cells.h5ad
+    Cevrim_XMens_All_Cells: /n/netscratch/eddy_lab/Everyone/nhilgert/2026_08_28_Cevrim_XMens_All_Cells.h5ad
+    Cevrim_XMens_Only_Fib_Dec_Cells: /n/netscratch/eddy_lab/Everyone/nhilgert/2026_08_28_Cevrim_XMens_Only_Fib_Dec_Cells.h5ad
 samap:
   root: /n/lab_storage/eddy_lab/users/nhilgert/decidualization/revisions/samap_integrate
   coords_root: /n/lab_storage/eddy_lab/users/nhilgert/decidualization/revisions/crossspecies_radial_gp
@@ -161,10 +180,10 @@ mi_pseudotime:
   layer: log1p
   runs:
     mouse_dpt:
-      h5ad: pseudotime_mouse_v2_induced_no_apop/2026_08_28_mouse_fibdec_pseudotime_rooted.h5ad
+      h5ad: archive/pseudotime_mouse_v2_induced_no_apop/2026_08_28_mouse_fibdec_pseudotime_rooted.h5ad
       pt_key: dpt_pseudotime
     mouse_palantir_rtk:
-      h5ad: pseudotime_mouse_v2_induced_no_apop/2026_08_28_mouse_fibdec_pseudotime_rooted.h5ad
+      h5ad: archive/pseudotime_mouse_v2_induced_no_apop/2026_08_28_mouse_fibdec_pseudotime_rooted.h5ad
       pt_key: palantir_pt_rtk
     human_dpt:
       h5ad: results/isodepth/human_fibdec_isodepth.h5ad
@@ -179,11 +198,11 @@ spatial_gp:
   python: /n/lab_storage/eddy_lab/users/nhilgert/.uv/envs/rsc_uv/bin/python
   runs:
     mouse_dpt_1dpi_late:
-      h5ad: pseudotime_mouse_v2_induced_no_apop/2026_08_28_mouse_fibdec_pseudotime_rooted.h5ad
+      h5ad: archive/pseudotime_mouse_v2_induced_no_apop/2026_08_28_mouse_fibdec_pseudotime_rooted.h5ad
       pt_key: dpt_pseudotime
       timepoint: 1_dpi_late
     mouse_dpt_4dpi:
-      h5ad: pseudotime_mouse_v2_induced_no_apop/2026_08_28_mouse_fibdec_pseudotime_rooted.h5ad
+      h5ad: archive/pseudotime_mouse_v2_induced_no_apop/2026_08_28_mouse_fibdec_pseudotime_rooted.h5ad
       pt_key: dpt_pseudotime
       timepoint: 4_dpi_bleeding
 scenic:
@@ -196,9 +215,9 @@ scenic:
   species:
   - mouse
   - human
-  source_h5ad:
-    mouse: /n/netscratch/eddy_lab/Everyone/nhilgert/2026_08_28_Cevrim_XMens_Only_Fib_Dec_Cells.h5ad
-    human: /n/netscratch/eddy_lab/Everyone/nhilgert/2026_08_28_Cevrim_Human_Only_Fib_Dec_Cells.h5ad
+  source_h5ad:   # 2026-09-15: repointed at the finalized release (04g)
+    mouse: data/deliverables/2026_09_15/Cevrim_XMens_Only_Fib_Dec_Cells.h5ad
+    human: data/deliverables/2026_09_15/Cevrim_Human_Only_Fib_Dec_Cells.h5ad
   raw_layer: counts
   timepoint_col: timepoint
   celltype_col: cell_subtype   # composition printout in the loom log (sketch vs full)
@@ -221,12 +240,12 @@ liana:
   pseudotime:                     # rule liana_pt (17_liana_pseudotime.smk); fib/dec lineage only
     bins: 5                       # equal-count quantile bins of the rank-normalised DPT
     outdir: results/liana_pseudotime
-    runs:
+    runs:                           # 2026-09-15: repointed at the finalized release (04g)
       mouse:
-        h5ad: /n/netscratch/eddy_lab/Everyone/nhilgert/2026_08_28_Cevrim_XMens_Only_Fib_Dec_Cells.h5ad
+        h5ad: data/deliverables/2026_09_15/Cevrim_XMens_Only_Fib_Dec_Cells.h5ad
         pt_key: dpt_pseudotime_rank_norm          # 43,197 cells, 0-1, no NaN
       human:
-        h5ad: /n/netscratch/eddy_lab/Everyone/nhilgert/2026_08_28_Cevrim_Human_Only_Fib_Dec_Cells.h5ad
+        h5ad: data/deliverables/2026_09_15/Cevrim_Human_Only_Fib_Dec_Cells.h5ad
         pt_key: dpt_pseudotime_rank_normalized    # 47,533 cells, 0-1, no NaN (note: name differs from mouse)
   crossspecies:                   # rule liana_crossspecies (16_liana_crossspecies.smk)
     liana_root: results/liana/no_commot
@@ -242,12 +261,12 @@ liana:
   - no_commot                     #   snakemake ... results/liana/bivariate/{human,mouse}/.liana_complete
   runs:
     human:
-      h5ad: /n/netscratch/eddy_lab/Everyone/nhilgert/2026_08_28_Cevrim_Human_All_Cells.h5ad
+      h5ad: data/deliverables/2026_09_15/Cevrim_Human_All_Cells.h5ad   # 2026-09-15: finalized release (04g)
       timepoints:
       - menstrual
       - secretory
     mouse:
-      h5ad: /n/netscratch/eddy_lab/Everyone/nhilgert/2026_08_28_Cevrim_XMens_All_Cells.h5ad
+      h5ad: data/deliverables/2026_09_15/Cevrim_XMens_All_Cells.h5ad   # 2026-09-15: finalized release (04g)
       timepoints:
       - uninduced
       - 1_dpi_early
@@ -261,9 +280,9 @@ pt_per_timepoint:
     mouse:
     - decidual_apoptotic
     human: []
-  h5ad:
-    mouse: data/deliverables/2026_08_28_Cevrim_XMens_Only_Fib_Dec_Cells.h5ad
-    human: data/deliverables/2026_08_28_Cevrim_Human_Only_Fib_Dec_Cells.h5ad
+  h5ad:   # 2026-09-15: repointed at the finalized release (04g)
+    mouse: data/deliverables/2026_09_15/Cevrim_XMens_Only_Fib_Dec_Cells.h5ad
+    human: data/deliverables/2026_09_15/Cevrim_Human_Only_Fib_Dec_Cells.h5ad
   timepoints:
     mouse:
     - uninduced

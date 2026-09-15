@@ -61,7 +61,7 @@ duplicates — emits a warning otherwise).
 
 **Durable location (copied from backup, verified to open):**
 ```
-/n/eddy_lab/users/nhilgert/decidualization/xmens_inputs/{sample_id}.h5
+/n/lab_storage/eddy_lab/users/nhilgert/decidualization/xmens_inputs/{sample_id}.h5
 ```
 Copied from (do NOT point the pipeline here — backup may be cleaned):
 ```
@@ -83,7 +83,7 @@ There are **two coordinate sources** for the same underlying positions. Use Sour
 
 ### Source 1 — USE THIS (barcode-keyed, join-ready)
 ```
-/n/eddy_lab/users/nhilgert/Slide-tags/coords/{coords_id}_coords.csv
+/n/lab_storage/eddy_lab/users/nhilgert/Slide-tags/coords/{coords_id}_coords.csv
 ```
 - Produced by `export_coords.R` (our export from the slide-tags Seurat objects).
 - Keyed by **barcode** (with `-1` suffix) → joins directly to the CellBender `.h5`
@@ -124,7 +124,7 @@ upgrade) so counts and the custom reference stay consistent.
 
 ### Mouse — custom transgenic reference
 ```
-/n/eddy_lab/users/nhilgert/reference/transgenic_mus   (mkref 7.2.0)
+/n/lab_storage/eddy_lab/users/nhilgert/reference/transgenic_mus   (mkref 7.2.0)
 ```
 Standard GRCm assembly + 2 appended DREADD transgene contigs (the irreplaceable part):
 - `CHRM3_Jax026220` — GqD / Chrm3* DREADD construct (+ EGFP, WPRE)
@@ -135,7 +135,7 @@ without rebuilding (rebuild is a once-ever, documented preprocessing step, NOT a
 
 ### Human — stock 10x reference
 ```
-/n/eddy_lab/users/nhilgert/reference/human/refdata-gex-GRCh38-2024-A
+/n/lab_storage/eddy_lab/users/nhilgert/reference/human/refdata-gex-GRCh38-2024-A
 ```
 Stock, downloadable; no transgenes. Reproducible by `wget` for an outside user.
 
@@ -190,5 +190,5 @@ pipeline run should land near these.
 - **`01_qc`:** apply §6 thresholds + DoubletDetection on all cells.
 - **Spatial rules (07+):** subset to placed cells internally.
 - **`samples.tsv` columns:** `sample_id, species, timepoint, modality, coords_id, path`
-  where `path = /n/eddy_lab/users/nhilgert/decidualization/xmens_inputs/{sample_id}.h5`
+  where `path = /n/lab_storage/eddy_lab/users/nhilgert/decidualization/xmens_inputs/{sample_id}.h5`
   and `coords_id` is the mck lane ID.
