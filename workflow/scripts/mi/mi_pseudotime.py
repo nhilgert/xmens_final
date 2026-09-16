@@ -106,6 +106,20 @@ def cmd_prep(args: argparse.Namespace) -> None:
             f"[prep] {adata.n_obs - n_finite} cells have non-finite {args.pt_key!r}; "
             f"subset or re-root before MI (a NaN pseudotime silently poisons MI).")
 
+    # detection filter (2026-09-16): keep genes detected (count > 0) in at least
+    # --min-detect-frac of cells, computed on the counts layer -- the posted
+    # methods' "expressed in at least 1% of cells" criterion. Sparse genes have
+    # degenerate KSG nulls (tiny MI passes); this removes them explicitly rather
+    # than letting subsampling attrition do it implicitly. 0 disables (legacy).
+    if args.min_detect_frac > 0:
+        import scipy.sparse as _sp
+        C = adata.layers["counts"] if "counts" in adata.layers else adata.X
+        det = np.asarray((C > 0).mean(axis=0)).ravel()
+        keep = det >= args.min_detect_frac
+        print(f"[prep] detection filter >= {args.min_detect_frac:.2%} of cells: "
+              f"{int(keep.sum()):,}/{adata.n_vars:,} genes kept", flush=True)
+        adata = adata[:, keep].copy()
+
     # gene filter on counts, exactly as the original (keeps informative genes only)
     sc.pp.filter_genes(adata, min_counts=args.min_counts)
     print(f"[prep] {adata.n_vars:,} genes remain after min_counts={args.min_counts}", flush=True)
@@ -142,8 +156,12 @@ def cmd_prep(args: argparse.Namespace) -> None:
 
     manifest = dict(
         pt_key=args.pt_key, layer=layer_used, min_counts=int(args.min_counts),
+        min_detect_frac=float(args.min_detect_frac),
         n_cells=int(adata.n_obs), n_genes=int(adata.n_vars),
         n_chunks=int(args.chunks), seed=int(args.seed), h5ad=str(args.h5ad),
+        # power settings recorded as provenance; workers default to these values
+        # (the 2025-09 era's unrecorded --subsample-cells cost a forensic evening)
+        perms=int(args.perms), subsample_cells=int(args.subsample_cells),
     )
     (out / "manifest.json").write_text(json.dumps(manifest, indent=2))
     print(f"[prep] wrote matrices + manifest to {out}  "
@@ -157,6 +175,12 @@ def cmd_worker(args: argparse.Namespace) -> None:
     out = args.outdir.resolve()
     man = load_manifest(out)
     n_chunks = man["n_chunks"]
+    # power settings: CLI override, else the manifest's recorded values, else
+    # legacy defaults (pre-2026-09-16 manifests lack these keys)
+    if args.perms is None:
+        args.perms = int(man.get("perms", 1001))
+    if args.subsample_cells is None:
+        args.subsample_cells = int(man.get("subsample_cells", 3000))
 
     X = np.load(out / "expr.npz")["X"]                 # cells x genes, float32
     y = np.load(out / "pseudotime.npy").astype(float)  # cells
@@ -167,7 +191,8 @@ def cmd_worker(args: argparse.Namespace) -> None:
     start, end = chunk_bounds(man["n_genes"], n_chunks, args.chunk)
     gidx = range(start, end)
     print(f"[worker {args.chunk:03d}] genes [{start}:{end}) = {end - start}  "
-          f"pt_key={man['pt_key']}  perms={args.perms}", flush=True)
+          f"pt_key={man['pt_key']}  perms={args.perms}  "
+          f"subsample_cells={args.subsample_cells}", flush=True)
 
     # one RNG per chunk, seeded off the prep seed so the whole run is reproducible
     rng = np.random.default_rng(man["seed"] * 100_000 + args.chunk)
@@ -290,6 +315,15 @@ def build_parser() -> argparse.ArgumentParser:
                          "palantir_pt_std, dpt_pseudotime)")
     pp.add_argument("--layer", default="log1p", help="log-normalized expression layer")
     pp.add_argument("--min-counts", type=int, default=10)
+    pp.add_argument("--min-detect-frac", type=float, default=0.0,
+                    help="keep genes detected (count>0) in >= this fraction of cells "
+                         "(the posted methods used 0.01); 0 = legacy behaviour")
+    pp.add_argument("--perms", type=int, default=1001,
+                    help="run's intended permutations, recorded in the manifest; "
+                         "workers default to this value")
+    pp.add_argument("--subsample-cells", type=int, default=3000,
+                    help="run's intended estimator subsample (0 = full cells), recorded "
+                         "in the manifest; workers default to this value")
     pp.add_argument("--chunks", type=int, default=200)
     pp.add_argument("--seed", type=int, default=0)
     pp.add_argument("--outdir", type=pathlib.Path, required=True)
@@ -299,9 +333,10 @@ def build_parser() -> argparse.ArgumentParser:
     pw.add_argument("--outdir", type=pathlib.Path, required=True)
     pw.add_argument("--chunk", type=int, required=True,
                     help="chunk index (0-based); wire to $SLURM_ARRAY_TASK_ID")
-    pw.add_argument("--perms", type=int, default=1001,
-                    help="total permutations INCLUDING observed (min p = 1/perms)")
-    pw.add_argument("--subsample-cells", type=int, default=3000,
+    pw.add_argument("--perms", type=int, default=None,
+                    help="total permutations INCLUDING observed (min p = 1/perms); "
+                         "default: the manifest's recorded value")
+    pw.add_argument("--subsample-cells", type=int, default=None,
                     help="cells used by the KSG estimator (one fixed per-worker subsample; "
                          "0 = all cells). 33k cells x 1001 perms x 113 genes blew the "
                          "4h walltime; KSG MI is stable well below 3k cells for this use.")
