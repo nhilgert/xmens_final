@@ -41,20 +41,32 @@ def canon(bc: str) -> str:
 
 
 def barcode_join(barcodes, names, values):
+    """Exact barcode match first. The canonical (bare 14-20 bp core) fallback is used ONLY when a
+    barcode is ABSENT from the source - never when it is present with a NaN value (cells excluded
+    from a pseudotime variant by design) - and never through a core shared by more than one source
+    cell (cores collide across samples). Fixed 2026-09-25: the previous version fell back whenever
+    the exact value was NaN, so 9 apoptotic cells borrowed another sample's pseudotime."""
     vals = pd.to_numeric(pd.Series(values), errors="coerce").values
     lut = dict(zip(names, vals))
-    lut_c = {}
-    for k, v in zip(names, vals):
-        lut_c.setdefault(canon(k), v)
+    cores = pd.Series([canon(k) for k in names])
+    amb = set(cores[cores.duplicated(keep=False)])
+    lut_c = {k: v for k, v in zip(cores, vals) if k not in amb}
     out = np.full(len(barcodes), np.nan)
-    tiers = {"exact": 0, "canon": 0, "none": 0}
+    tiers = {"exact": 0, "exact_nan": 0, "canon": 0, "canon_ambiguous": 0, "none": 0}
     for i, bc in enumerate(barcodes):
-        v = lut.get(bc, np.nan)
-        if np.isfinite(v):
-            out[i] = v
-            tiers["exact"] += 1
+        if bc in lut:
+            v = lut[bc]
+            if np.isfinite(v):
+                out[i] = v
+                tiers["exact"] += 1
+            else:
+                tiers["exact_nan"] += 1
             continue
-        v = lut_c.get(canon(bc), np.nan)
+        k = canon(bc)
+        if k in amb:
+            tiers["canon_ambiguous"] += 1
+            continue
+        v = lut_c.get(k, np.nan)
         if np.isfinite(v):
             out[i] = v
             tiers["canon"] += 1
