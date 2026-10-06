@@ -49,3 +49,8 @@ out/
 .venv/
 archive/pseudotime_mouse_v2_induced_no_apop/
 *.loom
+
+# never-in-git (2026-10-06): installed R libraries and large matrices
+envs/scmap_rlib/
+envs/rlib_rrho/
+*.mtx
