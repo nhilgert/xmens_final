@@ -18,7 +18,7 @@ def species_samples(w):
 
 for r in ["00a_slidetags","00_cellbender","00b_ingest","01_qc","01c_concat","01b_qc_report","02_integrate","03_cluster",
           "04_annotate","04b_reintegrate","04c_reannotate","98_clustree","04d_merge","04e_reembed","04f_spatial_qc","99_reports","05_de","06_pseudotime","06b_timepoint_pseudotime","07_spatial_pseudotime",
-          "08_cellrank","09_pt_genes_mi","20_liana","21_scenic",
+          "08_cellrank","09_pt_genes_mi","21_scenic",
           "22_crossspecies","23_invitro","90_figures","09_homology","10_samap"]:
     include: f"rules/{r}.smk"
 
@@ -27,7 +27,6 @@ rule all:
         *lineage_latents(),          # 04b per-lineage latents
         expand("results/tables/markers_{sp}.csv", sp=SPECIES),
         expand("results/tables/mi_{sp}.csv", sp=SPECIES),
-        expand("results/tables/liana_{sp}.csv", sp=SPECIES),
         expand("results/tables/scenic_{sp}.csv", sp=SPECIES),
         "results/tables/conservation.csv",
         "data/interim/pt/global_mouse.h5ad",
@@ -39,9 +38,7 @@ rule all:
 include: "rules/11_mi_pseudotime.smk"
 include: "rules/12_spatial_gp.smk"
 include: "rules/13_scenic.smk"
-include: "rules/14_liana.smk"
+# LIANA removed 2026-10-24 (not in the paper); its rule files are in rules/attic/
 include: "rules/15_pt_per_timepoint.smk"
-include: "rules/16_liana_crossspecies.smk"
-include: "rules/17_liana_pseudotime.smk"
 include: "rules/10b_samap_raw.smk"
 include: "rules/04g_deliverables.smk"
