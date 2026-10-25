@@ -42,3 +42,5 @@ include: "rules/13_scenic.smk"
 include: "rules/15_pt_per_timepoint.smk"
 include: "rules/10b_samap_raw.smk"
 include: "rules/04g_deliverables.smk"
+# decidual-zone AUCell modules (mouse), added 2026-10-24
+include: "rules/16_zone_modules.smk"

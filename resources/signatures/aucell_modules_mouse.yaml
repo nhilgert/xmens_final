@@ -1,11 +1,16 @@
-# AUCell module gene sets — MOUSE gene symbols (Cevrim et al. marker table).
-# Extracted VERBATIM from 2026_08_21_clean_objs.ipynb cell 8 MODULES dict (2026-08-28).
-# Read by workflow/scripts/finalize_deliverables.py; scored on MOUSE objects only
-# (these are mouse symbols; scoring crashes on human — human gets its own modules).
-#
-# MD = NK/cytotoxic, FMI = myeloid — IMMUNE modules, read as contrast not stromal signal.
-# PDZ/TDZ/SDZ = Primary/Transitional/Secondary Decidual Zones (inner->outer architecture).
-# Note: FMI scores 19/20 genes on the mouse objects (one symbol absent) — expected.
+# AUCell decidual-zone module gene sets -- MOUSE gene symbols.
+# Source: Li R, Wang T, Xu X, Emery OM, Yi M, Wu S-P, DeMayo FJ (2022). Spatial transcriptomic profiles of mouse
+# uterine microenvironments at pregnancy day 7.5. Biol Reprod 107(2):529-545, doi:10.1093/biolre/ioac061.
+# Table 1 (p. 533): top 20 marker genes per microenvironment, ranked by fold change; all 20 kept, in the table's order.
+# 2026-10-24: made verbatim. The 2026-08-28 version (from 2026_08_21_clean_objs.ipynb cell 8; git b9fa19c, md5
+# f2e3eaa0c26ad93a320ff28856486717) left out 4 of them: MMy Hba-a2 (rank 13) and Hbb-bs (18); PDZ Ntn5 (19);
+# TDZ Prl8a2 (6). Transcribed from the PDF text layer; the only repair was 'A W112010' -> 'AW112010'.
+# Read by workflow/rules/16_zone_modules.smk (rule zone_aucell -> workflow/scripts/zone_modules/score_zone_aucell.py).
+# Mouse objects only (mouse symbols). 2610528A11Rik (FMI) is not in the mouse annotation: FMI scores 19 of 20 genes.
+# MD (mesometrial decidua): top markers are uterine NK-cell genes (Gzm*, Prf1, Il2rb); Li et al. describe these NK
+# cells as non-cytotoxic. FMI (fetal-maternal interface; markers Mrgprg, Bco1, Tmem45a) is endothelial-rich in their
+# deconvolution, which maps myeloid cells to C, not FMI.
+# PDZ/TDZ/SDZ = primary/transitional/secondary decidual zones (inner -> outer).
 
 MMy:
   - Actg2
@@ -20,10 +25,12 @@ MMy:
   - Postn
   - Mylk
   - Col6a3
+  - Hba-a2
   - Acta1
   - Ifi27l2a
   - Fn1
   - Lum
+  - Hbb-bs
   - Col1a2
   - Tpm1
 MD:
@@ -129,6 +136,7 @@ PDZ:
   - Krtdap
   - Smpd1
   - Gng11
+  - Ntn5
   - Hopx
 TDZ:
   - Psca
@@ -136,6 +144,7 @@ TDZ:
   - Gpnmb
   - Erv3
   - Krtdap
+  - Prl8a2
   - Fabp4
   - Olr1
   - Psap
