@@ -690,34 +690,6 @@ def draw_figure(
         borderaxespad=0,
     )
 
-    # Size key for the pooled blanked markers of panel a. Legend marker size is a diameter, the
-    # square root of the scatter area.
-    size_handles = [
-        Line2D(
-            [],
-            [],
-            linestyle="",
-            marker="o",
-            markersize=np.sqrt(marker_area(n)),
-            markerfacecolor="0.45",
-            markeredgecolor="white",
-            markeredgewidth=0.2,
-            label=f"{n:,}",
-        )
-        for n in SIZE_KEY_NUCLEI
-    ]
-    fig.legend(
-        handles=size_handles,
-        title="Blanked nuclei per marker (area ∝ √n)",
-        title_fontsize=SMALL_PT,
-        loc="upper right",
-        bbox_to_anchor=(0.99, 0.998),
-        ncol=len(SIZE_KEY_NUCLEI),
-        handletextpad=0.3,
-        columnspacing=1.2,
-        borderaxespad=0,
-    )
-
     # Panel a: positions by QC outcome ----
 
     # Mouse sections fill a 3 x 2 block, the two human sections the column on the right; each
@@ -767,6 +739,34 @@ def draw_figure(
             fontweight="bold",
             va="bottom",
         )
+
+    # Size key for the pooled blanked markers, at the right end of panel a's title line, the
+    # only panel that uses it. Legend marker size is a diameter, the square root of the area.
+    size_handles = [
+        Line2D(
+            [],
+            [],
+            linestyle="",
+            marker="o",
+            markersize=np.sqrt(marker_area(n)),
+            markerfacecolor="0.45",
+            markeredgecolor="white",
+            markeredgewidth=0.2,
+            label=f"{n:,}",
+        )
+        for n in SIZE_KEY_NUCLEI
+    ]
+    fig.legend(
+        handles=size_handles,
+        title="Blanked nuclei per marker (area ∝ √n)",
+        title_fontsize=SMALL_PT,
+        loc="lower right",
+        bbox_to_anchor=(0.99, first_map["human"].get_position().y1 + 0.3 / fig.get_figheight()),
+        ncol=len(SIZE_KEY_NUCLEI),
+        handletextpad=0.3,
+        columnspacing=1.2,
+        borderaxespad=0,
+    )
 
     # Panel b: outcome per 10x lane ----
 
