@@ -17,7 +17,8 @@ import numpy as np, pandas as pd, h5py
 from anndata.io import read_elem
 
 OBS = ["sample", "timepoint", "cell_type", "cell_subtype", "x_um_qc", "y_um_qc"]
-SCORING_KEYS = ["auc_threshold", "rank_cutoff", "seed", "normalization", "timepoints", "n_scored", "n_vars", "genesets", "versions"]
+SCORING_KEYS = ["auc_threshold", "rank_cutoff", "seed", "normalization", "timepoints", "n_scored", "n_vars", "genesets", "versions",
+                "n_ranked", "gene_universe", "aucell_check"]   # last three since 2026-10-26 (absent from older runs: None)
 
 
 def md5(path):
@@ -40,7 +41,9 @@ def main():
     if clash:
         sys.exit(f"refusing to overwrite {clash}")
 
-    S = pd.read_csv(a.scores, index_col=0); S.index = S.index.astype(str)
+    # round_trip: pandas' default float parser can be 1 ulp off, so before 2026-10-26 the table's scores matched the
+    # score table only to ~1e-16; now they are the score table's values exactly
+    S = pd.read_csv(a.scores, index_col=0, float_precision="round_trip"); S.index = S.index.astype(str)
     assert S.index.is_unique and all(c.startswith("auc_") for c in S.columns), "unexpected score table"
     with h5py.File(a.obj, "r") as h:
         idx = pd.Index(np.asarray(read_elem(h["obs/_index"])).astype(str))
@@ -62,7 +65,7 @@ def main():
     T.to_csv(a.out)
 
     # read-back check: the scores in the table are bit-identical to the score table
-    R = pd.read_csv(a.out, index_col=0)
+    R = pd.read_csv(a.out, index_col=0, float_precision="round_trip")
     assert np.array_equal(R[S.columns].to_numpy(), S.loc[order].to_numpy()), "scores changed on the way through the CSV"
 
     P = json.load(open(a.scores_provenance))

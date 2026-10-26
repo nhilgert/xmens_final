@@ -6,9 +6,12 @@
 # and their spatial panels and subtype heatmaps.
 #
 #   zone_aucell      score one run: pySCENIC AUCell on raw counts of the release
-#                    object, fixed auc_threshold and seed, all genes ranked,
-#                    only the nuclei of the run's timepoints (exact; see the
-#                    script).
+#                    object, fixed auc_threshold and seed, only the nuclei of the
+#                    run's timepoints (exact; see the script). Genes ranked: all
+#                    (default) or, with gene_filter_frac, SCENIC's rule (count > 0
+#                    in >= 1% of the object's nuclei) plus, with
+#                    keep_geneset_genes, the gene-set genes below it that are
+#                    still detected (added 2026-10-26).
 #   zone_plot_table  one per-nucleus CSV with everything the figures need:
 #                    obs (sample, timepoint, cell_type, cell_subtype, x/y),
 #                    embedding_outlier (config[zone_modules][embedding_outliers])
@@ -33,6 +36,18 @@ ZM_RUNS = ZM["runs"]
 ZM_ENV  = ("export XDG_CACHE_HOME={c} NUMBA_CACHE_DIR={c}/numba MPLCONFIGDIR={c}/mpl; "
            "mkdir -p {c}/numba {c}/mpl").format(c=ZM["cache_dir"])
 
+
+def zm_gene_args(run):
+    """score_zone_aucell.py options for the genes AUCell ranks (all genes when gene_filter_frac is absent or 0)."""
+    frac = float(run.get("gene_filter_frac") or 0)
+    if frac <= 0:
+        assert not run.get("keep_geneset_genes"), "zone_modules: keep_geneset_genes needs gene_filter_frac"
+        return ""
+    args = f"--gene-filter-frac {frac}"
+    if run.get("keep_geneset_genes"):
+        args += f" --keep-geneset-genes --geneset-min-cells {int(run.get('geneset_min_cells', 1))}"
+    return args
+
 wildcard_constraints:
     zone_run = "|".join(ZM_RUNS),
 
@@ -46,6 +61,7 @@ rule zone_aucell:
     output:
         scores = "results/zone_aucell/{zone_run}/zone_aucell.csv",
         means  = "results/zone_aucell/{zone_run}/subtype_means.csv",
+        genes  = "results/zone_aucell/{zone_run}/genes_ranked.txt",
         prov   = "results/zone_aucell/{zone_run}/provenance.json",
     params:
         py         = ZM["python"],
@@ -54,6 +70,7 @@ rule zone_aucell:
         seed       = lambda wc: ZM_RUNS[wc.zone_run]["seed"],
         norm       = lambda wc: ZM_RUNS[wc.zone_run].get("normalization", "none"),
         timepoints = lambda wc: ",".join(ZM_RUNS[wc.zone_run].get("timepoints") or []),
+        genes      = lambda wc: zm_gene_args(ZM_RUNS[wc.zone_run]),
         outdir     = lambda wc: f"results/zone_aucell/{wc.zone_run}",
         env        = ZM_ENV,
     threads: 8
@@ -67,7 +84,7 @@ rule zone_aucell:
         {params.py} -u {input.script} --obj {input.h5ad} \
             --manifest {input.manifest} --object-name {params.obj_name} \
             --genesets {input.genesets} --auc-threshold {params.thr} --seed {params.seed} \
-            --normalization {params.norm} --timepoints '{params.timepoints}' \
+            --normalization {params.norm} --timepoints '{params.timepoints}' {params.genes} \
             --workers {threads} --out {params.outdir} > {log} 2>&1
         """
 

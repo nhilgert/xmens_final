@@ -388,6 +388,10 @@ samap_raw:
 # Li et al. 2022 Table 1 verbatim, 3 dpi nuclei only. Add a run rather than
 # edit one: each run has its own results/zone_aucell/<run>/ and
 # results/figures/zone_modules/<run>/.
+# 2026-10-26 (user): rank genes as for SCENIC (count > 0 in >= 1% of the
+# object's nuclei) plus the Table 1 genes below 1% that are still detected
+# (>= 1 nucleus): run table1_auc005_g1pct_seed0_3dpi, the run of record. The
+# all-genes run stays for comparison (results/zone_aucell/2026_10_26_gene_universe_*).
 # ---------------------------------------------------------------------------
 zone_modules:
   python: /n/lab_storage/eddy_lab/users/nhilgert/.uv/envs/rsc_uv/bin/python   # pyscenic 0.12.1, ctxcore 0.2.0
@@ -403,6 +407,15 @@ zone_modules:
       seed: 0
       normalization: none   # raw counts; cp10k gives identical scores (ranks are within each nucleus)
       timepoints: ["3_dpi"]
+    table1_auc005_g1pct_seed0_3dpi:   # 2026-10-26 (user): the run of record
+      genesets: "resources/signatures/aucell_modules_mouse.yaml"
+      auc_threshold: 0.05
+      seed: 0
+      normalization: none
+      timepoints: ["3_dpi"]
+      gene_filter_frac: 0.01      # rank genes with count > 0 in >= 1% of the object's nuclei (SCENIC loom rule)...
+      keep_geneset_genes: true    # ...plus the Table 1 genes below 1% that are still detected
+      geneset_min_cells: 1        # detected = count > 0 in >= 1 nucleus of the object (drops Prl4a1, Cts7, Prl2a1)
   figures:   # fig_zone_modules.py invocations, rendered for every run (light + dark, PNG + SVG + sidecar)
     - name: spatial_3dpi_rot135_noapop
       args: "--figures spatial --timepoint 3_dpi --drop-apoptotic --rotate 135 --modules PDZ,TDZ,SDZ,VSZ,MD,udStr"
