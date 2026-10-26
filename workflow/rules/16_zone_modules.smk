@@ -5,13 +5,18 @@
 # Table 1, top 20 markers each; resources/signatures/aucell_modules_mouse.yaml),
 # and their spatial panels and subtype heatmaps.
 #
-#   zone_aucell   score one run: pySCENIC AUCell on raw counts of the release
-#                 object, fixed auc_threshold and seed, all genes ranked, only
-#                 the nuclei of the run's timepoints (exact; see the script).
-#   zone_figures  render config[zone_modules][figures] from that run's table.
-#                 Spatial panels hide the embedding outliers listed in
-#                 config[zone_modules][embedding_outliers]; heatmaps keep them
-#                 (rule of 2026-10-22).
+#   zone_aucell      score one run: pySCENIC AUCell on raw counts of the release
+#                    object, fixed auc_threshold and seed, all genes ranked,
+#                    only the nuclei of the run's timepoints (exact; see the
+#                    script).
+#   zone_plot_table  one per-nucleus CSV with everything the figures need:
+#                    obs (sample, timepoint, cell_type, cell_subtype, x/y),
+#                    embedding_outlier (config[zone_modules][embedding_outliers])
+#                    and the 11 scores. Added 2026-10-24 so the figures can be
+#                    redrawn from this CSV alone.
+#   zone_figures     render config[zone_modules][figures] from the plot table
+#                    only. Spatial panels hide embedding_outlier nuclei; heatmaps
+#                    keep them (rule of 2026-10-22).
 #
 # One directory per run under results/zone_aucell/<run>/ and
 # results/figures/zone_modules/<run>/. Add a run instead of editing one.
@@ -67,14 +72,38 @@ rule zone_aucell:
         """
 
 
+rule zone_plot_table:
+    input:
+        h5ad   = ancient(ZM["h5ad"]),
+        scores = "results/zone_aucell/{zone_run}/zone_aucell.csv",
+        prov   = "results/zone_aucell/{zone_run}/provenance.json",
+        flags  = ZM["embedding_outliers"],
+        script = "workflow/scripts/zone_modules/make_zone_plot_table.py",
+    output:
+        table = "results/zone_aucell/{zone_run}/zone_plot_table.csv",
+        side  = "results/zone_aucell/{zone_run}/zone_plot_table.provenance.json",
+    params:
+        py  = ZM["python"],
+        env = ZM_ENV,
+    threads: 1
+    resources:
+        mem_mb = 8000, runtime = 30,
+    log:
+        "logs/zone_modules/zone_plot_table_{zone_run}.log",
+    shell:
+        r"""
+        {params.env}
+        {params.py} -u {input.script} --obj {input.h5ad} --scores {input.scores} \
+            --scores-provenance {input.prov} --flag-barcodes {input.flags} --out {output.table} > {log} 2>&1
+        """
+
+
 rule zone_figures:
     input:
-        scores   = "results/zone_aucell/{zone_run}/zone_aucell.csv",
-        prov     = "results/zone_aucell/{zone_run}/provenance.json",
-        h5ad     = ancient(ZM["h5ad"]),
-        outliers = ZM["embedding_outliers"],
-        script   = "workflow/scripts/zone_modules/fig_zone_modules.py",
-        driver   = "workflow/scripts/zone_modules/render_zone_figures.py",
+        table  = "results/zone_aucell/{zone_run}/zone_plot_table.csv",
+        side   = "results/zone_aucell/{zone_run}/zone_plot_table.provenance.json",
+        script = "workflow/scripts/zone_modules/fig_zone_modules.py",
+        driver = "workflow/scripts/zone_modules/render_zone_figures.py",
     output:
         directory("results/figures/zone_modules/{zone_run}"),
     params:
@@ -90,12 +119,12 @@ rule zone_figures:
         r"""
         {params.env}
         {params.py} -u {input.driver} --python {params.py} --script {input.script} \
-            --obj {input.h5ad} --scores {input.scores} --hide-barcodes {input.outliers} \
-            --jobs '{params.jobs}' --out {output} > {log} 2>&1
+            --plot-table {input.table} --jobs '{params.jobs}' --out {output} > {log} 2>&1
         """
 
 
 rule zone_modules_all:
     input:
         expand("results/zone_aucell/{zone_run}/zone_aucell.csv", zone_run=ZM_RUNS),
+        expand("results/zone_aucell/{zone_run}/zone_plot_table.csv", zone_run=ZM_RUNS),
         expand("results/figures/zone_modules/{zone_run}", zone_run=ZM_RUNS),

@@ -1,17 +1,19 @@
 """Decidual-zone AUCell module scores: spatial panels of one mouse section and subtype x module heatmaps.
 
-Pipeline version (rule zone_figures, workflow/rules/16_zone_modules.smk; driver render_zone_figures.py), 2026-10-24.
-Derived from figures/zone_modules/fig_zone_modules.py v14 (md5 e6b0ccef8e858d3ccbe6607e9289e621); the plotting
-functions are unchanged. Changes from v14:
-    * --obj and --scores are required: no hard-coded object or score table, and no --stored-scores (the objects'
-      auc_<MODULE> columns, window 0.0131, are never read, so the two windows cannot be mixed in one figure).
-    * the score table may cover only some timepoints (rule zone_aucell scores 3 dpi only, per the user, 2026-10-24):
-      the figures are then restricted to those timepoints, every nucleus of them must be scored, and an
-      all-timepoint heatmap is refused (pass --heatmap-timepoint).
-    * --hide-barcodes <csv with a 'barcode' column>: nuclei hidden from the SPATIAL panels only (rule of 2026-10-22:
-      embedding outliers are omitted from embedding and spatial plots and kept in every summary, so heatmaps keep them).
-    * score metadata (window, seed, normalization, timepoints, gene sets) is read from the provenance.json written next
-      to the score table by score_zone_aucell.py and copied into every sidecar.
+Pipeline version (rule zone_figures, workflow/rules/16_zone_modules.smk; driver render_zone_figures.py), v16,
+2026-10-24. Derived from figures/zone_modules/fig_zone_modules.py v14 (md5 e6b0ccef8e858d3ccbe6607e9289e621); the
+plotting functions are unchanged.
+    * v16: the ONLY data input is --plot-table, the per-nucleus CSV written by make_zone_plot_table.py (rule
+      zone_plot_table): barcode, sample, timepoint, cell_type, cell_subtype, x_um_qc, y_um_qc, embedding_outlier and
+      the 11 auc_<MODULE> scores. No h5ad is read, so every figure can be redrawn from that CSV and its sidecar
+      <table>.provenance.json (needs numpy, pandas and matplotlib only).
+    * nuclei with embedding_outlier == True are hidden from the SPATIAL panels and kept in heatmaps (rule of
+      2026-10-22: embedding outliers are omitted from embedding and spatial plots and kept in every summary);
+      --show-flagged draws them too.
+    * the scores may cover only some timepoints (the user's 3 dpi decision, 2026-10-24). An all-timepoint heatmap is
+      then refused (pass --heatmap-timepoint), as are spatial panels of unscored timepoints.
+    * score metadata (window, seed, normalization, scored timepoints, gene sets) comes from the table's sidecar and is
+      copied into every figure sidecar. The objects' stored auc_ columns (window 0.0131) are never read.
 
 Outputs per figure: <name>{,_dark}.{png,svg} + <name>{,_dark}.provenance.json, names as in v14:
     pdz_sdz_spatial_<tp>[_noapop][_rot<deg>]                 PDZ and SDZ
@@ -20,10 +22,10 @@ Outputs per figure: <name>{,_dark}.{png,svg} + <name>{,_dark}.provenance.json, n
     plus _<cmap> for a non-magma colour map and --suffix. Heatmap SVG is fully vector; in spatial SVG each section's
     point cloud is one embedded bitmap at --dpi.
 
-DATA: the mouse release object (data/deliverables/<release>/Cevrim_XMens_All_Cells.h5ad); obs columns used:
-    x_um_qc, y_um_qc (microns after spatial QC; NaN = not placed, left out of spatial panels), sample, timepoint
-    (lanes of one timepoint are one section -> pooled), cell_type, cell_subtype. Only obs is read.
-    --table <csv> reads the same columns from a CSV export instead (for local renders in Helvetica Neue).
+DATA: --plot-table (see above). Its obs columns come from the mouse release object: x_um_qc, y_um_qc (microns after
+    spatial QC; NaN = not placed, left out of spatial panels but counted in heatmaps), sample, timepoint (lanes of one
+    timepoint are one section -> pooled), cell_type, cell_subtype. Local renders (e.g. in Helvetica Neue on a Mac) use
+    the same table.
 
 MODULES: PDZ / TDZ / SDZ = primary / transitional / secondary decidual zone (inner -> outer), VSZ (vascular sinus
     zone), MD (mesometrial decidua; top markers are uterine NK-cell genes, NK cells Li et al. describe as
@@ -60,9 +62,7 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from matplotlib import font_manager
-import h5py
 import hashlib
-from anndata.io import read_elem
 
 ORDER = ["PDZ", "TDZ", "SDZ", "VSZ", "MD", "MMy", "C", "FMI", "Glan", "udStr", "AMMy"]
 TWO = [("PDZ", "primary decidual zone (PDZ)"), ("SDZ", "secondary decidual zone (SDZ)")]
@@ -94,40 +94,32 @@ def _src(path, **extra):
             "bytes": os.path.getsize(path), **extra}
 
 
-def load(timepoint, OBJ, scores, table=None):
-    """obs (from the h5ad or a CSV export) joined with the score table. Returns the plotted spatial set g (one
-    timepoint, placed nuclei), D (all nuclei of the scored timepoints), score metadata, sources, scored timepoints."""
-    auc = [f"auc_{m}" for m in ORDER]; base = ["sample", "timepoint", "cell_type", "cell_subtype", "x_um_qc", "y_um_qc"]
-    if table:
-        D = pd.read_csv(table, index_col=0); D.index = D.index.astype(str)
-        miss = [c for c in base if c not in D.columns]; assert not miss, f"missing columns in {table}: {miss}"
-        D = D[base]
-        srcs = [_src(table, md5=_md5(table), note=f"CSV export of the obs of {OBJ}")]
-    else:
-        with h5py.File(OBJ, "r") as h:   # obs only; the object's own auc_ columns are deliberately not read
-            idx = pd.Index(read_elem(h["obs/_index"]).astype(str))
-            D = pd.DataFrame({c: np.asarray(read_elem(h["obs/" + c])) for c in base}, index=idx)
-        srcs = [_src(OBJ)]
+def load(timepoint, plot_table):
+    """The per-nucleus plot table and its sidecar. Returns the spatial set g (one timepoint, placed nuclei), D (all
+    rows), score metadata, sources, the scored timepoints and whether the scores cover only some timepoints."""
+    auc = [f"auc_{m}" for m in ORDER]
+    base = ["sample", "timepoint", "cell_type", "cell_subtype", "x_um_qc", "y_um_qc", "embedding_outlier"]
+    D = pd.read_csv(plot_table, index_col=0); D.index = D.index.astype(str)
+    miss = [c for c in base + auc if c not in D.columns]; assert not miss, f"missing columns in {plot_table}: {miss}"
+    assert D.index.is_unique, f"duplicate barcodes in {plot_table}"
     for c in ("sample", "timepoint", "cell_type", "cell_subtype"): D[c] = D[c].astype(str)
-    S = pd.read_csv(scores, index_col=0); S.index = S.index.astype(str)
-    miss = [c for c in auc if c not in S.columns]; assert not miss, f"missing columns in {scores}: {miss}"
-    extra = S.index.difference(D.index); assert len(extra) == 0, f"{len(extra)} scored nuclei are not in the input"
-    all_tps = sorted(D["timepoint"].unique())
-    tps = sorted(D.loc[S.index, "timepoint"].unique())
-    D = D[D["timepoint"].isin(tps)].copy()   # restrict to the timepoints the score table covers
-    absent = D.index.difference(S.index)
-    assert len(absent) == 0, f"{len(absent)} nuclei of the scored timepoints {tps} are not in {scores}"
-    for c in auc: D[c] = S.loc[D.index, c].to_numpy(float)
-    pj = os.path.join(os.path.dirname(os.path.abspath(scores)), "provenance.json")
-    P = json.load(open(pj)) if os.path.exists(pj) else {}
+    flag = D["embedding_outlier"].map({True: True, False: False, "True": True, "False": False})
+    assert flag.notna().all(), "embedding_outlier must be True/False"
+    D["embedding_outlier"] = flag.astype(bool)
+    side = plot_table[:-len(".csv")] + ".provenance.json" if plot_table.endswith(".csv") else plot_table + ".provenance.json"
+    P = json.load(open(side)).get("scoring", {}) if os.path.exists(side) else {}
     meta = {k: str(P.get(k, "?")) for k in ("auc_threshold", "rank_cutoff", "seed", "normalization", "timepoints")}
-    meta["genesets"] = P.get("genesets", {}); meta["scores_file"] = os.path.abspath(scores)
-    srcs.append(_src(scores, md5=_md5(scores), role="auc_<MODULE> scores"))
-    if os.path.exists(pj): srcs.append(_src(pj, md5=_md5(pj), role="score provenance"))
-    assert timepoint in tps, f"timepoint {timepoint!r} is not scored; the score table covers {tps}"
+    meta["genesets"] = P.get("genesets", {}); meta["scores_file"] = os.path.abspath(plot_table)
+    srcs = [_src(plot_table, md5=_md5(plot_table), role="plot table (obs + embedding_outlier + auc_<MODULE>)")]
+    if os.path.exists(side): srcs.append(_src(side, md5=_md5(side), role="plot table provenance"))
+    tps = sorted(D["timepoint"].unique())
+    scored = P.get("timepoints")
+    if isinstance(scored, list): assert sorted(scored) == tps, f"table timepoints {tps} differ from the scored {scored}"
+    partial = scored != "all"   # unknown (no sidecar) counts as partial: all-timepoint heatmaps are then refused
+    assert timepoint in tps, f"timepoint {timepoint!r} is not scored; the table covers {tps}"
     g = D[(D["timepoint"] == timepoint) & D[["x_um_qc", "y_um_qc"]].notna().all(1)].copy()
     assert len(g) > 0, f"no cells with coordinates at timepoint {timepoint!r}"
-    return g, D, meta, srcs, tps, all_tps
+    return g, D, meta, srcs, tps, partial
 
 
 def rotate_section(g, deg):
@@ -263,7 +255,7 @@ def fig_heatmap(D, dark, subtypes=SUBTYPES, scale="colmax", pool_fib=False, modu
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", default="."); ap.add_argument("--force", action="store_true"); ap.add_argument("--timepoint", default="3_dpi")
-    ap.add_argument("--obj", required=True); ap.add_argument("--suffix", default="")
+    ap.add_argument("--plot-table", required=True); ap.add_argument("--suffix", default="")
     ap.add_argument("--dpi", type=int, default=300); ap.add_argument("--formats", default="png,svg")
     ap.add_argument("--cmap", default="magma"); ap.add_argument("--figures", default="spatial,heatmap")
     ap.add_argument("--heatmap-scale", default="colmax", choices=["colmax", "p99"])   # p99 adds _p99 to heatmap names
@@ -272,22 +264,18 @@ def main():
     ap.add_argument("--rotate", type=float, default=0)   # spatial panels: degrees CCW about the section centre; adds _rot<deg>
     ap.add_argument("--drop-apoptotic", action="store_true")   # spatial panels: drop decidual_apoptotic before scaling/plotting; adds _noapop
     ap.add_argument("--pool-fib", action="store_true")   # one fibroblast row; adds _fibpooled to heatmap names
-    ap.add_argument("--scores", required=True)   # barcode-indexed auc_<MODULE> table from score_zone_aucell.py
-    ap.add_argument("--hide-barcodes", default="")   # CSV with a 'barcode' column: hidden from spatial panels only
-    ap.add_argument("--table", default="")   # read obs columns from a CSV export instead of the h5ad
+    ap.add_argument("--show-flagged", action="store_true")   # also draw embedding_outlier nuclei in spatial panels
     a = ap.parse_args()
     global CMAP; CMAP = a.cmap; ctag = "" if a.cmap == "magma" else f"_{a.cmap}"
     want = {f.strip() for f in a.figures.split(",")}
     fam = style(); os.makedirs(a.out, exist_ok=True)
-    g, D, uns, srcs, scored_tps, all_tps = load(a.timepoint, a.obj, a.scores, a.table or None)
+    g, D, uns, srcs, scored_tps, partial = load(a.timepoint, a.plot_table)
     win = (f"AUCell window {uns['auc_threshold']} (top {uns['rank_cutoff']} genes, seed {uns['seed']}, {uns['normalization']}; "
-           f"scored timepoints {uns['timepoints']}; scores {os.path.basename(uns['scores_file'])})")
+           f"scored timepoints {uns['timepoints']}; table {os.path.basename(uns['scores_file'])})")
     n_hid, hid_note = 0, ""
-    if a.hide_barcodes:   # spatial panels only; heatmaps (D) keep these nuclei
-        hb = set(pd.read_csv(a.hide_barcodes)["barcode"].astype(str))
-        n_hid = int(g.index.isin(hb).sum()); g = g[~g.index.isin(hb)]
-        hid_note = f"; {n_hid} nuclei listed in {os.path.basename(a.hide_barcodes)} hidden (embedding outliers; kept in heatmaps)"
-        srcs.append(_src(a.hide_barcodes, md5=_md5(a.hide_barcodes), role="barcodes hidden from spatial panels", n_listed=len(hb)))
+    if not a.show_flagged:   # spatial panels only; heatmaps (D) keep these nuclei
+        n_hid = int(g["embedding_outlier"].sum()); g = g[~g["embedding_outlier"]]
+        hid_note = f"; {n_hid} embedding-outlier nuclei hidden (kept in heatmaps)"
     tag = a.timepoint.replace("_", "")  # 3_dpi -> 3dpi, matching the existing filenames
     n_ap = 0
     if a.drop_apoptotic:
@@ -300,7 +288,7 @@ def main():
     assert not mods or set(mods) <= set(ORDER), mods
     htp = a.heatmap_timepoint or None
     if "heatmap" in want:
-        assert htp is not None or scored_tps == all_tps, ("the score table covers timepoints %s only; pass --heatmap-timepoint "
+        assert htp is not None or not partial, ("the scores cover timepoints %s only; pass --heatmap-timepoint "
                                                           "(an 'all timepoints pooled' heatmap would be mislabelled)" % scored_tps)
         assert htp is None or htp in scored_tps, f"heatmap timepoint {htp!r} is not scored ({scored_tps})"
     ptag = (f"_{htp.replace('_', '')}" if htp else "") + (f"_{len(mods)}zones" if mods else "") + ("_fibpooled" if a.pool_fib else "") + ("_p99" if a.heatmap_scale == "p99" else "")
@@ -326,7 +314,7 @@ def main():
             plt.close(fig); path = paths[fmts[0]]
             side = {"figure": os.path.abspath(path), "files": [os.path.abspath(p) for p in paths.values()], "dpi": a.dpi, "written": datetime.datetime.now().isoformat(timespec="seconds"),
                     "note": jnote, "cmap": a.cmap, "aucell_scores": uns,
-                    "hide_barcodes": ({"file": os.path.abspath(a.hide_barcodes), "applies_to": "spatial panels only", "n_hidden_in_spatial_set": n_hid} if a.hide_barcodes else None), **info,
+                    "embedding_outliers": {"hidden_in": "spatial panels only" if not a.show_flagged else "nowhere (--show-flagged)", "n_hidden_in_spatial_set": n_hid}, **info,
                     "script": os.path.abspath(__file__), "sources": srcs}
             json.dump(side, open(os.path.join(a.out, base + ".provenance.json"), "w"), indent=1)
             print("wrote", *paths.values())
