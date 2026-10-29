@@ -3,10 +3,11 @@
 Called by rule samap_figure_tables (workflow/rules/10c_samap_figures.smk). Reads obs and the UMAP of the joint
 SAMap object that carries the harmonized pseudotime transfer of record (no expression, no graph), and the release
 plot tables of the two fibroblast/decidual objects. Writes, in --out-dir:
-  joint.parquet    one row per joint nucleus: species, sample, timepoint, X_umap__0/1, transferred_mm_dpt_pseudotime*
+  joint.parquet    one row per joint nucleus, in the object's order: species, sample, timepoint,
+                   transferred_mm_dpt_pseudotime*, X_umap__0, X_umap__1
   mouse_cells.csv  one row per mouse nucleus: cell_type, cell_subtype, pt_harmonized_rank, embedding_outlier
   human_cells.csv  one row per human nucleus: sample, timepoint, cell_type, x_um_qc, y_um_qc, pt_harmonized_rank,
-                   pt_transferred (the transfer of record), embedding_outlier
+                   embedding_outlier, pt_transferred (the transfer of record)
 """
 import argparse
 from pathlib import Path
