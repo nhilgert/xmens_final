@@ -378,6 +378,25 @@ samap_raw:
   pt_variants:
     "": dpt_pseudotime
     "_noapop": dpt_pseudotime_no_apoptotic
+    # The transfer of record (2026-10-24): pt_harmonized of the Oct 22 release, read from its lab_storage copy
+    # (sha256-identical to the netscratch object the transfer was first run from).
+    "_harmonized": {col: pt_harmonized, h5ad: "data/deliverables/2026_10_22_flagged_harmonized/Cevrim_XMens_Only_Fib_Dec_Cells.h5ad"}
+
+# ---------------------------------------------------------------------------
+# samap_figures (stage 10c, added 2026-10-29) -- SAMap supplementary figure,
+# Fig. 6 transferred-pseudotime panels, and the permutation control of the
+# pseudotime transfer. Rules: workflow/rules/10c_samap_figures.smk;
+# target: samap_figures_all.
+# ---------------------------------------------------------------------------
+samap_figures:
+  python: /n/lab_storage/eddy_lab/users/nhilgert/.uv/envs/rsc_uv/bin/python
+  cache_dir: /n/lab_storage/eddy_lab/users/nhilgert/.cache_scratch   # matplotlib/numba caches (HOME is full)
+  arm: vanilla_raw                 # SAMap run of record (10b)
+  pt_variant: "_harmonized"        # samap_raw pt variant whose transfer the figures show
+  release: "2026_10_22_flagged_harmonized"   # pseudotime transferred; labels, coordinates, embedding_outlier
+  ptnull_seed: 20261022
+  ptnull_n_perm: 1000              # permutations per design
+  main_panel_date: "20261027"      # date stem of the Fig. 6 spatial panel files
 
 # ---------------------------------------------------------------------------
 # zone_modules (stage 16, added 2026-10-24) -- decidual-zone AUCell modules,

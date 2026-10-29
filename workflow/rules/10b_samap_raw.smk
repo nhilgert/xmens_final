@@ -57,11 +57,24 @@ _SR_SRC = {
 }
 SR_PT_H5AD = _SR.get("pt_h5ad", "data/deliverables/2026_09_15/Cevrim_XMens_Only_Fib_Dec_Cells.h5ad")
 SR_PT_COL  = _SR.get("pt_col", "dpt_pseudotime")
-# pt-transfer variants (2026-09-15): suffix -> obs column. "" keeps the legacy
-# path AND column, so existing outputs are never re-pointed; new variants land in
-# sibling directories. Override in config[samap_raw][pt_variants].
+# pt-transfer variants (2026-09-15): suffix -> obs column of pt_h5ad, or suffix ->
+# {col, h5ad} for a column of another mouse object (2026-10-29: _harmonized).
+# "" keeps the legacy path AND column, so existing outputs are never re-pointed;
+# new variants land in sibling directories. Override in config[samap_raw][pt_variants].
 SR_PT_VARIANTS = _SR.get("pt_variants", {"": SR_PT_COL,
                                          "_noapop": "dpt_pseudotime_no_apoptotic"})
+
+
+def sr_pt_source(wc):
+    """Mouse object carrying the pseudotime column of variant wc.ptsuf (ancient: a release is never re-cut by mtime)."""
+    variant = SR_PT_VARIANTS[wc.ptsuf]
+    return ancient(variant["h5ad"] if isinstance(variant, dict) else SR_PT_H5AD)
+
+
+def sr_pt_col(wc):
+    """obs column transferred by variant wc.ptsuf."""
+    variant = SR_PT_VARIANTS[wc.ptsuf]
+    return variant["col"] if isinstance(variant, dict) else variant
 
 # arm name -> (run_samap_arm.py --arm, --min-expression)
 SR_ARMS = {
@@ -202,14 +215,14 @@ rule samap_raw_transferred:
 rule samap_raw_pt_transfer:
     input:
         joint  = f"{SR_ROOT}/runs_raw/{{arm}}/samap_transferred.h5ad",
-        pt     = ancient(SR_PT_H5AD),
+        pt     = sr_pt_source,
         script = ancient("workflow/scripts/samap/samap_transfer_pt.py"),
     output:
         csv     = f"{SR_ROOT}/runs_raw/{{arm}}/pt_transfer{{ptsuf}}/pt_transferred_hs.csv",
         summary = f"{SR_ROOT}/runs_raw/{{arm}}/pt_transfer{{ptsuf}}/summary.json",
     params:
         py      = SR_PY,
-        pt_col  = lambda wc: SR_PT_VARIANTS[wc.ptsuf],
+        pt_col  = sr_pt_col,
         out_dir = f"{SR_ROOT}/runs_raw/{{arm}}/pt_transfer{{ptsuf}}",
     resources:
         mem_mb  = 128000,

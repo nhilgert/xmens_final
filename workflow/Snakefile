@@ -41,6 +41,8 @@ include: "rules/13_scenic.smk"
 # LIANA removed 2026-10-24 (not in the paper); its rule files are in rules/attic/
 include: "rules/15_pt_per_timepoint.smk"
 include: "rules/10b_samap_raw.smk"
+# SAMap figures and the permutation control of the pseudotime transfer, added 2026-10-29
+include: "rules/10c_samap_figures.smk"
 include: "rules/04g_deliverables.smk"
 # decidual-zone AUCell modules (mouse), added 2026-10-24
 include: "rules/16_zone_modules.smk"
