@@ -75,10 +75,19 @@ def choose_font() -> str:
     return next(name for name in FONT_PREFERENCE if name in installed)
 
 
+def font_families(font: str) -> list:
+    """rcParams font.family: Helvetica Neue first, then `font`, then DejaVu Sans.
+
+    SVG text names this list, so it opens in Helvetica Neue wherever that is installed. Where it is not, matplotlib
+    lays out and rasterizes the text with `font`; DejaVu Sans supplies glyphs both lack.
+    """
+    return list(dict.fromkeys(["Helvetica Neue", font, "DejaVu Sans"]))
+
+
 def apply_style(font: str) -> None:
     """Role-mapped size ladder: titles and axis labels 9 pt, legends 8 pt, ticks 7 pt."""
     mpl.rcParams.update({
-        "font.family": [font, "DejaVu Sans"],  # DejaVu Sans supplies glyphs the main font lacks
+        "font.family": font_families(font),
         "font.size": 9,
         "axes.labelsize": 9,
         "axes.titlesize": 9,
