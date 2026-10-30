@@ -37,8 +37,7 @@ def load_umap_cells(joint_path, mouse_cells_path, human_cells_path, draw_outlier
     mouse_values = mouse[["cell_type", "cell_subtype"]].assign(pt_rank=mouse["pt_harmonized_rank"])
 
     # Human pseudotime (pt_human) and the transfer of record (pt_ranknorm), one row per human nucleus.
-    human_values = human[["pt_transferred", "pt_harmonized_rank", "cell_type"]].rename(
-        columns={"pt_transferred": "pt_ranknorm", "pt_harmonized_rank": "pt_human"})
+    human_values = human[["pt_transferred", "pt_human", "cell_type"]].rename(columns={"pt_transferred": "pt_ranknorm"})
 
     flagged_human = set(human.index[human["embedding_outlier"].astype(bool)])
     flagged_mouse = set(mouse.index[mouse["embedding_outlier"].astype(bool)])

@@ -4,8 +4,9 @@ Called by rule samap_ptnull (workflow/rules/10c_samap_figures.smk). Reads the hu
 graph (C_hs_mm.npz with its row and column names) and the per-nucleus tables of export_samap_tables.py. Transfers mouse
 pt_harmonized_rank as samap_transfer_pt.py does, checks the result against the stored transfer of record, then repeats
 the transfer with mouse pseudotime permuted (a) across all mouse nuclei with a value and (b) only among nuclei of the
-same mouse compartment, with the graph held fixed. Per replicate: Spearman rho with human pt_harmonized_rank (all
-nuclei, decidual, fibroblast) and Moran's I of the transferred values (over all nuclei, and within each compartment).
+same mouse compartment, with the graph held fixed. Per replicate: Spearman rho with the human pseudotime pt_human
+(all nuclei, decidual, fibroblast) and Moran's I of the transferred values (over all nuclei, and within each
+compartment).
 Writes null_replicates.csv, example_transfers.csv, null_summary.json and ptnull_statistics_table.csv in --out-dir.
 """
 import argparse
@@ -20,7 +21,7 @@ from sklearn.neighbors import NearestNeighbors
 
 
 MOUSE_PT = "pt_harmonized_rank"  # transferred
-HUMAN_PT = "pt_harmonized_rank"  # compared with
+HUMAN_PT = "pt_human"  # compared with: export_samap_tables.py's human pseudotime (see its --human-pt)
 SPATIAL_K = 10  # spatial neighbors per nucleus for Moran's I, within one 10x lane
 CHUNK = 250  # replicates transferred per sparse-dense product (memory ~ 47k x CHUNK doubles)
 

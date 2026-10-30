@@ -16,7 +16,8 @@
 # copies, with the figure and the numbers behind it, go to results/notebooks/samap/.
 #
 # Labels, coordinates and embedding_outlier flags come from the release whose pseudotime was transferred
-# (config samap_figures.release; later releases are relabel-only). Display rules as in Fig. 6: fixed 0-1
+# (config samap_figures.release; later releases are relabel-only). Human pseudotime, which the figures and the
+# permutation control compare the transfer with, comes from samap_figures.human_pt_table (see SF_HUMAN_PT). Display rules as in Fig. 6: fixed 0-1
 # viridis, values as stored, embedding outliers not drawn; every statistic uses all nuclei.
 # methods_numbers reads results/samap_figures/ptnull/ptnull_statistics_table.csv.
 # Target: samap_figures_all (not in rule all). The release objects and the SAMap object are ancient():
@@ -30,6 +31,11 @@ SF_PT     = SF.get("pt_variant", "_harmonized")
 SF_JOINT  = f"{SR_ROOT}/runs_raw/{SF_ARM}/samap_transferred_pt{SF_PT}.h5ad"
 SF_TABLES = "data/deliverables/{release}/plot_tables/{{species}}_fibdec_plot_table.parquet".format(
     release=SF.get("release", "2026_10_22_flagged_harmonized"))
+
+# Human pseudotime compared with the transfer: recomputed on 30 Oct 2026 on the run4 human fibroblast/decidual
+# latent (PCA graph, released nuclei), copied from netscratch with its provenance (README.md in that directory).
+SF_HUMAN_PT     = SF.get("human_pt_table", "data/interim/human_pt_2026_10_30_run4_a40/cells.parquet")
+SF_HUMAN_PT_COL = SF.get("human_pt_column", "pt_rank")
 
 # Matplotlib and numba caches default to HOME, which is full; HDF5 locking fails on lab_storage reads.
 SF_ENV = ("export XDG_CACHE_HOME={c} MPLCONFIGDIR={c}/mpl NUMBA_CACHE_DIR={c}/numba HDF5_USE_FILE_LOCKING=FALSE; "
@@ -68,21 +74,23 @@ rule samap_graph_block:
 
 
 # One row per nucleus with everything the figures and the permutation control read: joint UMAP and transfer,
-# release labels, coordinates, pseudotime and embedding_outlier flags.
+# release labels, coordinates, pseudotime, embedding_outlier flags and the human pseudotime they compare against.
 rule samap_figure_tables:
     input:
         joint  = ancient(SF_JOINT),
         mouse  = ancient(SF_TABLES.format(species="mouse")),
-        human  = ancient(SF_TABLES.format(species="human")),
-        script = "workflow/scripts/samap/export_samap_tables.py",
+        human    = ancient(SF_TABLES.format(species="human")),
+        human_pt = SF_HUMAN_PT,
+        script   = "workflow/scripts/samap/export_samap_tables.py",
     output:
         joint = "results/samap_figures/tables/joint.parquet",
         mouse = "results/samap_figures/tables/mouse_cells.csv",
         human = "results/samap_figures/tables/human_cells.csv",
     params:
-        py     = SF_PY,
-        env    = SF_ENV,
-        outdir = "results/samap_figures/tables",
+        py           = SF_PY,
+        env          = SF_ENV,
+        outdir       = "results/samap_figures/tables",
+        human_pt_col = SF_HUMAN_PT_COL,
     threads: 1
     resources:
         mem_mb = 8000, runtime = 20,
@@ -95,6 +103,8 @@ rule samap_figure_tables:
             --joint {input.joint} \
             --mouse-table {input.mouse} \
             --human-table {input.human} \
+            --human-pt {input.human_pt} \
+            --human-pt-col {params.human_pt_col} \
             --out-dir {params.outdir} \
             > {log} 2>&1
         """
