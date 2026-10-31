@@ -153,10 +153,10 @@ def mi_file(run):
     return f"{X}/results/mi_dpt/{run}/mi_all.csv"
 
 
-S_QC = "01_qc.smk: ingest_qc/qc.py"; S_INT = "02_integrate.smk: atlas/integrate.py"; S_ANN = "04_annotate.smk: atlas/apply_annotation.py"
-S_REI = "04b_reintegrate.smk + 04c_reannotate.smk + 04d_merge.smk"; S_SPA = "04f_spatial_qc.smk: atlas/spatial_qc.py"
-S_PT = "harmonized pseudotime (provenance/harmonized_pseudotime.py, 2026-10-22)"; S_MI = "11_mi_pseudotime.smk: mi/mi_pseudotime.py"
-S_OV = "overlap (results/mi_dpt/overlap_harmonized_nall)"; S_SC = "13_scenic.smk (scenic_v2_2026_08_28 scripts)"; S_SAM = "10b_samap_raw.smk / code/samap-scvi/full_fibdec"
+S_QC = "04_qc.smk: ingest_qc/qc.py"; S_INT = "07_integrate.smk: atlas/integrate.py"; S_ANN = "08_annotate.smk: atlas/apply_annotation.py"
+S_REI = "09_reintegrate_lineages.smk + 10_annotate_lineages.smk + 04d_merge.smk"; S_SPA = "12_spatial_qc.smk: atlas/spatial_qc.py"
+S_PT = "harmonized pseudotime (provenance/harmonized_pseudotime.py, 2026-10-22)"; S_MI = "22_mi_pseudotime.smk: mi/mi_pseudotime.py"
+S_OV = "overlap (results/mi_dpt/overlap_harmonized_nall)"; S_SC = "24_scenic.smk (scenic_v2_2026_08_28 scripts)"; S_SAM = "21_samap_raw.smk / code/samap-scvi/full_fibdec"
 S_IVD = "cagri_ivd_end_to_end_20260815 (build_xmens_v2_tables.py)"; S_CFG = "config/config.yaml"
 OW = "objects 2026_10_22_flagged_harmonized"
 
@@ -174,7 +174,7 @@ def rows():
         return f
 
     # ================================================================ datasets
-    S_REL = "04g_deliverables.smk (release named in config deliverables.release)"
+    S_REL = "15_release.smk (release named in config deliverables.release)"
     LM = "comprises nine 10x lanes from six arrays"
     add("lanes_mouse", LM, "nine", "word", lambda c: c.n_distinct("mouse_all", "sample"), unit="10x lanes", step=S_REL, desc="10x lanes, mouse")
     add("arrays_mouse", LM, "six", "word", lambda c: c.n_distinct("mouse_all", "timepoint"), unit="arrays", step=S_REL, desc="Arrays, one per timepoint, mouse")
@@ -195,15 +195,15 @@ def rows():
     add("spatial_positioned_human_datasets", DSP, "46,470", "int", lambda c: (c.obj("human_all")["n_positioned"], c.objpath("human_all") + " obs['x_um_qc']"), unit="nuclei", step=S_REL, desc="Human nuclei with a position (Datasets)")
 
     # ================================================================ alignment and quantification
-    add("cellranger_mkfastq_version", "Cell Ranger mkfastq (8.0.1)", "8.0.1", "str", cfgv("cellranger", "mkfastq_version"), kind="version", step="upstream of the DAG (00_cellbender.smk inputs)", desc="Cell Ranger mkfastq version")
+    add("cellranger_mkfastq_version", "Cell Ranger mkfastq (8.0.1)", "8.0.1", "str", cfgv("cellranger", "mkfastq_version"), kind="version", step="upstream of the DAG (01_cellbender.smk inputs)", desc="Cell Ranger mkfastq version")
     add("cellranger_count_version", "count pipeline (version 7.2.0)", "7.2.0", "str", cfgv("cellranger", "count_version"), kind="version", step="upstream of the DAG", desc="Cell Ranger count version")
     add("human_reference", "the 10x GRCh38 2024-A reference", "GRCh38 2024-A", "str",
         lambda c: (re.sub(r"^refdata-gex-(GRCh38)-(\d{4}-A)$", r"\1 \2", c.cfg["genome_references"]["human"]["name"]), CFG + ": genome_references.human.name"), kind="reference", step="upstream of the DAG", desc="Human Cell Ranger reference")
     add("mkref_version", "Cell Ranger mkref (7.2.0)", "7.2.0", "str", cfgv("genome_references", "mouse", "mkref_version"), kind="version", step="upstream of the DAG", desc="Cell Ranger mkref version (custom mouse reference)")
     add("mouse_annotation", "GENCODE vM23 (Ensembl 98) annotation", "GENCODE vM23 (Ensembl 98)", "str",
         lambda c: (None, CFG + ": genome_references.mouse", "the custom reference records no annotation release in config; read it from the reference's reference.json"), kind="reference", step="upstream of the DAG", desc="Mouse annotation used for the custom reference")
-    add("cellbender_version", "version 0.2.2; default 150 epochs", "0.2.2", "str", lambda c: c.ver("cellbender_022", "cellbender"), kind="version", step="00_cellbender.smk", desc="CellBender version (env cellbender_022)")
-    add("cellbender_epochs", "default 150 epochs", "150", "intplain", lambda c: (int(re.search(r"default=(\d+)", c.F["versions"]["cellbender_epochs_default"]).group(1)), "cellbender_022 package argparser (no --epochs passed in 00_cellbender.smk)"), unit="epochs", kind="parameter", step="00_cellbender.smk", desc="CellBender training epochs (package default)")
+    add("cellbender_version", "version 0.2.2; default 150 epochs", "0.2.2", "str", lambda c: c.ver("cellbender_022", "cellbender"), kind="version", step="01_cellbender.smk", desc="CellBender version (env cellbender_022)")
+    add("cellbender_epochs", "default 150 epochs", "150", "intplain", lambda c: (int(re.search(r"default=(\d+)", c.F["versions"]["cellbender_epochs_default"]).group(1)), "cellbender_022 package argparser (no --epochs passed in 01_cellbender.smk)"), unit="epochs", kind="parameter", step="01_cellbender.smk", desc="CellBender training epochs (package default)")
 
     # ================================================================ quality control
     add("scanpy_version", "Scanpy (version 1.11.5;", "1.11.5", "str", lambda c: c.ver("rsc_uv", "scanpy"), kind="version", step="pipeline environment rsc_uv", desc="Scanpy version")
@@ -286,8 +286,8 @@ def rows():
     add("lineage_excluded_nuclei_mouse", RP, "1,321", "int", lambda c: (c.atlas("mouse")["retained"] - c.obj("mouse_all")["n_obs"], "atlas-retained minus released nuclei", "by subtraction; the 04c logs do not record per-lineage exclusions"), unit="nuclei", step=S_REI, desc="Nuclei removed by lineage-level exclusion, mouse")
     add("lineage_excluded_nuclei_human", RP, "1,299", "int", lambda c: (c.atlas("human")["retained"] - c.obj("human_all")["n_obs"], "atlas-retained minus released nuclei", "by subtraction; the 04c logs do not record per-lineage exclusions"), unit="nuclei", step=S_REI, desc="Nuclei removed by lineage-level exclusion, human")
     FP = "leaving 57,033 mouse and 67,847 human annotated nuclei"
-    add("final_nuclei_mouse", FP, "57,033", "int", lambda c: (c.obj("mouse_all")["n_obs"], c.objpath("mouse_all")), unit="nuclei", step="04g_deliverables.smk", desc="Annotated nuclei in the release, mouse")
-    add("final_nuclei_human", FP, "67,847", "int", lambda c: (c.obj("human_all")["n_obs"], c.objpath("human_all")), unit="nuclei", step="04g_deliverables.smk", desc="Annotated nuclei in the release, human")
+    add("final_nuclei_mouse", FP, "57,033", "int", lambda c: (c.obj("mouse_all")["n_obs"], c.objpath("mouse_all")), unit="nuclei", step="15_release.smk", desc="Annotated nuclei in the release, mouse")
+    add("final_nuclei_human", FP, "67,847", "int", lambda c: (c.obj("human_all")["n_obs"], c.objpath("human_all")), unit="nuclei", step="15_release.smk", desc="Annotated nuclei in the release, human")
 
     # ================================================================ epithelium: human layers, mouse compartments (v7)
     S_EPH = "04c_human_epithelial_layers notebook (executed run 2026_10_29b)"
@@ -396,9 +396,9 @@ def rows():
                                         ("outliers_human_fibdec_shared", SH, "3", "human_fibdec", "n_embedding_outlier_shared_with_all", "Fibroblast/decidual-object flags also flagged in the human all-cells object"),
                                         ("outliers_human_fibdec_2", SH, "7", "human_fibdec", "n_embedding_outlier", "Embedding outliers stored in the human fibroblast/decidual object (second mention)"),
                                         ("outliers_human_all_on_fibdec_2", SH, "9", "human_all", "n_embedding_outlier_on_fibdec", "All-cells flags among human fibroblast/decidual nuclei (second mention)")):
-        add(key, ph, shown, "int", (lambda t, f: lambda c: (c.obj(t)[f], c.objpath(t) + FLAG_SOURCES[f]))(tag, fld), unit="nuclei", step="04g_deliverables.smk + embedding-outlier flags", desc=d)
+        add(key, ph, shown, "int", (lambda t, f: lambda c: (c.obj(t)[f], c.objpath(t) + FLAG_SOURCES[f]))(tag, fld), unit="nuclei", step="15_release.smk + embedding-outlier flags", desc=d)
     add("reinstated_nuclei_human", "fitted before the 1,017 epithelial nuclei were retained", "1,017", "int", lambda c: c.reinstated("nuclei"), unit="nuclei", step="04g reinstate_release_cells (release reinstatement table)", desc="Human epithelial nuclei reinstated in v7 (second mention)")
-    add("samap_source_human", "use all 47,533 human fibroblast/decidual nuclei", "47,533", "int", lambda c: c.samap_source_human(), unit="nuclei", step="10b_samap_raw.smk (joint SAMap graph)", desc="Human fibroblast/decidual nuclei in the SAMap graph, flagged ones included (SAMap and Ulrich source set)")
+    add("samap_source_human", "use all 47,533 human fibroblast/decidual nuclei", "47,533", "int", lambda c: c.samap_source_human(), unit="nuclei", step="21_samap_raw.smk (joint SAMap graph)", desc="Human fibroblast/decidual nuclei in the SAMap graph, flagged ones included (SAMap and Ulrich source set)")
 
     # ================================================================ spatial QC
     add("spatial_k", "its five nearest positioned neighbors", "five", "word", cfgv("spatial_qc", "k"), unit="neighbors", kind="parameter", step=S_SPA, desc="Neighbors for the spatial distance criteria")
@@ -421,12 +421,12 @@ def rows():
         add(key, BCP, shown, "int", (lambda t: lambda c: c.spatial_mouse("step3", t))(tp), unit="nuclei", step=S_SPA, desc=f"Nuclei blanked by exclusion regions at {tp}")
     PP = "leaving 29,678 of 57,033 nuclei with a position"
     add("spatial_positioned_mouse", PP, "29,678", "int", lambda c: (c.obj("mouse_all")["n_positioned"], c.objpath("mouse_all") + " obs['x_um_qc']"), unit="nuclei", step=S_SPA, desc="Mouse nuclei with a QC'd position")
-    add("final_nuclei_mouse_3", PP, "57,033", "int", lambda c: (c.obj("mouse_all")["n_obs"], c.objpath("mouse_all")), unit="nuclei", step="04g_deliverables.smk", desc="Annotated nuclei, mouse (third mention)")
+    add("final_nuclei_mouse_3", PP, "57,033", "int", lambda c: (c.obj("mouse_all")["n_obs"], c.objpath("mouse_all")), unit="nuclei", step="15_release.smk", desc="Annotated nuclei, mouse (third mention)")
     add("spatial_unmapped_mouse", "A further 25,403 had no position from Slide-tags", "25,403", "int", lambda c: c.spatial_mouse("unmapped"), unit="nuclei", step=S_SPA, desc="Mouse nuclei without a Slide-tags position")
     add("spatial_blanked_human", "(4 positions blanked)", "4", "intplain", lambda c: c.spatial_human("blanked"), unit="positions", step=S_SPA, desc="Human positions blanked (step 1 only)")
     HP = "In total, 46,470 of 67,847 human nuclei have a position, and 21,373 had none from Slide-tags"
     add("spatial_positioned_human", HP, "46,470", "int", lambda c: (c.obj("human_all")["n_positioned"], c.objpath("human_all") + " obs['x_um_qc']"), unit="nuclei", step=S_SPA, desc="Human nuclei with a position")
-    add("final_nuclei_human_3", HP, "67,847", "int", lambda c: (c.obj("human_all")["n_obs"], c.objpath("human_all")), unit="nuclei", step="04g_deliverables.smk", desc="Annotated nuclei, human (third mention)")
+    add("final_nuclei_human_3", HP, "67,847", "int", lambda c: (c.obj("human_all")["n_obs"], c.objpath("human_all")), unit="nuclei", step="15_release.smk", desc="Annotated nuclei, human (third mention)")
     add("spatial_unmapped_human", HP, "21,373", "int", lambda c: c.spatial_human("unmapped"), unit="nuclei", step=S_SPA, desc="Human nuclei without a Slide-tags position")
 
     # ================================================================ pseudotime
@@ -528,9 +528,9 @@ def rows():
     add("xs_heatmap_r_max", XS, "0.99", "dec:2", lambda c: (c.F["mi"]["heatmap_selection"]["r50_range_selected"][1], f"{X}/results/mi_dpt/overlap_harmonized_nall/crossspecies_heatmap_selection/selection_summary.json", f"selection on the harmonized MI runs; {c.F['mi']['heatmap_selection'].get('overlap_with_previous_28')} of 28 genes shared with the previous selection"), unit="Pearson r", kind="statistic", step="crossspecies_gene_selection.py", desc="Highest r among displayed genes")
 
     # ================================================================ SAMap
-    add("samap_proteome_release", "(Ensembl release 113; GRCh38, GRCm39)", "113", "intplain", lambda c: c.proteome_release(), kind="reference", step="09_homology.smk", desc="Ensembl release of the proteomes")
-    add("hmmer_version", "(HMMER 3.4;", "3.4", "str", lambda c: (re.search(r"hmmer-([\d.]+)", c.cfg["samap"]["phmmer"]).group(1), CFG + ": samap.phmmer"), kind="version", step="09_homology.smk", desc="HMMER version")
-    add("phmmer_evalue", "at E ≤ 10−5", "10−5", "pow10", lambda c: (float(re.search(r"PHMMER_EVALUE\s*=\s*\"([^\"]+)\"", c.code("09_homology.smk")).group(1)), f"{X}/workflow/rules/09_homology.smk: PHMMER_EVALUE"), kind="parameter", step="09_homology.smk", desc="phmmer E-value cutoff")
+    add("samap_proteome_release", "(Ensembl release 113; GRCh38, GRCm39)", "113", "intplain", lambda c: c.proteome_release(), kind="reference", step="19_homology.smk", desc="Ensembl release of the proteomes")
+    add("hmmer_version", "(HMMER 3.4;", "3.4", "str", lambda c: (re.search(r"hmmer-([\d.]+)", c.cfg["samap"]["phmmer"]).group(1), CFG + ": samap.phmmer"), kind="version", step="19_homology.smk", desc="HMMER version")
+    add("phmmer_evalue", "at E ≤ 10−5", "10−5", "pow10", lambda c: (float(re.search(r"PHMMER_EVALUE\s*=\s*\"([^\"]+)\"", c.code("19_homology.smk")).group(1)), f"{X}/workflow/rules/19_homology.smk: PHMMER_EVALUE"), kind="parameter", step="19_homology.smk", desc="phmmer E-value cutoff")
     add("samap_version", "(sc-samap 3.0.1;", "3.0.1", "str", lambda c: c.samap_version(), kind="version", step=S_SAM, desc="SAMap package version")
     add("samap_n_iter", "for three iterations", "three", "word", cfgv("samap", "n_iter"), unit="iterations", kind="parameter", step=S_SAM, desc="SAMap iterations")
     add("samap_crossk", "with 20 cross-species neighbors per nucleus", "20", "intplain", lambda c: c.samap_crossk(), unit="neighbors", kind="parameter", step=S_SAM, desc="Cross-species neighbors per nucleus")
@@ -582,7 +582,7 @@ def rows():
     # The sentence now names all 47,533 nuclei (flagged ones kept as sources) and no flag count, so the third mention of
     # the fibroblast/decidual flags (outliers_human_fibdec_3) has no number left to check.
     SRC = "The source nuclei were all 47,533 human fibroblast/decidual nuclei in the SAMap graph"
-    add("samap_source_human_2", SRC, "47,533", "int", lambda c: c.samap_source_human(), unit="nuclei", step="10b_samap_raw.smk (joint SAMap graph)", desc="SAMap and Ulrich source set, human (second mention)")
+    add("samap_source_human_2", SRC, "47,533", "int", lambda c: c.samap_source_human(), unit="nuclei", step="21_samap_raw.smk (joint SAMap graph)", desc="SAMap and Ulrich source set, human (second mention)")
 
     # ================================================================ SCENIC
     SVP = "(version 0.12.1; ctxcore 0.2.0, arboreto 0.1.6;"
@@ -622,10 +622,10 @@ def rows():
     add("scenic_kept_mouse_2", OTP, "193", "intplain", lambda c: c.scenic_summary("mouse", "kept"), unit="TFs", step=S_SC, desc="Consensus regulons kept, mouse (second mention)")
 
     # ================================================================ decidual zone modules
-    add("zone_n_sets", "Gene sets for the eleven uterine microenvironments", "eleven", "word", lambda c: (len(c.F["zone_genesets"]), f"{X}/resources/signatures/aucell_modules_mouse.yaml"), unit="gene sets", kind="parameter", step="16_zone_modules.smk", desc="Microenvironment gene sets")
-    add("zone_genes_per_set", "which lists the top 20 marker genes per microenvironment", "20", "str", lambda c: c.zone_sizes(), unit="genes", kind="parameter", step="16_zone_modules.smk", desc="Genes per gene set as used")
-    add("zone_auc_window", "with the default AUC threshold of 0.05 and a fixed random seed (0)", "0.05", "dec:2", lambda c: c.zone_auc(), unit="AUC threshold (share of ranked genes)", kind="parameter", step="16_zone_modules.smk", desc="AUCell window")
-    add("zone_display_pct", "from 0 to its 99th percentile", "99", "intplain", lambda c: c.zone_p99(), unit="percentile", kind="parameter", step="16_zone_modules.smk (fig_zone_modules.py)", desc="Color ceiling in spatial and heatmap panels")
+    add("zone_n_sets", "Gene sets for the eleven uterine microenvironments", "eleven", "word", lambda c: (len(c.F["zone_genesets"]), f"{X}/resources/signatures/aucell_modules_mouse.yaml"), unit="gene sets", kind="parameter", step="25_zone_modules.smk", desc="Microenvironment gene sets")
+    add("zone_genes_per_set", "which lists the top 20 marker genes per microenvironment", "20", "str", lambda c: c.zone_sizes(), unit="genes", kind="parameter", step="25_zone_modules.smk", desc="Genes per gene set as used")
+    add("zone_auc_window", "with the default AUC threshold of 0.05 and a fixed random seed (0)", "0.05", "dec:2", lambda c: c.zone_auc(), unit="AUC threshold (share of ranked genes)", kind="parameter", step="25_zone_modules.smk", desc="AUCell window")
+    add("zone_display_pct", "from 0 to its 99th percentile", "99", "intplain", lambda c: c.zone_p99(), unit="percentile", kind="parameter", step="25_zone_modules.smk (fig_zone_modules.py)", desc="Color ceiling in spatial and heatmap panels")
 
     # ================================================================ in vitro / in vivo comparison
     for r_ in ivd_rows(): R.append(r_)
@@ -633,8 +633,8 @@ def rows():
     # ================================================================ reproducibility
     add("cuda_version", "(CUDA 12.9)", "12.9", "str", lambda c: (re.sub(r"^cu(\d+)(\d)$", r"\1.\2", c.ver("rsc_uv", "torch")[0].split("+")[1]), c.ver("rsc_uv", "torch")[1] + " (CUDA build tag)"), kind="version", step="pipeline environment rsc_uv", desc="CUDA version of the torch build")
     DEP = "every annotated nucleus (57,033 mouse and 67,847 human)"
-    add("final_nuclei_mouse_deposited", DEP, "57,033", "int", lambda c: (c.obj("mouse_all")["n_obs"], c.objpath("mouse_all")), unit="nuclei", step="04g_deliverables.smk", desc="Annotated nuclei in the deposited objects, mouse")
-    add("final_nuclei_human_deposited", DEP, "67,847", "int", lambda c: (c.obj("human_all")["n_obs"], c.objpath("human_all")), unit="nuclei", step="04g_deliverables.smk", desc="Annotated nuclei in the deposited objects, human")
+    add("final_nuclei_mouse_deposited", DEP, "57,033", "int", lambda c: (c.obj("mouse_all")["n_obs"], c.objpath("mouse_all")), unit="nuclei", step="15_release.smk", desc="Annotated nuclei in the deposited objects, mouse")
+    add("final_nuclei_human_deposited", DEP, "67,847", "int", lambda c: (c.obj("human_all")["n_obs"], c.objpath("human_all")), unit="nuclei", step="15_release.smk", desc="Annotated nuclei in the deposited objects, human")
     return R
 
 

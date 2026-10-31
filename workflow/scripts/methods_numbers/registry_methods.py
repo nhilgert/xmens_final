@@ -17,7 +17,7 @@ import registry_rows as rr
 L = rr.L; X = rr.X; N = rr.N; O22 = rr.O22
 HIR = f"{L}/human_ivd_repro"; CAG = f"{L}/cagri_ivd_end_to_end_20260815"; SCR = f"{L}/decidualization/revisions/scenic_v2_2026_08_28"
 
-# Permutation-null statistics of the SAMap pseudotime transfer (rule samap_ptnull, workflow/rules/10c_samap_figures.smk).
+# Permutation-null statistics of the SAMap pseudotime transfer (rule samap_ptnull, workflow/rules/29_fig_samap.smk).
 PTNULL_TABLE = f"{X}/results/samap_figures/ptnull/ptnull_statistics_table.csv"
 
 # Inputs staged with --extra-inputs.
@@ -701,7 +701,7 @@ def overrides():
     O["xs_heatmap_bins"] = lambda c: c.sel_code(r"Mh(\d+), Zh\d+ = profiles\(", int)
     O["lineage_knn"] = lambda c: (int(c.cfg["leiden"]["knn"]), f"{rr.CFG}: leiden.knn (read by workflow/scripts/atlas/reintegrate.py)")
     O["cellbender_epochs"] = lambda c: (int(re.search(r"default=(\d+)", c.f2("misc_small", "cellbender_epochs")).group(1)),
-                                        f"{L}/.conda/envs/cellbender_022 cellbender/remove_background/argparser.py (--epochs default; 00_cellbender.smk passes none)")
+                                        f"{L}/.conda/envs/cellbender_022 cellbender/remove_background/argparser.py (--epochs default; 01_cellbender.smk passes none)")
     O["mouse_annotation"] = lambda c: c.mouse_annotation()
     O["samap_proteome_release"] = lambda c: c.proteome_release()
     O["mi_sweep_null_lo"] = lambda c: c.mi_null_pct(0)
@@ -779,8 +779,8 @@ def _cellbender_epochs(self):
     m = self.f2("misc_small"); g = m["cellbender_epochs"]
     v = int(re.search(r"default=(\d+)", g).group(1))
     rule = open(f"{self.FD2}/files/{m['cellbender_rule']['copied_as']}").read()
-    assert not re.search(r"--epochs\b", rule.replace("# epochs", "")), "00_cellbender.smk passes --epochs"
-    return v, f"{m['cellbender_argparse']} (--epochs default; workflow/rules/00_cellbender.smk passes no --epochs)"
+    assert not re.search(r"--epochs\b", rule.replace("# epochs", "")), "01_cellbender.smk passes --epochs"
+    return v, f"{m['cellbender_argparse']} (--epochs default; workflow/rules/01_cellbender.smk passes no --epochs)"
 
 
 def _mouse_annotation2(self):

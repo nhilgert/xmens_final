@@ -88,3 +88,17 @@ __pycache__/
 
 # Orphan nested SAMap clone with example data (not part of the pipeline; untracked 2026-10-31)
 /notebooks/SAMap/
+
+# Layout of 31 Oct 2026: these top-level folders no longer hold tracked files. What remains in them on disk is the
+# installed environments (envs/; config points to envs/samap/.venv), an input that config still reads (archive/),
+# the Slide-tags checkout (external/) and exploration (analysis/). They move out with the outputs after submission.
+/analysis/
+/archive/
+/envs/
+/external/
+/preprocessing/
+/profiles/
+/tools/
+/xmens_pipeline/
+# editor swap files
+.*.sw?

@@ -5,8 +5,8 @@ SPECIES   = sorted(samples["species"].unique())
 SLIDETAGS = list(samples.index[samples["modality"] == "slidetags"])
 
 
-# Pin wildcards so latent_{species}.h5ad (stage 02) cannot swallow
-# latent_{species}_{lineage}.h5ad (stage 04b). Without this, `integrate`
+# Pin wildcards so latent_{species}.h5ad (step 07) cannot swallow
+# latent_{species}_{lineage}.h5ad (step 09). Without this, `integrate`
 # matches species="mouse_perimetrium" and the DAG goes off a cliff.
 wildcard_constraints:
     species="human|mouse",
@@ -16,42 +16,29 @@ def species_samples(w):
     ids = samples.index[samples["species"] == w.species]
     return expand("data/interim/raw/{sample}.h5ad", sample=ids)
 
-for r in ["00a_slidetags", "00_cellbender", "00b_ingest", "01_qc", "01c_concat", "01b_qc_report", "02_integrate",
-          "04_annotate", "04b_reintegrate", "04b2_reintegrate_round2", "04c2_annotate_round2", "04c_reannotate",
-          "98_clustree", "04e_reembed", "04f_spatial_qc", "99_reports", "05_de", "09_homology", "10_samap"]:
-    include: f"rules/{r}.smk"
-
-include: "rules/11_mi_pseudotime.smk"
-include: "rules/12_spatial_gp.smk"
-include: "rules/13_scenic.smk"
-# LIANA removed 2026-10-24 (not in the paper); its rule files are in rules/attic/
-# Per-timepoint pseudotime (06b, 15) and the papermill pseudotime notebooks (24) retired 2026-10-28;
-# rule files in rules/attic/, scripts in scripts/attic/, config blocks in config/attic/.
-include: "rules/10b_samap_raw.smk"
-# SAMap figures and the permutation control of the pseudotime transfer, added 2026-10-29
-include: "rules/10c_samap_figures.smk"
-include: "rules/04g_deliverables.smk"
-include: "rules/04g2_release_round2.smk"
-# decidual-zone AUCell modules (mouse), added 2026-10-24
-include: "rules/16_zone_modules.smk"
-
-# Review notebooks of the annotation decisions (off rule all, like 99_reports)
-include: "rules/99b_review_notebooks.smk"
-
-# Figure panels of the revision (added 2026-10-30; not part of rule all)
-include: "rules/91_panels_mouse_tissue.smk"    # Fig. 3A-D, S12, S13
-include: "rules/91_panels_mouse_stroma.smk"    # Figs. S15, S16, S17, S22
-include: "rules/91_panels_human_tissue.smk"    # Fig. 5B, 5C, S25, S26
-include: "rules/91_panels_human_epithelium.smk"  # Fig. S26B, S26C (inner and outer epithelium)
-include: "rules/91_panels_cross_species.smk"   # Fig. 6A, 6B, 6D, 6E
-include: "rules/91_panels_marker_dotplots.smk"  # Table M1 v9 marker dot plots and per-step review dot plots
-include: "rules/91_panels_programs.smk"        # Fig. 5E
-include: "rules/95_deposit_objects.smk"        # deposit copies of the release objects
+# One rule file per step, in pipeline order.
+#   01-06  raw data to per-species objects (provenance; defined only with config flags)
+#   07-12  atlas: integration, annotation, lineages, spatial QC
+#   13-17  round 2 and the release of record (15 defines and finalizes it, 16 rebuilds its round-2 objects); deposit
+#   18-25  analyses: marker DE, SAMap, MI pseudotime genes, spatial GP, SCENIC, zone modules
+#   26-28  review notebooks and reports (not in the default target)
+#   29-36  figure panels of the revision
+STEPS = [
+    "01_cellbender", "02_slidetags", "03_ingest", "04_qc", "05_qc_report", "06_concat",
+    "07_integrate", "08_annotate", "09_reintegrate_lineages", "10_annotate_lineages", "11_reembed", "12_spatial_qc",
+    "13_reintegrate_round2", "14_annotate_round2", "15_release", "16_release_round2", "17_deposit",
+    "18_marker_de", "19_homology", "20_samap_transfer", "21_samap_raw", "22_mi_pseudotime", "23_spatial_gp",
+    "24_scenic", "25_zone_modules",
+    "26_review_clustree", "27_review_notebooks", "28_reports",
+    "29_fig_samap", "30_fig_mouse_tissue", "31_fig_mouse_stroma", "32_fig_human_tissue", "33_fig_human_epithelium",
+    "34_fig_cross_species", "35_fig_programs", "36_fig_marker_dotplots",
+]
+for step in STEPS:
+    include: f"rules/{step}.smk"
 
 # Default target: the release of record (finalize_deliverables), its deposit copies and the figure panels of the
 # revision. Stages that rewrite objects of record are defined only when their config flag is set (scvi.retrain,
-# annotation_round2.fit, atlas_annotation.rerun). The never-built stub stages (03, 05_de, 06, 07, 08,
-# 09_pt_genes_mi, 21-23, 90) are no longer requested.
+# annotation_round2.fit, atlas_annotation.rerun).
 rule all:
     default_target: True
     input:

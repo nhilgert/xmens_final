@@ -54,8 +54,8 @@ def keep(p, name=None):
 
 # ================================================================== Part A: small files
 def samap_code():
-    out = {"rule": keep(f"{X}/workflow/rules/10b_samap_raw.smk")}
-    txt = open(f"{X}/workflow/rules/10b_samap_raw.smk").read()
+    out = {"rule": keep(f"{X}/workflow/rules/21_samap_raw.smk")}
+    txt = open(f"{X}/workflow/rules/21_samap_raw.smk").read()
     scripts = sorted(set(re.findall(r"workflow/scripts/[\w/.\-]+\.py", txt)))
     out["scripts"] = {}
     for s in scripts:
@@ -72,9 +72,9 @@ def misc_small():
     cb = glob.glob(f"{L}/.conda/envs/cellbender_022/lib/python3*/site-packages/cellbender/remove_background/argparse.py")
     out["cellbender_argparse"] = cb[0] if cb else None
     out["cellbender_epochs"] = sh(f"grep -n -A2 -- '--epochs' {cb[0]} | head -6") if cb else "argparse.py not found"
-    out["cellbender_rule"] = keep(f"{X}/workflow/rules/00_cellbender.smk")
+    out["cellbender_rule"] = keep(f"{X}/workflow/rules/01_cellbender.smk")
     out["proteomes"] = sh(f"timeout 30 ls {L}/data/proteomes 2>&1 | head -30; for f in {L}/data/proteomes/README* {L}/data/proteomes/*.md {L}/data/proteomes/*.txt; do test -f \"$f\" && (echo \"## $f\"; timeout 10 head -40 \"$f\"); done", t=90)
-    out["proteome_release_grep"] = sh(f"timeout 40 grep -rhoE 'release-[0-9]+|release_[0-9]+|Ensembl [0-9]+' {L}/data/proteomes/*.md {L}/data/proteomes/*.txt {L}/data/proteomes/*.sh {L}/data/proteomes/*.json {X}/workflow/rules/09_homology.smk {X}/resources/orthology/README.md 2>/dev/null | sort | uniq -c | head -12", t=90)
+    out["proteome_release_grep"] = sh(f"timeout 40 grep -rhoE 'release-[0-9]+|release_[0-9]+|Ensembl [0-9]+' {L}/data/proteomes/*.md {L}/data/proteomes/*.txt {L}/data/proteomes/*.sh {L}/data/proteomes/*.json {X}/workflow/rules/19_homology.smk {X}/resources/orthology/README.md 2>/dev/null | sort | uniq -c | head -12", t=90)
     out["mi_null_pct"] = sh(f"grep -rnE '97\\.5|2\\.5' {X}/workflow/scripts/mi {X}/workflow/scripts/overlap {X}/workflow/scripts 2>/dev/null --include=*.py | grep -iE 'percentile|quantile|null' | cut -c1-220 | head -12")
     out["overlap_scripts"] = sh(f"grep -rlE 'overlap_cutoff_sweep|overlap_permutation_null' {X}/workflow 2>/dev/null | head -8").split()
     for p in out["overlap_scripts"][:4]:
