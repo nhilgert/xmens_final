@@ -1,0 +1,14 @@
+species,step,decided_at,approval_date,approver,decision_record
+human,atlas,approval 1,2026-10-30,user,approval 1 (2026-10-30 ~01:13 UTC): round-2 atlas table resources/annotations/round2/human_lineage.csv
+human,epithelial,v8 pass + flag sweep,2026-10-30,user,"v8 table (ledger v8, 29 Oct); flag sweep: all 39 decisions supported; reword 3 recorded reasons (wording only)"
+human,immune,approval 2,2026-10-30,user,approval2_decisions.json: approved as drafted
+human,perivascular,v8 pass + flag sweep,2026-10-30,user,"v8 table (ledger v8, 29 Oct); flag sweep: all 39 decisions supported; reword 3 recorded reasons (wording only)"
+human,smc,v8 pass + flag sweep,2026-10-30,user,"v8 table (ledger v8, 29 Oct); flag sweep: all 39 decisions supported; reword 3 recorded reasons (wording only)"
+human,stromal,v8 pass + flag sweep,2026-10-30,user,"v8 table (ledger v8, 29 Oct); flag sweep: all 39 decisions supported; reword 3 recorded reasons (wording only)"
+mouse,atlas,approval 1,2026-10-30,user,"approval 1 (2026-10-30 ~01:13 UTC): round-2 atlas table resources/annotations/round2/mouse_lineage.csv; cluster 16 re-checked after approval 1 (atlas16_summary.csv), kept EXCLUDE"
+mouse,epithelial,v8 pass + flag sweep,2026-10-30,user,"v8 table (ledger v8, 29 Oct); flag sweep: all 39 decisions supported; reword 3 recorded reasons (wording only)"
+mouse,immune,approval 2,2026-10-30,user,"approval2_decisions.json: approved as drafted, r2 24 relabelled neutrophil (pending PI)"
+mouse,perimetrium,v8 pass + flag sweep,2026-10-30,user,"v8 table (ledger v8, 29 Oct); flag sweep: all 39 decisions supported; reword 3 recorded reasons (wording only)"
+mouse,smc,approval 2,2026-10-30,user,approval2_decisions.json: approved as drafted
+mouse,stromal,v8 pass + flag sweep,2026-10-30,user,"v8 table (ledger v8, 29 Oct); flag sweep: all 39 decisions supported; reword 3 recorded reasons (wording only)"
+mouse,vascular,approval 2,2026-10-30,user,"approval2_decisions.json: approved as drafted; r2 16 kept after cross-check (9/93 nuclei pericyte-doublet-like: >=3 pericyte genes, median 3,741 genes)"

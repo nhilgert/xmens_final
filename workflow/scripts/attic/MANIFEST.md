@@ -13,3 +13,10 @@
 - **mi_stratified.py** — session MI driver; superseded by 11_mi_pseudotime.smk (mi_pseudotime.py)
 - **build_mi_dpt_input.py** — session MI driver; superseded by 11_mi_pseudotime.smk + notebooks/mi_dpt
 - **samap_scvi.py** — SAMap embedding experiment; superseded by 10b_samap_raw vanilla arm
+
+## moved 2026-10-28 (rules 06b, 15 and 24 retired; their rule files are in rules/attic/, config in config/attic/)
+
+- **compute_pseudotime.py** — 06b_timepoint_pseudotime.smk, per-timepoint mouse pseudotime tests; retired
+- **pt_per_timepoint.py** — 15_pt_per_timepoint.smk, per-timepoint scVI + DPT; retired
+- **run_notebook.py** — 24_pseudotime_notebooks.smk, papermill pseudotime notebooks (legacy pseudotime, never run); retired
+- **liana/** — LIANA scripts; their rules moved to rules/attic/ on 2026-10-24 (LIANA is not in the paper)

@@ -121,44 +121,36 @@ for label, expected in expected_types.items():
 rows.append(gate_row("total_cells", vocab["expected_coarse_counts"]["totals"][species],
                      merged.n_obs))
 rows.append(gate_row("cell_subtype_empty", 0, empty_count))
+
+# Coarse fills and epithelial splits are read from the vocabulary, so a decision change
+# moves the gates with it.
+actual_sub = merged.obs["cell_subtype"].astype(str).value_counts()
+fills = vocab["content_tasks"]["coarse_subtype_fill"]["applies_to"][species]
+for entry in fills:
+    cell_type = entry["cell_type"]
+    rows.append(gate_row(f"{cell_type}_coarse_subtype", entry["expected_coarse_fill_count"],
+                         int(((types == cell_type) & (subtypes == cell_type)).sum())))
+split_task = {"human": "human_epithelial_split", "mouse": "mouse_epithelial_split"}[species]
+for label, expected in vocab["content_tasks"][split_task]["expected_counts"].items():
+    rows.append(gate_row(f"cell_subtype:{label}", expected, int(actual_sub.get(label, 0))))
+
 if species == "human":
-    actual_sub = merged.obs["cell_subtype"].astype(str).value_counts()
     rows.extend([
         gate_row("cell_subtype:endothelial_blood", 828,
                  int(actual_sub.get("endothelial_blood", 0))),
         gate_row("cell_subtype:endothelial_lymph", 506,
                  int(actual_sub.get("endothelial_lymph", 0))),
-        gate_row("perivascular_coarse_subtype", 471,
-                 int(((merged.obs.cell_type.astype(str) == "perivascular_cell") &
-                      (merged.obs.cell_subtype.astype(str) == "perivascular_cell")).sum())),
-        gate_row("decidual_coarse_subtype", 21648,
-                 int(((types == "decidual_cell") & (subtypes == "decidual_cell")).sum())),
-        gate_row("fibroblast_coarse_subtype", 25885,
-                 int(((types == "endometrial_fibroblast") &
-                      (subtypes == "endometrial_fibroblast")).sum())),
-        gate_row("epithelial_coarse_subtype", 10608,
-                 int(((types == "epithelial_cell") &
-                      (subtypes == "epithelial_cell")).sum())),
-        gate_row("smooth_muscle_coarse_subtype", 2084,
-                 int(((types == "smooth_muscle_cell") &
-                      (subtypes == "smooth_muscle_cell")).sum())),
+        gate_row("perivascular_coarse_subtype",
+                 vocab["content_tasks"]["human_perivascular_split"]["expected_counts"]
+                 ["perivascular_cell"],
+                 int(((types == "perivascular_cell") & (subtypes == "perivascular_cell")).sum())),
     ])
 else:
-    actual_sub = merged.obs["cell_subtype"].astype(str).value_counts()
     rows.extend([
         gate_row("cell_subtype:endothelial_blood", 3487,
                  int(actual_sub.get("endothelial_blood", 0))),
         gate_row("cell_subtype:endothelial_lymph", 0,
                  int(actual_sub.get("endothelial_lymph", 0))),
-        gate_row("epithelial_coarse_subtype", 6265,
-                 int(((types == "epithelial_cell") &
-                      (subtypes == "epithelial_cell")).sum())),
-        gate_row("smooth_muscle_coarse_subtype", 1443,
-                 int(((types == "smooth_muscle_cell") &
-                      (subtypes == "smooth_muscle_cell")).sum())),
-        gate_row("mesothelial_coarse_subtype", 550,
-                 int(((types == "perimetrial_cell") &
-                      (subtypes == "perimetrial_cell")).sum())),
     ])
 
 # Reference agreement is partial because legacy human "perivascular cells" is

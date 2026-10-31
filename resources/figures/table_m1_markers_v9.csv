@@ -1,0 +1,44 @@
+Class,Cell type,Mouse,Human
+Stromal,Stromal cells (all),Pdgfra,"COL5A1, COL6A3, DCN"
+Stromal,Decidual cells,"Hand2, Cdh3, Wnt4, Prl8a2, Bmp2","LEFTY2, IGFBP1, DIO2, MMP10"
+Stromal,Decidual boundary (dec1),"Kcnma1, Aldh1a2, Bmp6",—
+Stromal,Proliferative decidual (dec2),"Top2a, Anln, Kif15, Mki67",—
+Stromal,Mature decidual (dec3),"Prl8a2, Prl6a1, Slco2a1",—
+Stromal,Apoptotic decidual (decAp),"Mt1, Mt2, Sfrp5",—
+Stromal,Endometrial fibroblasts,"Col1a2, Ebf1, Negr1","IGFBP5, BCL2, KCNIP4"
+Stromal,Outer eFib (eFib1),"Abca8a, Zfpm2, Fap",—
+Stromal,Middle eFib (eFib2),"Nlgn1, Sntg2, Hs6st3",—
+Stromal,Induced middle eFib (eFib2i),"Itga8, Sfrp4, Nrxn3",—
+Stromal,Subluminal eFib (eFib3),"Galntl6, Lef1, Cntn3",—
+Stromal,Proliferative eFib (eFibP),"Mki67, Top2a, Kif11",—
+Perivascular,Perivascular cells,"Rgs5, Notch3, Abcc9, Pdgfrb","NOTCH3, RGS5, MCAM"
+Smooth muscle,Smooth muscle cells,"Myh11, Acta2, Cnn1","MYH11, ACTA2, CNN1"
+Perimetrium,Perimetrium mesothelial cells,"Upk3b, Msln, Krt19, Sox6",—
+Epithelial,Epithelial cells (all),"Pax8, Cdh1, Epcam","PAX8, CDH1, EPCAM, KLF5"
+Epithelial,Ciliated epithelial cells,—,"CFAP54, RSPH1, DNAH5, FOXJ1"
+Epithelial,Inner epithelial cells *,—,"SOX4, DST, MAP2"
+Epithelial,Outer epithelial cells *,—,"ST3GAL5, ERG, ROR1"
+Epithelial,Luminal epithelial cells *,"Lama3, Npas2, Wnt7a",—
+Epithelial,Glandular epithelial cells *,"Ntn1, Prss29, Prss28",—
+Epithelial,Proliferative epithelial cells *,"Mki67, Cenpf",—
+Endothelial,Endothelial cells (all),Pecam1,PECAM1
+Endothelial,Blood endothelial cells,"Flt1, Emcn, Cdh5","MECOM, FLT1, VWF"
+Endothelial,Lymphatic endothelial cells,"Reln, Prox1, Mmrn1, Flt4","RELN, PROX1, FLT4, PDPN"
+Immune,Immune cells (all),Ptprc,"PTPRC, STK17B"
+Immune,Macrophages,"Mrc1, Adgre1, Csf1r","CD163, MRC1, MERTK"
+Immune,Cycling macrophages,"Mrc1, Mki67, Top2a, Kif11",—
+Immune,Monocytes,"Fgr, Sirpb1b, Itgam",—
+Immune,Neutrophils,"Csf3r, S100a8, S100a9",—
+Immune,Dendritic cells,"Clec9a, Flt3, Xcr1, Zbtb46",—
+Immune,T cells,"Cd3e, Themis, Tcf7",—
+Immune,CD4 T cells,—,"CD40LG, CD226"
+Immune,CD8 T cells,—,"CD8A, CD8B, GZMK"
+Immune,Regulatory T cells,—,"FOXP3, CTLA4, TBC1D4"
+Immune,γδ T cells,"Il23r, Scart1, Trgc1",—
+Immune,RORC-positive lymphocytes,—,"IL1R1, IL23R, RORC, IL7R"
+Immune,B cells,"Pax5, Ebf1, Ighm","BANK1, BLK, MS4A1, PAX5"
+Immune,Plasma cells,"Igha, Igkc, Jchain",—
+Immune,Mast cells,—,"CPA3, TPSB2, MS4A2, KIT"
+Immune,uNK cells,"Ncr1, Klrk1, Styk1","ITGAE, KLRD1, LDB2"
+Immune,Cytotoxic uNK cells,"Gzmb, Prf1, Gzmg","GNLY, GZMB, ITGAX"
+Immune,Cycling uNK cells,"Styk1, Mki67, Top2a, Kif11, Depdc1a",—

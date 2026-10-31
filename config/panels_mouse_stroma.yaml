@@ -1,0 +1,64 @@
+# ---------------------------------------------------------------------------
+# panels_mouse_stroma (added 2026-10-30) -- mouse stroma supplementary panels:
+# Figs. S15 (Cxcl12), S16 (subtypes on the sections), S17 (subtype UMAP, abundance,
+# markers) and S22 (Notum on the sections). Rules: workflow/rules/91_panels_mouse_stroma.smk;
+# target: panels_mouse_stroma_all (not in rule all). Outputs:
+# results/figures/panels/mouse_stroma/panel_<panel>_<v8|v9|one>.{pdf,svg,png,provenance.json}.
+# S15 is drawn per release (v9 adds lymphatic endothelium to the vascular class and new
+# immune nuclei); S16, S17 and S22 once, from v9 ('one'). The v9 fib/dec object equals the
+# v8 one in X, counts, pseudotime, labels and its own UMAP; spatial QC (15 nuclei) and
+# embedding-outlier flags differ. S17Aatlas draws the S17A nuclei at their whole-tissue UMAP
+# coordinates (alltissue_umap table, matched by obs_names); it writes svg, png and provenance only.
+# ---------------------------------------------------------------------------
+panels_mouse_stroma:
+  python: /n/lab_storage/eddy_lab/users/nhilgert/.uv/envs/rsc_uv/bin/python
+  cache_dir: /n/lab_storage/eddy_lab/users/nhilgert/.cache_scratch   # matplotlib cache (HOME is full)
+
+  releases:            # panel file suffix -> release directory under data/deliverables/
+    v9: "2026_10_30"
+    v8: "2026_10_29b"
+
+  objects:             # per-nucleus plot tables written by panels_mouse_stroma_table
+    alltissue:
+      name: Cevrim_XMens_All_Cells
+      obs: [sample, timepoint, tissue_section, cell_type, cell_subtype, coarse_refined, fine_refined,
+            origin_lineage, embedding_outlier, spatial_qc_reason, x_um_qc, y_um_qc]
+      obsm: []
+      genes: [Cxcl12, Notum]
+    fibdec:
+      name: Cevrim_XMens_Only_Fib_Dec_Cells
+      obs: [sample, timepoint, tissue_section, cell_type, cell_subtype, embedding_outlier,
+            spatial_qc_reason, x_um_qc, y_um_qc, pt_harmonized_rank]
+      obsm: [X_umap]   # the fib/dec object's own UMAP (Fig. S17A)
+      # Fig. S17C markers in the manuscript order. The manuscript labels 'Col1a3' and 'Kcdn2' are not
+      # mouse genes; they are Col1a2 (its dots reproduce the manuscript panel) and Kcnd2.
+      genes: [Pdgfra, Col3a1, Col1a2, Celf2, Kcnd2, Nlgn1, Gria4, Rxfp1, Sema5a, Cdh11, Top2a, Kif15,
+              Knl1, Mki67, Bub1, Klf5, Hand2, Wnt4, Cebpb, Prl8a2, Bmp2, Cdh3, Gja1, Gpx3, Ptgs2,
+              Hif1a, Epas1, Vegfa, Adam15, Adam19, Bax, Pgr, Esr1]
+    alltissue_umap:    # whole-tissue UMAP and outlier flags only, for Fig. S17Aatlas; a table of its own
+                       # so the alltissue table read by S15 and S22 stays as it is
+      name: Cevrim_XMens_All_Cells
+      obs: [cell_type, cell_subtype, embedding_outlier]
+      obsm: [X_umap_scVI]
+      genes: []
+
+  s15:
+    gene: Cxcl12
+    releases: [v8, v9]
+    classes: [epi, eFib, dec, imm, vsc]   # rows of the manuscript panel (S15 legend); smc, pv, pm not shown
+    spatial_stages: ["1.5_dpi_early", "1.5_dpi_late"]
+
+  s16:
+    release: v9
+
+  s17:
+    release: v9
+
+  s17atlas:            # S17A nuclei on the whole-tissue UMAP (alltissue_umap table, matched by obs_names)
+    release: v9
+
+  s22:
+    gene: Notum
+    release: v9
+    stages: [uninduced, "1.5_dpi_early", "1.5_dpi_late", "2.5_dpi", "3.5_dpi", "4.5_dpi_bleeding"]
+    ncols: 3

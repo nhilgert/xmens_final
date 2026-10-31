@@ -1,0 +1,29 @@
+cluster,label,note
+0,EXCLUDE,"lymphatic+fibroblast doublets: LEC+stromal 79% (cl 7: 5%), doublet>5 65%, genes x2.3. LEC identity as in cl 7 (Prox1 76%, Reln 90%) plus fibroblast genes (Pdgfra 65%, Col3a1 81%, Wt1 73%; Msln 2%); doublet median 7.3 (cl 7 0.3); genes 2,484 (cl 7 1,070); spatially placed 24% (cl 7 45%); kit: exclusion supported"
+1,EXCLUDE,"endothelial+fibroblast doublets: fibroblast genes 71% (kept 11%), doublet>5 23% (kept 1%). Defined by July-0 fibroblast genes (top: Pdgfc, Esr1, Bnc2, Slit3, Sox5); fibroblast program also in 58% of its 79 v8-kept nuclei; genes 2,013 (x1.6); spatially placed 46% (kept 62%); kit: exclusion supported (mixed)"
+2,endothelial_blood,"kept despite flag (mixed): endothelial nuclei (endothelial panel 82%, best label blood r 0.87) with ambient RNA, not doublets: stromal 36% (matched kept 3%) but doublet>5 7%, genes 1,119 (x0.9), placed 55%, top genes ribosomal/S100a6; Des 60% not mural (Des+ with >=2 SMC genes 0%)"
+3,endothelial_blood,"carried over: v8 endothelial_blood 97%; EXCLUDE 3% (July 0: 4, July 25: 2); kit: fine"
+4,endothelial_blood,carried over: v8 endothelial_blood 96%; EXCLUDE 4% (July 4: 3); kit: fine
+5,endothelial_blood,carried over: v8 endothelial_blood 97%; EXCLUDE 3% (July 0: 4); kit: fine
+6,endothelial_blood,"carried over: v8 endothelial_blood 92%; EXCLUDE 8% (July 0: 17, July 4: 1, July 25: 1); kit: fine"
+7,endothelial_lymph,"carried over: v8 endothelial_lymph 99%; endothelial_blood 1%; EXCLUDE 0% (July 0: 1; 364 reinstated atlas-5 nuclei); LEC panel 87%, LEC+stromal 5%, doublet>5 2%; kit: fine"
+8,endothelial_blood,"PI sign-off pending (approved by user 30 Oct 2026 as endothelial_blood). PI item (recommend keep): arterial blood endothelium (Gja5 31%, Efnb2 71%, Jag1 43%, Sema3g 38%); 113/196 nuclei = v8-excluded July 4; clean QC (doublet>5 5%, genes 1,212, two-lineage 10%); July reason not reproduced (July-4 nuclei: Pdgfrb 4%, Acta2 4%, Ptprc 2%)"
+9,endothelial_blood,"carried over: v8 endothelial_blood 98%; EXCLUDE 2% (July 0: 4, July 4: 1); kit: fine"
+10,endothelial_blood,"carried over: v8 endothelial_blood 99%; EXCLUDE 1% (July 0: 1, July 4: 1); kit: fine"
+11,endothelial_blood,carried over: v8 endothelial_blood 100%; kit: fine
+12,endothelial_blood,carried over: v8 endothelial_blood 99%; EXCLUDE 1% (July 4: 1); kit: fine
+13,endothelial_blood,carried over: v8 endothelial_blood 100%; kit: fine
+14,endothelial_blood,carried over: v8 endothelial_blood 99%; EXCLUDE 1% (July 0: 2); kit: fine
+15,endothelial_blood,carried over: v8 endothelial_blood 100%; kit: fine
+16,endothelial_blood,"kept despite flag (mixed): arteriolar blood endothelium (Efnb2 75%, Jag1 32%, Gja5 14%, Hey1 22%); stromal 20% (matched kept 7%) with doublet>5 3%, placed 58%; Rgs5 34%/Des 35% without Acta2/Myh11 (0%/1%); mural cross-check (30 Oct): 9 of 93 nuclei detect >=3 pericyte genes (median 3,741 genes, doublet>5 11%), the other 84 are clean (1,787 genes, 2.4%); kept by the user"
+17,endothelial_blood,carried over: v8 endothelial_blood 98%; EXCLUDE 2% (July 4: 2); kit: fine
+18,endothelial_blood,carried over: v8 endothelial_blood 100%; kit: fine
+19,endothelial_blood,carried over: v8 endothelial_blood 99%; EXCLUDE 1% (July 0: 1); kit: fine
+20,endothelial_blood,carried over: v8 endothelial_blood 100%; kit: fine
+21,endothelial_blood,carried over: v8 endothelial_blood 100%; kit: fine
+22,endothelial_blood,carried over: v8 endothelial_blood 98%; EXCLUDE 2% (July 25: 3); kit: fine
+23,EXCLUDE,"endothelial+decidual doublets: stromal 96%, doublet>5 70% (kept 1%), genes x2.2. July 25 (126/134), 4 dpi bleeding array; Prl8a2 82%, Hand2 76%, Des 91%; doublet median 12.1; spatially placed 26% (kept 62%); kit: exclusion supported"
+24,endothelial_blood,carried over: v8 endothelial_blood 100%; kit: fine
+25,endothelial_blood,"carried over: v8 endothelial_blood 99%; EXCLUDE 1% (July 4: 1, July 25: 1); kit: fine"
+26,endothelial_blood,"kept despite flag (mixed): blood endothelium, 4 dpi bleeding 62%; stromal 31% (matched kept 6%) is decidual ambient (Prl8a2 40%, Wnt4 23%; top genes Fth1, Hsp90ab1) with doublet>5 2%, placed 68%; Des 61% not mural (Des+ with >=2 SMC genes 0%, with decidual gene 60%)"
+27,endothelial_blood,"carried over: v8 endothelial_blood 95%; EXCLUDE 5% (July 0: 6, July 25: 9); kit: fine"

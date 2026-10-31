@@ -20,7 +20,7 @@ import pandas as pd, numpy as np
 
 __all__ = [
     "load_choices", "apply_map", "write_atlas", "write_fine", "build_rollup",
-    "build_vocabulary_rollup", "validate_canonical_annotations",
+    "build_vocabulary_rollup", "validate_canonical_annotations", "current_labels", "current_label",
 ]
 
 
@@ -106,6 +106,19 @@ def validate_canonical_annotations(adata, vocab: dict, *, context: str = "object
     if bad_pairs:
         raise ValueError(f"{context}: invalid cell_type/cell_subtype pairs {sorted(set(bad_pairs))}")
     return True
+
+
+def current_labels(values: pd.Series, vocab: dict, column: str = "cell_subtype") -> pd.Series:
+    """values with superseded names replaced by the current ones (vocabulary legacy_aliases).
+
+    Lets code written against the current vocabulary select the same cells from an older release.
+    """
+    return values.astype(str).replace(vocab["legacy_aliases"].get(column, {}))
+
+
+def current_label(value: str, vocab: dict, column: str = "cell_subtype") -> str:
+    """One value in the current vocabulary (see current_labels)."""
+    return vocab["legacy_aliases"].get(column, {}).get(value, value)
 
 
 # ------------------------------------------------------------------- apply ---

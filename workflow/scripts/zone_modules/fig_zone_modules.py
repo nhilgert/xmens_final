@@ -10,10 +10,16 @@ plotting functions are unchanged.
     * nuclei with embedding_outlier == True are hidden from the SPATIAL panels and kept in heatmaps (rule of
       2026-10-22: embedding outliers are omitted from embedding and spatial plots and kept in every summary);
       --show-flagged draws them too.
-    * the scores may cover only some timepoints (the user's 3 dpi decision, 2026-10-24). An all-timepoint heatmap is
+    * the scores may cover only some timepoints (the user's 3.5 dpi decision, 2026-10-24). An all-timepoint heatmap is
       then refused (pass --heatmap-timepoint), as are spatial panels of unscored timepoints.
     * score metadata (window, seed, normalization, scored timepoints, gene sets) comes from the table's sidecar and is
       copied into every figure sidecar. The objects' stored auc_ columns (window 0.0131) are never read.
+
+Display rotation of the spatial panels (2026-10-30): the timepoint's angle in --section-rotation
+(resources/figures/mouse_section_rotation.yaml, the table every mouse spatial panel reads through
+workflow/scripts/figures/section_rotation.py; rule zone_figures passes it to every job). --rotate DEG remains for
+renders by hand; the two cannot be combined. The timepoint's whole placed array (all lanes, embedding outliers and
+decAp included) turns as one body about the centre of its bounding box before any display filter.
 
 Outputs per figure: <name>{,_dark}.{png,svg} + <name>{,_dark}.provenance.json, names as in v14:
     pdz_sdz_spatial_<tp>[_noapop][_rot<deg>]                 PDZ and SDZ
@@ -37,15 +43,15 @@ CONVENTIONS (settled 2026-10-18; don't change silently):
     * AUCell window: pySCENIC default auc_threshold 0.05, seed 0 (since 2026-10-22); the sidecar names the window.
     * heatmap (--heatmap-scale p99, files *_p99*): colour = subtype MEAN / 99th pct of per-cell scores of that module
       (cells of the plotted subtypes, all timepoints), i.e. same colour = same score level as the spatial panels.
-    * --pool-fib: the five efib_* rows become one 'endometrial fibroblasts (pooled)' row = mean over all fibroblast cells (cell-weighted);
+    * --pool-fib: the five eFib rows become one 'endometrial fibroblasts (pooled)' row = mean over all fibroblast cells (cell-weighted);
       the p99 ceiling is unchanged (same cells).
     * heatmap (default colmax): colour = subtype MEAN score from a true 0 to the module's largest subtype mean (per column);
       the largest mean is printed under each column so absolute levels stay readable. The exploratory
-      notebook used min-max per column instead (lowest subtype always black). Subtypes use the release
-      vocabulary (efib_outer = old efib_myometrial, decidual_boundary = old decidual_border) and include
-      decidual_apoptotic only in the *_with_apoptotic variant: that subtype (not in the exploratory heatmap; excluded
-      from the pseudotime of record) has the highest mean in PDZ/TDZ/SDZ/VSZ/FMI/udStr, so including it rescales
-      those columns and hides the decidual_mature PDZ/TDZ signal the exploratory figure showed.
+      notebook used min-max per column instead (lowest subtype always black). Subtypes are the vocabulary v4
+      codes (eFib1-eFibP, dec1-dec3; a plot table from an older release is read through the vocabulary's
+      legacy_aliases) and include decAp only in the *_with_apoptotic variant: that subtype (not in the exploratory
+      heatmap; excluded from the pseudotime of record) has the highest mean in PDZ/TDZ/SDZ/VSZ/FMI/udStr, so
+      including it rescales those columns and hides the dec3 PDZ/TDZ signal the exploratory figure showed.
     * colour = AUCell score from a TRUE 0 to the module's 99th percentile within the plotted cells, per
       module (AUCell at this threshold never approaches 1, so a fixed 0-1 axis leaves the map unused; a
       true min-max lets a few extreme cells hide the structure). Stated on the colour bar.
@@ -54,7 +60,7 @@ CONVENTIONS (settled 2026-10-18; don't change silently):
     * never overwrite an existing figure without --force
     The original exploratory panel (xmens_final/analysis/figures/loose/modules_spatial_3dpi_aucell_dark.png,
     from analysis/notebooks/module_scoring_aucell.ipynb) used the 2nd-98th percentile per module, re-scored
-    the 3 dpi cells on their own, and applied a second spatial-outlier filter; this script does none of those.
+    the 3.5 dpi cells on their own, and applied a second spatial-outlier filter; this script does none of those.
 """
 import os, sys, json, argparse, datetime
 import numpy as np, pandas as pd
@@ -63,12 +69,20 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from matplotlib import font_manager
 import hashlib
+from pathlib import Path
+import yaml
+
+# the shared vocabulary helpers live in workflow/scripts/atlas/, the section rotation reader in workflow/scripts/figures/
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "atlas"))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "figures"))
+from apply_annotation import current_label, current_labels  # noqa: E402
+import section_rotation  # noqa: E402
 
 ORDER = ["PDZ", "TDZ", "SDZ", "VSZ", "MD", "MMy", "C", "FMI", "Glan", "udStr", "AMMy"]
 TWO = [("PDZ", "primary decidual zone (PDZ)"), ("SDZ", "secondary decidual zone (SDZ)")]
-SUBTYPES = ["efib_outer", "efib_middle", "efib_middle_induced", "efib_subluminal", "efib_proliferative",
-            "decidual_boundary", "decidual_proliferative", "decidual_mature"]   # rows of the exploratory heatmap
-SUBTYPES_APOP = SUBTYPES + ["decidual_apoptotic"]   # variant; this row has the highest mean in 6 of 11 modules
+SUBTYPES = ["eFib1", "eFib2", "eFib2i", "eFib3", "eFibP",
+            "dec1", "dec2", "dec3"]   # rows of the exploratory heatmap (vocabulary v4 codes)
+SUBTYPES_APOP = SUBTYPES + ["decAp"]   # variant; this row has the highest mean in 6 of 11 modules
 N_FIB = 5   # first N_FIB rows are endometrial_fibroblast subtypes; a rule separates them from decidual
 CMAP, Q = "magma", 0.99
 META_GREY = "#6f6f6f"
@@ -94,7 +108,7 @@ def _src(path, **extra):
             "bytes": os.path.getsize(path), **extra}
 
 
-def load(timepoint, plot_table):
+def load(timepoint, plot_table, vocab):
     """The per-nucleus plot table and its sidecar. Returns the spatial set g (one timepoint, placed nuclei), D (all
     rows), score metadata, sources, the scored timepoints and whether the scores cover only some timepoints."""
     auc = [f"auc_{m}" for m in ORDER]
@@ -103,6 +117,8 @@ def load(timepoint, plot_table):
     miss = [c for c in base + auc if c not in D.columns]; assert not miss, f"missing columns in {plot_table}: {miss}"
     assert D.index.is_unique, f"duplicate barcodes in {plot_table}"
     for c in ("sample", "timepoint", "cell_type", "cell_subtype"): D[c] = D[c].astype(str)
+    D["cell_subtype"] = current_labels(D["cell_subtype"], vocab)   # tables cut from older releases carry superseded names
+    D["timepoint"] = current_labels(D["timepoint"], vocab, "timepoint")
     flag = D["embedding_outlier"].map({True: True, False: False, "True": True, "False": False})
     assert flag.notna().all(), "embedding_outlier must be True/False"
     D["embedding_outlier"] = flag.astype(bool)
@@ -114,6 +130,8 @@ def load(timepoint, plot_table):
     if os.path.exists(side): srcs.append(_src(side, md5=_md5(side), role="plot table provenance"))
     tps = sorted(D["timepoint"].unique())
     scored = P.get("timepoints")
+    if isinstance(scored, list):
+        scored = [current_label(t, vocab, "timepoint") for t in scored]; meta["timepoints"] = str(scored)
     if isinstance(scored, list): assert sorted(scored) == tps, f"table timepoints {tps} differ from the scored {scored}"
     partial = scored != "all"   # unknown (no sidecar) counts as partial: all-timepoint heatmaps are then refused
     assert timepoint in tps, f"timepoint {timepoint!r} is not scored; the table covers {tps}"
@@ -122,14 +140,14 @@ def load(timepoint, plot_table):
     return g, D, meta, srcs, tps, partial
 
 
-def rotate_section(g, deg):
-    """Rotate the plotted section by deg (counter-clockwise) about the median centre of its placed cells.
-    The lanes of one timepoint are one section in one coordinate frame (3 dpi lane centres differ by < 30 um),
-    so the pooled cells rotate about a single shared centre. Display only; obs coordinates are not modified."""
+def rotate_section(g, timepoint, deg):
+    """The placed cells of one timepoint turned by deg (counter-clockwise, y up) as one rigid body.
+    The lanes of one timepoint are one section in one coordinate frame (3.5 dpi lane centres differ by < 30 um),
+    so the pooled cells rotate about a single shared centre (section_rotation: the midpoint of their bounding box).
+    Display only: the returned copy carries the turned coordinates, the plot table is not modified."""
     if not deg % 360: return g
-    r = np.deg2rad(deg); cx, cy = float(g.x_um_qc.median()), float(g.y_um_qc.median())
-    x, y = g.x_um_qc.values - cx, g.y_um_qc.values - cy
-    return g.assign(x_um_qc=cx + np.cos(r) * x - np.sin(r) * y, y_um_qc=cy + np.sin(r) * x + np.cos(r) * y)
+    x, y = section_rotation.rotate_by_timepoint(g["x_um_qc"], g["y_um_qc"], [timepoint] * len(g), {timepoint: deg})
+    return g.assign(x_um_qc=x, y_um_qc=y)
 
 
 def rc(dark):
@@ -209,7 +227,7 @@ def fig_heatmap(D, dark, subtypes=SUBTYPES, scale="colmax", pool_fib=False, modu
     assert not missing, f"subtypes absent from object: {missing}"
     n_fib_rows = N_FIB
     if pool_fib:   # one row = mean over ALL fibroblast cells (cell-weighted), not the mean of the five subtype means
-        fibs = subtypes[:N_FIB]; assert all(f_.startswith("efib_") for f_ in fibs), fibs
+        fibs = subtypes[:N_FIB]; assert all(f_.startswith("eFib") for f_ in fibs), fibs
         sub = sub.assign(cell_subtype=np.where(sub["cell_subtype"].isin(fibs), FIB_POOLED, sub["cell_subtype"].astype(str)))
         subtypes = [FIB_POOLED] + list(subtypes[N_FIB:]); n_fib_rows = 1
     M = sub.groupby("cell_subtype")[[f"auc_{m}" for m in ORDER_]].mean().reindex(subtypes)
@@ -254,36 +272,50 @@ def fig_heatmap(D, dark, subtypes=SUBTYPES, scale="colmax", pool_fib=False, modu
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--out", default="."); ap.add_argument("--force", action="store_true"); ap.add_argument("--timepoint", default="3_dpi")
+    ap.add_argument("--out", default="."); ap.add_argument("--force", action="store_true"); ap.add_argument("--timepoint", default="3.5_dpi")
     ap.add_argument("--plot-table", required=True); ap.add_argument("--suffix", default="")
     ap.add_argument("--dpi", type=int, default=300); ap.add_argument("--formats", default="png,svg")
     ap.add_argument("--cmap", default="magma"); ap.add_argument("--figures", default="spatial,heatmap")
     ap.add_argument("--heatmap-scale", default="colmax", choices=["colmax", "p99"])   # p99 adds _p99 to heatmap names
     ap.add_argument("--modules", default="")   # comma list subset of columns, e.g. PDZ,TDZ,SDZ,VSZ,MD,udStr; adds _<n>zones to heatmap names
-    ap.add_argument("--heatmap-timepoint", default="")   # e.g. 3_dpi; heatmap from that timepoint only; adds _<tp> to heatmap names
-    ap.add_argument("--rotate", type=float, default=0)   # spatial panels: degrees CCW about the section centre; adds _rot<deg>
-    ap.add_argument("--drop-apoptotic", action="store_true")   # spatial panels: drop decidual_apoptotic before scaling/plotting; adds _noapop
+    ap.add_argument("--heatmap-timepoint", default="")   # e.g. 3.5_dpi; heatmap from that timepoint only; adds _<tp> to heatmap names
+    ap.add_argument("--section-rotation", default="")   # resources/figures/mouse_section_rotation.yaml: spatial panels turned by the timepoint's angle; adds _rot<deg>
+    ap.add_argument("--rotate", type=float, default=0)   # by hand only: degrees CCW about the section centre; adds _rot<deg>
+    ap.add_argument("--drop-apoptotic", action="store_true")   # spatial panels: drop decAp before scaling/plotting; adds _noapop
     ap.add_argument("--pool-fib", action="store_true")   # one fibroblast row; adds _fibpooled to heatmap names
+    ap.add_argument("--vocab", default="resources/annotation_vocabulary.yaml")   # legacy_aliases for older plot tables
     ap.add_argument("--show-flagged", action="store_true")   # also draw embedding_outlier nuclei in spatial panels
     a = ap.parse_args()
     global CMAP; CMAP = a.cmap; ctag = "" if a.cmap == "magma" else f"_{a.cmap}"
     want = {f.strip() for f in a.figures.split(",")}
     fam = style(); os.makedirs(a.out, exist_ok=True)
-    g, D, uns, srcs, scored_tps, partial = load(a.timepoint, a.plot_table)
+    vocab = yaml.safe_load(open(a.vocab))
+    a.timepoint = current_label(a.timepoint, vocab, "timepoint")   # older names (e.g. 3_dpi) are accepted
+    if a.heatmap_timepoint:
+        a.heatmap_timepoint = current_label(a.heatmap_timepoint, vocab, "timepoint")
+    g, D, uns, srcs, scored_tps, partial = load(a.timepoint, a.plot_table, vocab)
+    # Display rotation: from the shared table, or --rotate by hand. Applied to the whole placed array before the
+    # display filters below, so hidden nuclei sit where they belong and do not depend on the angle.
+    if a.section_rotation and a.rotate % 360:
+        sys.exit("give --section-rotation or --rotate, not both")
+    rot = section_rotation.load_rotation_table(a.section_rotation)[a.timepoint] if a.section_rotation else a.rotate
+    g = rotate_section(g, a.timepoint, rot)
+    rot_src = (f"{a.section_rotation} (sha256 {section_rotation.table_record(a.section_rotation)['sha256'][:12]})"
+               if a.section_rotation else "--rotate")
     win = (f"AUCell window {uns['auc_threshold']} (top {uns['rank_cutoff']} genes, seed {uns['seed']}, {uns['normalization']}; "
            f"scored timepoints {uns['timepoints']}; table {os.path.basename(uns['scores_file'])})")
     n_hid, hid_note = 0, ""
     if not a.show_flagged:   # spatial panels only; heatmaps (D) keep these nuclei
         n_hid = int(g["embedding_outlier"].sum()); g = g[~g["embedding_outlier"]]
         hid_note = f"; {n_hid} embedding-outlier nuclei hidden (kept in heatmaps)"
-    tag = a.timepoint.replace("_", "")  # 3_dpi -> 3dpi, matching the existing filenames
+    tag = a.timepoint.replace("_", "")  # 3.5_dpi -> 3.5dpi
     n_ap = 0
     if a.drop_apoptotic:
-        n_ap = int((g["cell_subtype"] == "decidual_apoptotic").sum()); g = g[g["cell_subtype"] != "decidual_apoptotic"]; tag += "_noapop"
-    if a.rotate % 360:
-        g = rotate_section(g, a.rotate); tag += f"_rot{a.rotate:g}"
+        n_ap = int((g["cell_subtype"] == "decAp").sum()); g = g[g["cell_subtype"] != "decAp"]; tag += "_noapop"
+    if rot % 360:
+        tag += f"_rot{rot:g}"
     sp_note = (f"AUCell module scores, {win}, timepoint {a.timepoint}, lanes pooled {sorted(g['sample'].unique())}, "
-               f"{len(g)} cells with QC'd coordinates" + hid_note + (f" ({n_ap} decidual_apoptotic removed)" if a.drop_apoptotic else "") + (f"; display rotated {a.rotate:g} deg CCW about the section's median centre" if a.rotate % 360 else "") + f"; colour 0 -> per-module 99th percentile; font {fam}")
+               f"{len(g)} cells with QC'd coordinates" + hid_note + (f" ({n_ap} decAp removed)" if a.drop_apoptotic else "") + (f"; display rotated {rot:g} deg CCW about the centre of the section's bounding box ({rot_src})" if rot % 360 else "") + f"; colour 0 -> per-module 99th percentile; font {fam}")
     mods = [m.strip() for m in a.modules.split(",") if m.strip()] or None
     assert not mods or set(mods) <= set(ORDER), mods
     htp = a.heatmap_timepoint or None

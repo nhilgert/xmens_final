@@ -1,0 +1,30 @@
+# resources/figures/mouse_section_rotation.yaml
+# Display rotation of the mouse Slide-tags sections: the one table every mouse spatial figure panel reads, through
+# workflow/scripts/figures/section_rotation.py. Panels: Fig. S13 (91_panels_mouse_tissue.smk), Figs. S15B, S16 and
+# S22 (91_panels_mouse_stroma.smk), the mouse row of Fig. 6D (91_panels_cross_species.smk), the S24 spatial maps
+# (16_zone_modules.smk, rule zone_figures) and the pseudotime section panels of
+# workflow/scripts/pseudotime/plot_pt_spatial_sections.py (no rule).
+#
+# Convention: counter-clockwise degrees in data coordinates (x_um_qc, y_um_qc), drawn with y increasing upwards,
+# the sense of the 135 degrees at 3.5 dpi in Figs. 4A and S24. All nuclei of one timepoint turn as one rigid body
+# about one centre (the midpoint of their bounding box): the libraries of a section share a coordinate frame
+# (1.5 dpi late = mck12a + mck12b, 3.5 dpi = mck10a + mck10b), and the uninduced array, which carries pieces A and B
+# side by side, turns as a whole. No mirror. Display only: no object's coordinates change. config
+# spatial_qc.rotations (all 0, sample-sheet timepoint names) is a different setting: it feeds the release objects'
+# x_um_rot, and changing it would rebuild the releases.
+#
+# Angles from the user, 2026-10-30, keyed by the old timepoint names with "add +0.5 dpi to each sample":
+#   uninduced 322.75, 1dpi_early 28, 1dpi_late 303, 2dpi 175, 3dpi 135, 4dpi_menstrual 81.
+# Keys here are the release timepoints (obs['timepoint']); tissue_section and sample IDs keep the old names
+# (e.g. 1_dpi_late_mck12a__A).
+# Checked on 2026-10-30 against the manuscript images (bioRxiv 2025.10.08.681007; Figs. S13, S15B, S16, S22, S24B
+# and 6D): for every section shown, the best-matching rotation without a mirror lies within 2 degrees of the angle
+# below, and the best placement with a mirror matches worse.
+
+rotation_deg_ccw:
+  "uninduced": 322.75
+  "1.5_dpi_early": 28
+  "1.5_dpi_late": 303
+  "2.5_dpi": 175
+  "3.5_dpi": 135
+  "4.5_dpi_bleeding": 81

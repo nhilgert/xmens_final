@@ -51,6 +51,19 @@ record: the 15-sample inventory, where the inputs live, the reference genomes
   adds a sample to the DAG. Authoritative source for `species` and `timepoint`.
 - `config/config.yaml` — all parameters/thresholds, pinned to the paper Methods.
 
+Released objects are in `data/deliverables/<release>/` (current release:
+`deliverables.release` in `config/config.yaml`; every file is sha256-listed in the
+release's `MANIFEST.json`). Per species there are three:
+
+- `Cevrim_{Human,XMens}_All_Cells.h5ad` — the annotated nuclei analysed in the paper;
+- `Cevrim_{Human,XMens}_All_Cells_extended.h5ad` — the same nuclei plus the
+  supplementary populations of `resources/annotations/supplementary_populations.csv`
+  (human B cells; mouse lymphatic endothelium, pericytes and IgA plasma cells),
+  which were set aside before the class re-integrations and are not used in any
+  analysis. They are marked `obs['in_primary'] == False`; both objects share one
+  whole-tissue embedding, and `adata[adata.obs.in_primary]` equals the primary object;
+- `Cevrim_{Human,XMens}_Only_Fib_Dec_Cells.h5ad` — fibroblasts and decidual cells.
+
 Raw sequencing data: available on request, to be released on publication.
 <!-- TODO: add accession/DOI when data is deposited -->
 
@@ -108,11 +121,20 @@ This repo aims for **analytical + provenance reproducibility**, not bit-identity
 recipe is fully pinned; conclusions should be robust to numerical noise.
 
 - Versions pinned in `config.yaml` (cellranger 7.2.0, CellBender 0.2.2,
-  scvi-tools 1.1.2, DoubletDetection 4.2, …).
-- Expected post-QC cell counts as a regression target: **57,242 mouse /
-  69,525 human** (from the paper).
+  scvi-tools 1.4.2, DoubletDetection 4.2, …).
+- Nuclei passing QC (`qc.py`): **68,069 mouse / 70,363 human**; annotated nuclei in
+  release 2026_10_29b: **57,015 mouse / 67,792 human**. Re-running `qc.py` on all 15
+  samples (2026-10-29) reproduced the threshold filters exactly; DoubletDetection
+  calls differed for about 1% of nuclei, so the QC outputs of 26 July 2026 are the
+  pinned starting point.
 - Stochastic upstream steps (CellBender) are checkpointed — the pipeline consumes
   their output rather than re-running them.
+- scVI fits repeat exactly only within one GPU class. On an A40 (scvi-tools 1.4.2,
+  PyTorch 2.11) the July 2026 atlas fits reproduce bit-for-bit; the whole-tissue
+  embeddings of release 2026_10_29b (both species) were fitted there by 04g
+  `reembed_release` on the primary nuclei plus the supplementary populations (after
+  `rebuild_release_cells`), and each fit records its device and versions in
+  `uns['scvi_fit']`.
 
 ---
 

@@ -36,9 +36,17 @@ species:
           glandular: [Foxa2, Ihh, Lif]
           contam:    [Flt1, Pecam1, Pdgfra, Prl8a2, Acta2, Myh11, Ptprc, Sox6]
         umap_genes: [Wnt7a, Foxa2, Ihh, Lgr5]
-        # Current frozen decisions are coarse-only. Do not invent luminal/
-        # glandular subtypes: they are not in xmens.annotation.v1.
-        fine: {mode: none}
+        # v7 (2026-10-29): luminal/glandular called per cluster by tissue position in
+        # mouse_epithelial.csv: lumen-side stroma (eFib3, decidual cells) against deeper fibroblasts
+        # (eFib1, eFib2, eFib2i) around each placed nucleus, cluster majority; the two cycling
+        # clusters are epithelial_proliferative. Derivation and checks:
+        # notebooks/public/04c_mouse_epithelial_compartments.ipynb. (v3 used Wnt7a and
+        # Foxa2/Prss28/Prss29 cutoffs, which left induced luminal epithelium unresolved.)
+        # mode: none -- the split was made de novo on this clustering, not transferred.
+        fine:
+          mode: none
+          labels: [epithelial_luminal, epithelial_glandular, epithelial_proliferative]
+          rollup_all: epithelial_cell
           # note: Sox6 is in `contam` on purpose -- broadly expressed, so a Sox6-high
           # epithelial cluster WITHOUT the Msln/Upk3b/Wt1 trio is still epithelium.
 
@@ -69,12 +77,10 @@ species:
           # vote. See HANDOFF_mouse_stromal.md section 3.
           h5ad: 20251008_Cevrim_XMens_Only_Fib_Dec_Cells.h5ad   # REPO_SUB, 97.1% join
           col: cell_subtype_annotations
-          labels: [decidual_boundary, decidual_proliferative, decidual_mature,
-                   decidual_apoptotic, efib_outer, efib_middle,
-                   efib_middle_induced, efib_subluminal, efib_proliferative]
+          labels: [dec1, dec2, dec3, decAp, eFib1, eFib2, eFib2i, eFib3, eFibP]   # vocabulary v4 codes
           rollup_prefix:                  # fine label prefix -> coarse label
-            decidual_: decidual_cell
-            efib_: endometrial_fibroblast
+            dec: decidual_cell
+            eFib: endometrial_fibroblast
 
       immune:
         res: leiden_scVI_3.0
@@ -84,6 +90,8 @@ species:
           myeloid: [Adgre1, Csf1r, C1qa, C1qb, Mrc1, Itgax]
           lymph:  [Cd3e, Cd3d, Cd79a, Ms4a1]
           nk:     [Ncr1, Gzmb, Prf1, Eomes]
+          neutrophil: [Csf3r, S100a8, S100a9]   # v9: round-2 cluster 24
+          plasma: [Jchain, Igha, Igkc]      # v9: IgA plasma cells (atlas cluster 19) join in round 2
           prolif: [Mki67, Top2a]
           contam: [Cdh1, Pdgfra, Pecam1, Myh11, Sox6]
         umap_genes: [Ptprc, Csf1r, Cd3e, Gzmb]
@@ -91,10 +99,10 @@ species:
           mode: csv
           csv: mouse_immune_fine.csv      # Alan Y. Baez Vazquez -- export pending
           col: Annotation_1.3
-          labels: [macrophage, macrophage_proliferative, monocyte, dendritic_cell,
-                   b_cell, t_cell, t_cell_gamma_delta,
-                   unk_cell_gzmb_high_itgax_low, unk_cell_gzmb_low_itgax_high,
-                   unk_cell_proliferative]
+          labels: [macrophage, cycling_macrophage, monocyte, dendritic_cell,
+                   b_cell, plasma_cell, t_cell, gamma_delta_t_cell,
+                   cytotoxic_unk_cell, unk_cell,
+                   cycling_unk_cell, neutrophil]    # v9: neutrophil (round-2 cluster 24)
           rollup_all: immune_cell
 
       vascular:
@@ -102,22 +110,26 @@ species:
         coarse: endothelial_cell
         markers:
           endothelial:  [Pecam1, Flt1, Cldn5, Cdh5]
+          lymphatic:    [Prox1, Reln, Mmrn1, Flt4]
           perivascular: [Pdgfrb, Rgs5, Acta2]
           contam:       [Cdh1, Pdgfra, Ptprc, Sox6]
-        umap_genes: [Pecam1, Flt1, Rgs5]
-        # Content task: every retained mouse vascular cell is blood endothelial.
+        umap_genes: [Pecam1, Flt1, Prox1, Rgs5]
+        # v9: the lymphatic endothelium (atlas cluster 5, 535 nuclei) joins in round 2 (04b2), so
+        # clusters are blood or lymphatic endothelium (round-2 mouse_vascular.csv).
         fine:
           mode: none
-          labels: [endothelial_blood]
+          labels: [endothelial_blood, endothelial_lymph]
           rollup_all: endothelial_cell
 
       smc:
         res: leiden_scVI_3.0
         coarse: smooth_muscle_cell
         markers:
-          smc:    [Acta2, Myh11, Tagln, Des, Cnn1]
-          contam: [Cdh1, Pdgfra, Pecam1, Ptprc, Sox6]
-        umap_genes: [Acta2, Myh11, Tagln]
+          smc:      [Acta2, Myh11, Tagln, Des, Cnn1]
+          pericyte: [Rgs5, Notch3, Pdgfrb, Abcc9, Kcnj8]   # v9: pericytes (atlas cluster 7) join in round 2
+          contam:   [Cdh1, Pdgfra, Pecam1, Ptprc, Sox6]
+        umap_genes: [Acta2, Myh11, Rgs5, Notch3]
+        # v9: clusters are smooth_muscle_cell or perivascular_cell (pericytes; coarse-filled, user 2026-10-30).
         fine: {mode: none}
 
   human:
@@ -138,7 +150,10 @@ species:
           # becomes its own cell_type AND fine_refined stays empty for those cells.
           # mode: none is correct -- ciliated was found de novo, not transferred.
           mode: none
-          labels: [epithelial_ciliated]
+          # v7 (2026-10-29): non-ciliated clusters are epithelial_inner or epithelial_outer by tissue
+          # layer (decidual vs fibroblast stroma around each placed nucleus, cluster majority); see
+          # human_epithelial.csv notes and notebooks/public/04c_human_epithelial_layers.ipynb.
+          labels: [epithelial_ciliated, epithelial_inner, epithelial_outer]
           rollup_all: epithelial_cell
           # 91 cells; DE almost entirely axonemal (CFAP54/43/299, DNAH12/9/5,
           # RSPH1, ZBBX), ciliated score 1.289 vs next-best 0.078. The deposited
@@ -163,6 +178,9 @@ species:
           myeloid: [CD68, CSF1R, ITGAM, LYZ, ITGAX]
           lymph:  [CD3E, CD8A, CD4, FOXP3]
           nk:     [NCAM1, NCR1, KLRD1, GZMB]
+          rorc:   [RORC, IL23R, IL7R]           # v9: RORC-positive lymphocytes (were gamma_delta_t_cell)
+          b:      [MS4A1, CD79A, BANK1, PAX5]   # v9: B cells (atlas cluster 30) join in round 2
+          plasma: [JCHAIN, MZB1, IGHG1]
           mast:   [TPSAB1, CPA3, MS4A2, KIT]
           contam: [CDH1, PDGFRA, PECAM1, ACTA2]
         umap_genes: [PTPRC, CSF1R, CD3E, GZMB]
@@ -175,10 +193,10 @@ species:
           # fine_refined empty. The committed CSV writes "ITGAX hi" without the
           # trailing period, and one "Macrophages" rather than the
           # Menstruation/Secretory split -- both spellings kept so either works.
-          labels: [t_cell_cd8, t_cell_cd4, t_cell_regulatory,
-                   t_cell_gamma_delta, mast_cell,
-                   unk_cell_gzmb_high_itgax_high,
-                   unk_cell_gzmb_low_itgax_low, macrophage]
+          labels: [cd8_t_cell, cd4_t_cell, treg_cell,
+                   rorc_positive_lymphocyte, mast_cell,
+                   cytotoxic_unk_cell,
+                   unk_cell, macrophage, b_cell, plasma_cell]
           rollup_all: immune_cell
 
       perivascular:
@@ -194,7 +212,6 @@ species:
           # pericyte co-expression 0.04 object-wide. It is two endothelial
           # populations -- 62% blood (VWF/FLT1/MECOM), 38% lymphatic
           # (PROX1/RELN/FLT4/PDPN); FLT1 goes 0.88 -> 0.02 across the boundary.
-          # Mouse has NO lymphatic population (Prox1 0.01, Ccl21a 0.002).
           mode: none
           labels: [endothelial_blood, endothelial_lymph]
           rollup_all: endothelial_cell

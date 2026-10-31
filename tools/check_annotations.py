@@ -30,6 +30,14 @@ def canonical_sets(vocab):
     return types, subtype_parent
 
 
+def round2_settings(repo: Path) -> dict:
+    """config annotation_round2 (04b2/04c2), or {} when the repo has none."""
+    path = repo / "config/config.yaml"
+    if not path.exists():
+        return {}
+    return (yaml.safe_load(path.read_text()) or {}).get("annotation_round2") or {}
+
+
 def validate_csvs(repo: Path, species: list[str], spec: dict, vocab: dict):
     failures = []
     canonical_types, subtype_parent = canonical_sets(vocab)
@@ -48,6 +56,16 @@ def validate_csvs(repo: Path, species: list[str], spec: dict, vocab: dict):
                 repo / f"resources/annotations/{sp}_{lineage}.csv",
                 repo / f"data/interim/latent_{sp}_{lineage}.h5ad", False,
             ))
+        round2 = round2_settings(repo)
+        if sp in round2.get("lineages", {}):
+            # round 2 (v9): the round-2 atlas table and the re-annotated lineages' tables and fits
+            pairs.append(("(atlas, round 2)", spec["atlas"][sp]["res"], repo / round2["atlas_decisions"][sp],
+                          repo / f"data/interim/latent_{sp}.h5ad", True))
+            for lineage in round2["lineages"][sp]:
+                cfg = spec["species"][sp]["lineages"][lineage]
+                pairs.append((f"{lineage} (round 2)", cfg.get("res", spec.get("defaults", {}).get("res")),
+                              repo / round2["decisions_dir"] / f"{sp}_{lineage}.csv",
+                              repo / round2["outdir"] / f"latent_{sp}_{lineage}.h5ad", False))
         for lineage, resolution, csv_path, h5ad_path, atlas in pairs:
             table = pd.read_csv(csv_path, dtype=str)
             if not {"cluster", "label"} <= set(table):
@@ -150,26 +168,26 @@ def validate_h5ad(path: Path, species: str, role: str, vocab: dict):
             failures.append(f"fib/dec object has cell_type values {sorted(set(types))}")
         gate("fibdec_total", FIBDEC_N[species], obj.n_obs)
 
+    if role in {"refined", "final", "all_deposit"}:
+        gate("cell_subtype_empty", 0, empty_count)
+
+        # Coarse fills and epithelial splits come from the vocabulary.
+        for entry in vocab["content_tasks"]["coarse_subtype_fill"]["applies_to"][species]:
+            label = entry["cell_type"]
+            gate(f"{label}_coarse_subtype", int(entry["expected_coarse_fill_count"]),
+                 int(((types == label) & (subtypes == label)).sum()))
+        split_task = {"human": "human_epithelial_split", "mouse": "mouse_epithelial_split"}[species]
+        for label, expected in vocab["content_tasks"][split_task]["expected_counts"].items():
+            gate(label, int(expected), int((subtypes == label).sum()))
+
     if species == "human" and role in {"refined", "final", "all_deposit"}:
         gate("endothelial_blood", 828, int((subtypes == "endothelial_blood").sum()))
         gate("endothelial_lymph", 506, int((subtypes == "endothelial_lymph").sum()))
-        gate("cell_subtype_empty", 0, empty_count)
-        for label, expected in (("decidual_cell", 21648),
-                                ("endometrial_fibroblast", 25885),
-                                ("epithelial_cell", 10608),
-                                ("perivascular_cell", 471),
-                                ("smooth_muscle_cell", 2084)):
-            gate(f"{label}_coarse_subtype", expected,
-                 int(((types == label) & (subtypes == label)).sum()))
+        gate("perivascular_cell_coarse_subtype", 471,
+             int(((types == "perivascular_cell") & (subtypes == "perivascular_cell")).sum()))
     if species == "mouse" and role in {"refined", "final", "all_deposit"}:
         gate("endothelial_blood", 3487, int((subtypes == "endothelial_blood").sum()))
         gate("endothelial_lymph", 0, int((subtypes == "endothelial_lymph").sum()))
-        gate("cell_subtype_empty", 0, empty_count)
-        for label, expected in (("epithelial_cell", 6265),
-                                ("smooth_muscle_cell", 1443),
-                                ("perimetrial_cell", 550)):
-            gate(f"{label}_coarse_subtype", expected,
-                 int(((types == label) & (subtypes == label)).sum()))
 
     if role != "reannotated":
         if obj.uns.get("annotation_schema_version") != vocab["schema_version"]:

@@ -11,6 +11,8 @@ Input : data/interim/lineages/{species}_{lineage}.h5ad
             (sample, cell_barcode, timepoint, lineage) inherited from stage 02/04.
 Output: data/interim/latent_{species}_{lineage}.h5ad
           - obsm['X_scVI'], the Leiden ladder, obsm['X_umap_scVI'].
+          A rule can ask for fewer resolutions with params.resolutions (04b2 computes
+          only the annotation resolution).
 
 NO cell removal here. The Leiden ladder is what the later clustree fine-structure
 step consumes. Frozen stochastic checkpoint, same status as latent_{species}.
@@ -40,7 +42,7 @@ BATCH_KEY = scvi_cfg.get("batch_key", "sample")
 GENE_LIKELIHOOD = scvi_cfg.get("gene_likelihood", "nb")
 EXCLUDE_MITO_RIBO = scvi_cfg.get("exclude_mito_ribo", True)
 N_NEIGHBORS = leiden_cfg.get("knn", 100)
-RESOLUTIONS = scvi_cfg.get(
+RESOLUTIONS = getattr(snakemake.params, "resolutions", None) or scvi_cfg.get(  # noqa: F821
     "resolutions",
     [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.5, 2.0, 2.5, 3.0,
      4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0],

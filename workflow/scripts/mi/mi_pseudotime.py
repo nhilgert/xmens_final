@@ -100,6 +100,17 @@ def cmd_prep(args: argparse.Namespace) -> None:
             f"[prep] pseudotime key {args.pt_key!r} not in obs. "
             f"Available: {sorted(adata.obs.columns)}")
     pt = adata.obs[args.pt_key].to_numpy(dtype=float)
+
+    # Cells outside the trajectory (mouse decidual_apoptotic) carry NaN
+    # pseudotime by design; --drop-missing-pt removes them explicitly.
+    has_pt = np.isfinite(pt)
+    n_dropped = int((~has_pt).sum())
+    if args.drop_missing_pt and n_dropped:
+        print(f"[prep] dropping {n_dropped:,} cells without {args.pt_key!r} "
+              f"({int(has_pt.sum()):,} kept)", flush=True)
+        adata = adata[has_pt].copy()
+        pt = pt[has_pt]
+
     n_finite = int(np.isfinite(pt).sum())
     if n_finite < adata.n_obs:
         raise SystemExit(
@@ -120,9 +131,15 @@ def cmd_prep(args: argparse.Namespace) -> None:
               f"{int(keep.sum()):,}/{adata.n_vars:,} genes kept", flush=True)
         adata = adata[:, keep].copy()
 
-    # gene filter on counts, exactly as the original (keeps informative genes only)
-    sc.pp.filter_genes(adata, min_counts=args.min_counts)
-    print(f"[prep] {adata.n_vars:,} genes remain after min_counts={args.min_counts}", flush=True)
+    # min_counts is a raw-count threshold, so it reads the counts layer: the
+    # release objects keep log-normalized values in X, and sc.pp.filter_genes
+    # would sum those instead. Same rule as filter_genes (keep sum >= min_counts).
+    min_counts_source = "counts" if "counts" in adata.layers else "X"
+    C = adata.layers["counts"] if min_counts_source == "counts" else adata.X
+    gene_totals = np.asarray(C.sum(axis=0)).ravel()
+    adata = adata[:, gene_totals >= args.min_counts].copy()
+    print(f"[prep] {adata.n_vars:,} genes remain after min_counts={args.min_counts} "
+          f"(summed over {min_counts_source})", flush=True)
 
     layer_used = args.layer
     if args.layer not in adata.layers:
@@ -157,6 +174,8 @@ def cmd_prep(args: argparse.Namespace) -> None:
     manifest = dict(
         pt_key=args.pt_key, layer=layer_used, min_counts=int(args.min_counts),
         min_detect_frac=float(args.min_detect_frac),
+        min_counts_source=min_counts_source,
+        n_cells_dropped_missing_pt=n_dropped if args.drop_missing_pt else 0,
         n_cells=int(adata.n_obs), n_genes=int(adata.n_vars),
         n_chunks=int(args.chunks), seed=int(args.seed), h5ad=str(args.h5ad),
         # power settings recorded as provenance; workers default to these values
@@ -315,6 +334,9 @@ def build_parser() -> argparse.ArgumentParser:
                          "palantir_pt_std, dpt_pseudotime)")
     pp.add_argument("--layer", default="log1p", help="log-normalized expression layer")
     pp.add_argument("--min-counts", type=int, default=10)
+    pp.add_argument("--drop-missing-pt", action="store_true",
+                    help="drop cells whose pseudotime is NaN instead of failing "
+                         "(cells outside the trajectory); count recorded in the manifest")
     pp.add_argument("--min-detect-frac", type=float, default=0.0,
                     help="keep genes detected (count>0) in >= this fraction of cells "
                          "(the posted methods used 0.01); 0 = legacy behaviour")

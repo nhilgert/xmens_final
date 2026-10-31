@@ -20,6 +20,7 @@ import time
 import numpy as np
 import scanpy as sc
 import scvi
+import torch
 
 inp = snakemake.input.h5ad            # noqa: F821
 out = snakemake.output.h5ad           # noqa: F821
@@ -126,6 +127,9 @@ with open(logfile, "w") as log:
     t0 = time.time()
     model.train(early_stopping=True)
     say(f"  training done in {time.time() - t0:.1f}s")
+    device = str(model.device)
+    accelerator = torch.cuda.get_device_name(model.device) if device.startswith("cuda") else "cpu"
+    say(f"  trained on {device} ({accelerator}); scvi-tools {scvi.__version__}, torch {torch.__version__}")
 
     adata.obsm[SCVI_LATENT_KEY] = model.get_latent_representation()
     say(f"latent -> obsm['{SCVI_LATENT_KEY}'] shape {adata.obsm[SCVI_LATENT_KEY].shape}")
@@ -148,6 +152,18 @@ with open(logfile, "w") as log:
     adata.obsm[SCVI_UMAP_KEY] = adata.obsm["X_umap"].copy()
     del adata.obsm["X_umap"]
 
+    # scVI fits reproduce only within one GPU class, so the object records where it was fitted.
+    # Plain str: torch.__version__ is a TorchVersion, which h5ad cannot store.
+    adata.uns["scvi_fit"] = {
+        "accelerator": str(accelerator),
+        "scvi_tools": str(scvi.__version__),
+        "torch": str(torch.__version__),
+        "seed": int(SEED),
+        "n_hvg": int(N_HVG),
+        "n_latent": int(N_LATENT),
+        "n_layers": int(N_LAYERS),
+        "epochs_trained": int(len(model.history["elbo_train"])),
+    }
     say(f"final: {adata.n_obs} cells, obsm={list(adata.obsm.keys())}")
     import os
     from pathlib import Path

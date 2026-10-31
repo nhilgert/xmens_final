@@ -1,0 +1,50 @@
+{
+ "figS16_revision_adopted_cutoff_sweep.csv": {
+  "id_used": "8af5a004-c76e-40e1-aabc-75d5052fffcc",
+  "artifact_id": "a08d671e-1d10-41ef-83be-eb78e4392883",
+  "latest_version_id": "8af5a004-c76e-40e1-aabc-75d5052fffcc",
+  "sha256": "65062b0840fd87671e00d09b97fe7eee96c688ac83a164795b6f3f60d7a9334f",
+  "bytes": 11160,
+  "created_at": "2026-10-25T03:53:13.484Z"
+ },
+ "monocle_heatmap_repro.R": {
+  "id_used": "c55e6f0d-aa60-4e7e-b307-7a397bb6a0eb",
+  "artifact_id": "f0c285cc-fd1f-4d13-98e1-4bb2a3a4a843",
+  "latest_version_id": "c55e6f0d-aa60-4e7e-b307-7a397bb6a0eb",
+  "sha256": "17592f27d770d9802dde440cc26e803e44fc6f01b22d27deaf5b0837ffb551b7",
+  "bytes": 8608,
+  "created_at": "2026-10-14T19:03:45.911Z"
+ },
+ "render_crossspecies_heatmaps.py": {
+  "id_used": "6ec705bb-1825-4214-a411-141f7a3dde6e",
+  "artifact_id": "7da11a63-3287-4aa2-8ccc-2e4cab3fc6a9",
+  "latest_version_id": "6ec705bb-1825-4214-a411-141f7a3dde6e",
+  "sha256": "a19658272abd81c2328d4c44d70f995e1ef3a4233dae5369c41667ce3db789bd",
+  "bytes": 9355,
+  "created_at": "2026-10-22T21:01:52.530Z"
+ },
+ "disp_table_mouse.tsv.gz": {
+  "id_used": "a82ce47a-f97e-430c-968d-d0ddbb9340ab",
+  "artifact_id": "d2ae11c9-c674-4aaa-bb7a-10f1ba01e8ea",
+  "latest_version_id": "a82ce47a-f97e-430c-968d-d0ddbb9340ab",
+  "sha256": "1310d97d3e667dfff752212b82d28f9ed1a8ef3935da08fa5aa36cbea211cbf7",
+  "bytes": 709859,
+  "created_at": "2026-10-15T17:45:27.424Z"
+ },
+ "gene_peak_order.tsv": {
+  "id_used": "c54bbc68-f885-47e8-ae91-f1b261ef034b",
+  "artifact_id": "35709f12-1983-4105-a3d9-deac56b120df",
+  "latest_version_id": "c54bbc68-f885-47e8-ae91-f1b261ef034b",
+  "sha256": "717c31d3ddc17d5352c7b2565ce583f7ee181315f922e7a253d59ebe661250a2",
+  "bytes": 1732,
+  "created_at": "2026-09-16T22:29:49.359Z"
+ },
+ "consensus123_stadtmauer_fix_bundle.zip": {
+  "id_used": "2e82e361-4e61-48f3-8abe-79572352cc8f",
+  "artifact_id": "a8412566-86fc-4c49-8719-d9378321e82c",
+  "latest_version_id": "2e82e361-4e61-48f3-8abe-79572352cc8f",
+  "sha256": "6cda71fe4ab36bf51cb002e7970a7145c3d9f0864c370ff033781bd5b7298d2d",
+  "bytes": 895229,
+  "created_at": "2026-10-22T17:11:12.007Z"
+ }
+}

@@ -1,4 +1,4 @@
-# annotation_vocabulary.yaml — xmens.annotation.v2
+# annotation_vocabulary.yaml — xmens.annotation.v9
 # SINGLE SOURCE OF TRUTH for the cell_type / cell_subtype schema.
 # Producers (apply_annotation, merge), the checker (check_annotations.py), the SAMap bridge
 # (prep_samap_input), the deliverable rule (finalize_deliverables) and plotting all load THIS
@@ -6,11 +6,12 @@
 #
 # Rules:
 #   - two obs fields: cell_type (coarse) and cell_subtype (fine)
-#   - all stored values: lowercase snake_case, singular, ZERO casing exceptions
+#   - all stored values: lowercase snake_case, singular, except the nine mouse stromal
+#     subtype codes (eFib1, eFib2, eFib2i, eFib3, eFibP, dec1, dec2, dec3, decAp; v4)
 #   - cell_subtype = cell_type where a retained cell has no finer subdivision
 #   - cell_subtype is never empty/NaN in canonical retained objects
 #   - schema applies from 04c onward; stages 04/04b keep an internal `lineage` routing field (not published)
-#   - display names (plural/cased/legacy-code) live here and are applied only at plot time
+#   - display names (the figure wording) live here and are applied only at plot time
 #
 # ----------------------------------------------------------------------------
 # CHANGELOG v1 -> v2  (2026-08-28, decided with the user against the objects on disk)
@@ -25,8 +26,113 @@
 #      cell_subtype=endothelial_blood for all 3,487 cells (never coarse-filled).
 #      The 08_21 notebook coarse-filled these by omission; that was the bug.
 # ----------------------------------------------------------------------------
+# CHANGELOG v2 -> v3  (2026-10-22, proposed; mouse immune names follow the figure panel)
+#   1. unk_cell_gzmb_low_itgax_high -> unk_cell             ("uNK", n=436)
+#   2. unk_cell_gzmb_high_itgax_low -> unk_cell_cytotoxic   ("cytotoxic uNK", n=73)
+#      Pure renames: same clusters, same cells. Cytotoxic = Gzmb/Gzmc/Prf1 detected in
+#      53-58% of cells vs 4-12% in unk_cell (2026_09_15 release).
+#   3. Display names only: macrophage_proliferative and unk_cell_proliferative read
+#      "Cycling ..." to match the figure; stored values keep the _proliferative suffix
+#      shared with efib_proliferative / decidual_proliferative.
+#   Human uNK labels (gzmb_high_itgax_high / gzmb_low_itgax_low) are unchanged.
+#   4. Mouse epithelium split (content task mouse_epithelial_split, NOT a rename):
+#      epithelial_cell -> epithelial_luminal (2,450; 10 clusters) / epithelial_glandular
+#      (2,828; 11 clusters); 987 cells in 6 unresolved clusters stay epithelial_cell.
+#      Cluster-level calls on the July 29 mouse epithelial lineage clustering (leiden_scVI_3.0),
+#      per resources/annotations/mouse_epithelial.csv notes: luminal = Wnt7a detected in >=14%
+#      and mean Foxa2/Prss28/Prss29 detection <8%; glandular = the reverse (>=10%, Wnt7a <5%);
+#      spatial neighbourhood (epithelial sheet against subluminal eFib) agreed for every call.
+#      Luminal clusters are 99.5% uninduced: induced luminal epithelium is not resolved.
+#   Objects carrying v2 strings are relabeled forward by rule migrate_release_vocabulary
+#   (04g) using legacy_aliases below.
+# ----------------------------------------------------------------------------
+# CHANGELOG v3 -> v4  (2026-10-27, decided with the user)
+#   Mouse stromal subtypes are stored as the codes the paper uses. Pure renames: same
+#   clusters, same cells.
+#     efib_outer -> eFib1, efib_middle -> eFib2, efib_middle_induced -> eFib2i,
+#     efib_subluminal -> eFib3, efib_proliferative -> eFibP,
+#     decidual_boundary -> dec1, decidual_proliferative -> dec2,
+#     decidual_mature -> dec3, decidual_apoptotic -> decAp.
+#   Each code is the majority submitted label (cell_subtype_annotations of the 20251008
+#   submission) of every cluster that now carries it: 80-96% of each label's cells, and
+#   84.0% of the 41,933 cells shared with the submission keep their submitted code.
+#   These nine are the only stored values that are not lowercase snake_case.
+#   Older releases are relabeled forward by migrate_release_vocabulary (04g) through
+#   legacy_aliases; lineage_spec.yaml rolls the codes up by the prefixes dec / eFib.
+# ----------------------------------------------------------------------------
+# CHANGELOG v4 -> v5  (2026-10-27, decided with the user)
+#   Mouse induced timepoints are named half a day later, as in the paper:
+#     1_dpi_early -> 1.5_dpi_early, 1_dpi_late -> 1.5_dpi_late, 2_dpi -> 2.5_dpi,
+#     3_dpi -> 3.5_dpi, 4_dpi_bleeding -> 4.5_dpi_bleeding; uninduced and human unchanged.
+#   Pure renames of obs['timepoint'], applied to releases by migrate_release_vocabulary
+#   (legacy_aliases.timepoint); the allowed names and their order are categorical_order.timepoint.
+#   Sample IDs (and so cell barcodes), config/samples.tsv and intermediate objects keep the
+#   original keys: the sample sheet feeds ingest, and renaming it would re-run the pipeline.
+#   The harmonized pseudotime is kept as computed, with the original day encoding
+#   (uninduced 0, 1_dpi_early 1, 1_dpi_late 1.5, 2_dpi 2, 3_dpi 3, 4_dpi_bleeding 4).
+# ----------------------------------------------------------------------------
+# CHANGELOG v5 -> v6  (2026-10-28, decided with the user)
+#   Immune subtypes are stored as the snake_case form of the names on the immune dot plots,
+#   and those names are the display names. Pure renames: same clusters, same cells.
+#     macrophage_proliferative -> cycling_macrophage, unk_cell_proliferative -> cycling_unk_cell,
+#     t_cell_gamma_delta -> gamma_delta_t_cell, t_cell_cd4 -> cd4_t_cell, t_cell_cd8 -> cd8_t_cell,
+#     t_cell_regulatory -> treg_cell, unk_cell_cytotoxic (mouse) -> cytotoxic_unk_cell,
+#     unk_cell_gzmb_high_itgax_high (human) -> cytotoxic_unk_cell,
+#     unk_cell_gzmb_low_itgax_low (human) -> unk_cell.
+#   Human and mouse uNK now share codes, matched by the cytotoxic program (GZMB, PRF1, GNLY, NKG7);
+#   ITGAX does not match across species, so it is no longer part of the human names.
+#   Unchanged: macrophage, monocyte, dendritic_cell, t_cell, b_cell, mast_cell, unk_cell (mouse).
+#   Releases are relabeled forward by migrate_release_vocabulary (04g) through legacy_aliases.
+# ----------------------------------------------------------------------------
+# CHANGELOG v6 -> v7  (2026-10-29, decided with the user)
+#   Epithelium is split by tissue position in both species; content tasks, not renames.
+#   1. Human (content task human_epithelial_split): the 49 non-ciliated epithelial clusters of the
+#      epithelial lineage clustering (latent_human_epithelial.h5ad, leiden_scVI_3.0) become
+#      epithelial_inner (24 clusters, 5,539 nuclei) or epithelial_outer (25 clusters, 6,086). A placed
+#      nucleus is inner when decidual cells outnumber endometrial fibroblasts among its 20 nearest
+#      placed nuclei of the same section, outer for the reverse; a cluster takes the layer of most of
+#      its placed nuclei. epithelial_ciliated (91) is unchanged; no epithelial nucleus is coarse-filled.
+#      Clusters 11, 22 and 44 (1,017 nuclei; PECAM1 co-detected but PAX8/PAEP epithelium) are reinstated
+#      as inner (content task human_epithelial_reinstatement). They were excluded before the July
+#      whole-tissue scVI fit, so the human all-cells release is re-embedded (04g reembed_release).
+#   2. Mouse (content task mouse_epithelial_split, recalled): luminal/glandular by position instead of
+#      the Wnt7a/Foxa2/Prss28/Prss29 cutoffs. A placed nucleus votes luminal when lumen-side stroma
+#      (eFib3 and decidual cells) outnumbers deeper fibroblasts (eFib1, eFib2, eFib2i) among its 20
+#      nearest placed nuclei of the same section; a cluster takes its majority. The two cycling clusters
+#      (24, 26; 58-62% of nuclei in S/G2M) are epithelial_proliferative, with no compartment.
+#      epithelial_luminal 2,450 -> 2,848 (13 clusters), epithelial_glandular 2,828 -> 2,985 (12),
+#      epithelial_proliferative 432 (2); the 987 unresolved, coarse-filled nuclei are all assigned.
+#   3. Expected human decidual/fibroblast counts corrected to the decision table: 23,108 / 24,425
+#      (stromal clusters 11 and 24, 1,460 nuclei, were relabelled fibroblast -> decidual on 2026-09-03;
+#      the releases already carry these labels, only the expected counts here were stale).
+#   Decisions and evidence: resources/annotations/{human,mouse}_epithelial.csv notes; derivation and
+#   checks: notebooks/public/04c_human_epithelial_layers.ipynb, 04c_mouse_epithelial_compartments.ipynb.
+# ----------------------------------------------------------------------------
+# CHANGELOG v8 -> v9  (2026-10-30, round-2 tables approved by the user on 2026-10-30)
+#   1. Round 2 of the lineage split (04b2_reintegrate_round2.smk). Four atlas clusters excluded in July
+#      are identifiable populations and now go to their lineages: mouse 5 (lymphatic endothelium, 535
+#      nuclei) -> vascular, 7 (pericytes, 1,043) -> smc, 19 (IgA plasma cells, 117) -> immune; human 30
+#      (B cells, 76) -> immune. The four lineages that gain nuclei are re-integrated (scVI, A40, seed 0)
+#      and re-annotated at leiden_scVI_3.0 (resources/annotations/round2/). Every population is in the
+#      primary objects: the extended objects and content task supplementary_populations are retired.
+#      Approved tables (content task round2_lineages): mouse immune keeps 2,130 of 2,208 nuclei, vascular 4,048 of
+#      4,497 (lymphatic endothelium 367 of the 535 reinstated; 172 lymphatic-fibroblast doublets excluded), smc 2,065
+#      of 2,812 (pericytes 618 of the 1,043 reinstated; six doublet clusters excluded); human immune 4,783 of 5,142
+#      (B cells 80). Labels follow the round-2 clusters, so some v8 nuclei change label (e.g. mouse 'monocyte'
+#      clusters that are dendritic cells, human immune cluster 18 cd4 -> cd8).
+#   2. Human gamma_delta_t_cell -> rorc_positive_lymphocyte ("RORC-positive lymphocytes"), the PI's
+#      decision with Ruth, Alan and Daisy (2026-10-29). Human only: mouse keeps gamma_delta_t_cell, so
+#      there is no legacy alias (legacy_aliases apply to both species).
+#   3. Mouse neutrophil (immune_cell subtype, mouse only): round-2 immune cluster 24 (33 nuclei; Csf3r, S100a8,
+#      S100a9), labelled monocyte (25), macrophage, cycling macrophage, uNK or cycling uNK in v8. Approved by the
+#      user on 2026-10-30; PI sign-off pending.
+#   4. Mouse pericytes stay perivascular_cell with a coarse-filled cell_subtype (user, 2026-10-30).
+#   5. Legacy columns (coarse_refined, fine_refined, origin_lineage; human also lineage, subtype, annotation_level) of
+#      the nuclei of the four round-2 lineages follow their v9 labels (04g2 rebuild_release_round2); other nuclei
+#      keep their values.
+# ----------------------------------------------------------------------------
 
-schema_version: xmens.annotation.v2
+schema_version: xmens.annotation.v9
 
 # ----------------------------------------------------------------------------
 # Allowed vocabulary: each cell_type maps to the list of cell_subtypes valid under it.
@@ -34,40 +140,46 @@ schema_version: xmens.annotation.v2
 # ----------------------------------------------------------------------------
 allowed:
   decidual_cell:
-    - decidual_boundary          # v2: was decidual_border (dec1)
-    - decidual_proliferative
-    - decidual_mature
-    - decidual_apoptotic
+    - dec1                       # v4: was decidual_boundary (v1: decidual_border)
+    - dec2                       # v4: was decidual_proliferative
+    - dec3                       # v4: was decidual_mature
+    - decAp                      # v4: was decidual_apoptotic
   endometrial_fibroblast:
-    - efib_outer                 # v2: was efib_myometrial (eFib1)
-    - efib_middle
-    - efib_middle_induced
-    - efib_subluminal
-    - efib_proliferative
+    - eFib1                      # v4: was efib_outer (v1: efib_myometrial)
+    - eFib2                      # v4: was efib_middle
+    - eFib2i                     # v4: was efib_middle_induced
+    - eFib3                      # v4: was efib_subluminal
+    - eFibP                      # v4: was efib_proliferative
   epithelial_cell:
-    - epithelial_ciliated        # human only; others coarse-filled
+    - epithelial_ciliated        # human only
+    - epithelial_inner           # human only (v7): layer toward the decidualised stroma
+    - epithelial_outer           # human only (v7): layer in the fibroblast stroma
+    - epithelial_luminal         # mouse only (v3; v7 by position)
+    - epithelial_glandular       # mouse only (v3; v7 by position)
+    - epithelial_proliferative   # mouse only (v7): cycling clusters, no compartment
   endothelial_cell:
     - endothelial_blood          # mouse: ALL endothelial cells; human: subset
-    - endothelial_lymph          # human only (mouse has no lymphatic population)
-  perivascular_cell: []          # human only; coarse-filled subtype
+    - endothelial_lymph          # human; mouse from v9 (round 2; v8: extended objects only)
+  perivascular_cell: []          # coarse-filled subtype; human, and mouse pericytes from v9 (round 2, smc lineage)
   perimetrial_cell: []           # v2: was mesothelial_cell. mouse only ("perimetrium cells")
   immune_cell:
     - macrophage
-    - macrophage_proliferative
+    - cycling_macrophage         # mouse only; v6: was macrophage_proliferative
     - monocyte
     - dendritic_cell
     - t_cell                     # mouse's unresolved T cells
-    - t_cell_cd4                 # human only
-    - t_cell_cd8                 # human only
-    - t_cell_regulatory          # human only
-    - t_cell_gamma_delta
-    - b_cell
+    - cd4_t_cell                 # human only; v6: was t_cell_cd4
+    - cd8_t_cell                 # human only; v6: was t_cell_cd8
+    - treg_cell                  # human only; v6: was t_cell_regulatory
+    - gamma_delta_t_cell         # mouse only from v9 (human: rorc_positive_lymphocyte); v6: was t_cell_gamma_delta
+    - rorc_positive_lymphocyte   # human only (v9): was gamma_delta_t_cell
+    - b_cell                     # mouse; human from v9 (round 2; v8: extended objects only)
+    - neutrophil                 # mouse only (v9): round-2 immune cluster 24
+    - plasma_cell                # mouse from v9 (round 2; v8: extended objects only)
     - mast_cell                  # human only
-    - unk_cell_proliferative
-    - unk_cell_gzmb_high_itgax_low    # mouse (crossed state)
-    - unk_cell_gzmb_low_itgax_high    # mouse (crossed state)
-    - unk_cell_gzmb_high_itgax_high   # human (matched state)
-    - unk_cell_gzmb_low_itgax_low     # human (matched state)
+    - cycling_unk_cell           # mouse only; v6: was unk_cell_proliferative
+    - cytotoxic_unk_cell         # v6: mouse unk_cell_cytotoxic (v2 unk_cell_gzmb_high_itgax_low), human unk_cell_gzmb_high_itgax_high
+    - unk_cell                   # mouse (v2 unk_cell_gzmb_low_itgax_high); v6: also human, was unk_cell_gzmb_low_itgax_low
   smooth_muscle_cell: []         # coarse-filled subtype
 
 # ----------------------------------------------------------------------------
@@ -90,13 +202,13 @@ import_mapping:
       "blood endothelium": endothelial_blood
       "lymphatic endothelium": endothelial_lymph
       "Macrophages": macrophage
-      "Gamma/Delta T Cells": t_cell_gamma_delta
-      "CD4 T Cells": t_cell_cd4
-      "CD8 T Cells": t_cell_cd8
-      "Regulatory T Cells": t_cell_regulatory
+      "Gamma/Delta T Cells": gamma_delta_t_cell
+      "CD4 T Cells": cd4_t_cell
+      "CD8 T Cells": cd8_t_cell
+      "Regulatory T Cells": treg_cell
       "Mast Cells": mast_cell
-      "GZMB hi. ITGAX hi uNK Cells": unk_cell_gzmb_high_itgax_high
-      "GZMB lo. ITGAX lo. uNK Cells": unk_cell_gzmb_low_itgax_low
+      "GZMB hi. ITGAX hi uNK Cells": cytotoxic_unk_cell     # v6: was unk_cell_gzmb_high_itgax_high
+      "GZMB lo. ITGAX lo. uNK Cells": unk_cell              # v6: was unk_cell_gzmb_low_itgax_low
   mouse:
     cell_type:
       "decidual cells": decidual_cell
@@ -107,25 +219,25 @@ import_mapping:
       "vascular cells": endothelial_cell        # -> endothelial_blood at subtype (blood-only)
       "perimetrium cells": perimetrial_cell     # v2: was mesothelial_cell
     cell_subtype:
-      "dec1": decidual_boundary                 # v2: was decidual_border
-      "dec2": decidual_proliferative
-      "dec3": decidual_mature
-      "decAp": decidual_apoptotic
-      "eFib1": efib_outer                       # v2: was efib_myometrial
-      "eFib2": efib_middle
-      "eFib2i": efib_middle_induced
-      "eFib3": efib_subluminal
-      "eFibP": efib_proliferative
+      "dec1": dec1                              # v4: the code is the stored value
+      "dec2": dec2
+      "dec3": dec3
+      "decAp": decAp
+      "eFib1": eFib1
+      "eFib2": eFib2
+      "eFib2i": eFib2i
+      "eFib3": eFib3
+      "eFibP": eFibP
       "Macrophages": macrophage
-      "Prolif. Macrophages": macrophage_proliferative
+      "Prolif. Macrophages": cycling_macrophage            # v6: was macrophage_proliferative
       "Monocytes": monocyte
       "DCs": dendritic_cell
       "T Cells": t_cell
-      "Gamma/Delta T Cells": t_cell_gamma_delta
+      "Gamma/Delta T Cells": gamma_delta_t_cell
       "B Cells": b_cell
-      "Prolif. uNK Cells": unk_cell_proliferative
-      "Gzmb hi. Itgax lo. uNK Cells": unk_cell_gzmb_high_itgax_low
-      "Gzmb lo. Itgax hi. uNK cells": unk_cell_gzmb_low_itgax_high
+      "Prolif. uNK Cells": cycling_unk_cell                # v6: was unk_cell_proliferative
+      "Gzmb hi. Itgax lo. uNK Cells": cytotoxic_unk_cell       # v6 (v3 unk_cell_cytotoxic, v2 unk_cell_gzmb_high_itgax_low)
+      "Gzmb lo. Itgax hi. uNK cells": unk_cell                 # v3: was unk_cell_gzmb_low_itgax_high
 
 # ----------------------------------------------------------------------------
 # Content tasks — NOT renames. Must be applied with cell-level logic and VERIFIED by counts.
@@ -144,12 +256,87 @@ content_tasks:
   mouse_endothelial_blood_only:
     description: >
       All mouse "vascular cells" -> cell_type=endothelial_cell AND
-      cell_subtype=endothelial_blood. No lymphatic population (verified absent).
+      cell_subtype=endothelial_blood. No lymphatic population in the vascular class (verified absent).
+      v8: holds for the primary objects; the extended mouse object adds the 535 lymphatic nuclei of
+      whole-tissue cluster 5 (supplementary_populations).
+      v9: the name is historical. Round 2 re-annotates the vascular lineage with whole-tissue cluster 5:
+      blood endothelium (24 clusters) and lymphatic endothelium (round-2 cluster 7).
       These must NEVER fall through to coarse-fill.
     expected_counts:
-      endothelial_cell: 3487
-      endothelial_blood: 3487
-      endothelial_lymph: 0
+      endothelial_cell: 4048
+      endothelial_blood: 3681
+      endothelial_lymph: 367
+  mouse_epithelial_split:
+    description: >
+      v7 (v3 split recalled by position). Mouse epithelial_cell split by the July 29 epithelial
+      lineage clustering (latent_mouse_epithelial.h5ad, leiden_scVI_3.0) through
+      mouse_epithelial.csv: luminal or glandular by the stroma around each placed nucleus
+      (lumen-side eFib3 and decidual cells against deeper eFib1/eFib2/eFib2i, 20 nearest placed
+      nuclei, cluster majority), and the two cycling clusters proliferative. cell_type stays
+      epithelial_cell; no nucleus is coarse-filled. Applied to an existing release by
+      migrate_release_vocabulary (config vocab_migration.subtype_splits), which fails unless
+      these counts are reproduced exactly; merge_reannotated gates on them too. v8: cluster 28
+      (18 luminal nuclei) is EXCLUDE (v8_exclusions).
+    expected_counts:
+      epithelial_luminal: 2830     # v8: 2848 - 18 (cluster 28)
+      epithelial_glandular: 2985
+      epithelial_proliferative: 432
+  human_epithelial_split:
+    description: >
+      v7. Human epithelial_cell split by layer on the epithelial lineage clustering
+      (latent_human_epithelial.h5ad, leiden_scVI_3.0) through human_epithelial.csv: inner when
+      decidual cells outnumber endometrial fibroblasts around a cluster's placed nuclei (20
+      nearest placed nuclei, cluster majority), outer for the reverse. Ciliated cells keep
+      epithelial_ciliated (91). Applied when the human all-cells release is rebuilt
+      (04g reinstate_release_cells); merge_reannotated gates on these counts too.
+    expected_counts:
+      epithelial_inner: 5539        # includes the 1,017 reinstated nuclei below
+      epithelial_outer: 6086
+  human_epithelial_reinstatement:
+    description: >
+      v7. Epithelial lineage clusters 11, 22 and 44 (excluded until v6 for PECAM1 co-detection)
+      are kept as epithelial_inner: PECAM1 in 18-38% of their nuclei, but VWF and CDH5 in <=2%,
+      PAX8 in 74-92% and PAEP in 49-96%. Their nuclei were not in the July whole-tissue scVI fit,
+      so 04g reinstate_release_cells adds them to the human all-cells release and
+      reembed_release re-fits the embedding (integrate.py, A40, seed 0) for all nuclei.
+    expected_counts:
+      epithelial_inner: 1017
+  v8_exclusions:
+    description: >
+      v8. Two class-level clusters are EXCLUDE on review and their nuclei are dropped from the
+      2026_10_29 objects by 04g rebuild_release_cells. Human immune cluster 0 (55 nuclei, labelled
+      macrophage until v7): epithelial genes PAX8 (62% of nuclei) and CDH1 (38%), mean doublet score
+      9.1 (kept immune clusters: median 0.02) and a median of 3,111 genes per nucleus (kept: 1,275),
+      i.e. macrophage-epithelial doublets. Mouse epithelial cluster 28 (18 nuclei, labelled
+      epithelial_luminal until v7): median 811 genes per nucleus (kept: 2,519), 21% of nearest
+      neighbours in the cluster, epithelial panel genes in 22% of nuclei.
+    expected_counts:
+      human_immune_cluster_0: 55
+      mouse_epithelial_cluster_28: 18
+  supplementary_populations:
+    description: >
+      v8. Whole-tissue clusters excluded before the class re-integrations that are identifiable cell
+      populations (resources/annotations/supplementary_populations.csv): human B cells, mouse
+      lymphatic endothelium, pericytes and IgA plasma cells. They are not in the primary objects or in
+      any analysis; 04g rebuild_release_cells adds them, labelled, to the extended all-cells objects
+      (obs in_primary == False), which share the primary objects' whole-tissue embedding.
+      Retired in v9 (round2_lineages): kept for the v8 rebuild record only.
+    expected_counts:
+      human: { b_cell: 76 }
+      mouse: { endothelial_lymph: 535, perivascular_cell: 1043, plasma_cell: 117 }
+  round2_lineages:
+    description: >
+      v9. Round 2 of the lineage split: whole-tissue clusters mouse 5, 7, 19 and human 30 join their lineages
+      (resources/annotations/round2/{species}_lineage.csv); the four lineages that gain nuclei are re-integrated
+      (04b2_reintegrate_round2.smk; data/interim/round2_2026_10_29/latent_{species}_{lineage}.h5ad) and annotated at
+      leiden_scVI_3.0 by resources/annotations/round2/{species}_{lineage}.csv. 04g2 rebuild_release_round2 replaces
+      the v8 nuclei of these lineages by the kept round-2 nuclei; expected label counts per lineage (EXCLUDE = nuclei
+      removed at the lineage step).
+    expected_counts:
+      human_immune: { cd8_t_cell: 1681, unk_cell: 672, cd4_t_cell: 659, macrophage: 612, cytotoxic_unk_cell: 455, EXCLUDE: 359, treg_cell: 246, mast_cell: 205, rorc_positive_lymphocyte: 173, b_cell: 80 }
+      mouse_immune: { macrophage: 704, unk_cell: 445, dendritic_cell: 197, cycling_macrophage: 154, cycling_unk_cell: 136, plasma_cell: 121, t_cell: 95, cytotoxic_unk_cell: 86, EXCLUDE: 78, monocyte: 70, gamma_delta_t_cell: 54, b_cell: 35, neutrophil: 33 }
+      mouse_vascular: { endothelial_blood: 3681, EXCLUDE: 449, endothelial_lymph: 367 }
+      mouse_smc: { smooth_muscle_cell: 1447, EXCLUDE: 747, perivascular_cell: 618 }
   coarse_subtype_fill:
     description: >
       Set cell_subtype=cell_type for every retained cell whose lineage is not subdivided.
@@ -158,32 +345,39 @@ content_tasks:
       cells that should have received endothelial_blood).
     applies_to:
       mouse:
-        - {cell_type: epithelial_cell, expected_coarse_fill_count: 6265}
-        - {cell_type: smooth_muscle_cell, expected_coarse_fill_count: 1443}
+        - {cell_type: epithelial_cell, expected_coarse_fill_count: 0}     # v7: all assigned (v3: 987; before v3: 6265)
+        - {cell_type: smooth_muscle_cell, expected_coarse_fill_count: 1447}   # v9: round 2 (v8: 1443)
         - {cell_type: perimetrial_cell, expected_coarse_fill_count: 550}
+        - {cell_type: perivascular_cell, expected_coarse_fill_count: 618}    # v9: mouse pericytes (round 2)
       human:
-        - {cell_type: decidual_cell, expected_coarse_fill_count: 21648}
-        - {cell_type: endometrial_fibroblast, expected_coarse_fill_count: 25885}
-        - {cell_type: epithelial_cell, exclude_cell_subtypes: [epithelial_ciliated], expected_coarse_fill_count: 10608}
+        - {cell_type: decidual_cell, expected_coarse_fill_count: 23108}            # v7: corrected (was 21648)
+        - {cell_type: endometrial_fibroblast, expected_coarse_fill_count: 24425}   # v7: corrected (was 25885)
+        - {cell_type: epithelial_cell, expected_coarse_fill_count: 0}     # v7: inner/outer/ciliated (v6: 10608)
         - {cell_type: smooth_muscle_cell, expected_coarse_fill_count: 2084}
         # NOTE: perivascular_cell (471) is NOT listed here in v2. Those cells get
         # cell_subtype=perivascular_cell assigned EXPLICITLY by
         # content_tasks.human_perivascular_split, so counting them as coarse-fills
         # too would double-count them. v1 listed them because it had no split.
     expected_total_fills:
-      mouse: 8258
+      mouse: 2615   # v9: 1447 smooth muscle + 550 perimetrial + 618 perivascular (v7/v8: 1993; v3: 2980; before: 8258)
       # 21648 + 25885 + 10608 + 2084 = 60225. (v1 said 60696, which double-counted
       # the 471 perivascular mural cells now assigned by the split — verified
       # against refined_human on 2026-08-28: actual fills = 60,225.)
-      human: 60225
+      # v7: 23108 + 24425 + 2084 = 49617 (epithelium fully split; v2-v6: 60225 with 10608 epithelial)
+      human: 49617
 
 # ----------------------------------------------------------------------------
 # Expected coarse counts (for post-migration validation, from final_* objects)
 # ----------------------------------------------------------------------------
 expected_coarse_counts:
-  human:  { decidual_cell: 21648, endometrial_fibroblast: 25885, epithelial_cell: 10699, immune_cell: 4709, smooth_muscle_cell: 2084, endothelial_cell: 1334, perivascular_cell: 471 }
-  mouse:  { decidual_cell: 22919, endometrial_fibroblast: 20278, epithelial_cell: 6265, immune_cell: 2091, smooth_muscle_cell: 1443, endothelial_cell: 3487, perimetrial_cell: 550 }
-  totals: { human: 66830, mouse: 57033 }
+  human:  { decidual_cell: 23108, endometrial_fibroblast: 24425, epithelial_cell: 11716, immune_cell: 4783, smooth_muscle_cell: 2084, endothelial_cell: 1334, perivascular_cell: 471 }   # v9: immune 4783 (round 2; v8 4654)
+  mouse:  { decidual_cell: 22919, endometrial_fibroblast: 20278, epithelial_cell: 6247, immune_cell: 2130, smooth_muscle_cell: 1447, endothelial_cell: 4048, perimetrial_cell: 550, perivascular_cell: 618 }   # v9: round 2 (v8: immune 2091, smc 1443, endothelial 3487, no perivascular)
+  totals: { human: 67921, mouse: 58237 }   # v9: human 67792 - 4654 + 4783; mouse 57015 - 7021 + 8243
+
+expected_coarse_counts_extended:   # v8 only (retired in v9): the extended all-cells objects = primary + supplementary_populations
+  human:  { decidual_cell: 23108, endometrial_fibroblast: 24425, epithelial_cell: 11716, immune_cell: 4730, smooth_muscle_cell: 2084, endothelial_cell: 1334, perivascular_cell: 471 }
+  mouse:  { decidual_cell: 22919, endometrial_fibroblast: 20278, epithelial_cell: 6247, immune_cell: 2208, smooth_muscle_cell: 1443, endothelial_cell: 4022, perimetrial_cell: 550, perivascular_cell: 1043 }
+  totals: { human: 67868, mouse: 58710 }
 
 # ----------------------------------------------------------------------------
 # Categorical order (for stable plotting/legends).
@@ -192,6 +386,9 @@ categorical_order:
   cell_type:
     [decidual_cell, endometrial_fibroblast, epithelial_cell, endothelial_cell,
      perivascular_cell, perimetrial_cell, smooth_muscle_cell, immune_cell]
+  timepoint:                       # v5: the names stored in released obs['timepoint'], in temporal order
+    mouse: [uninduced, 1.5_dpi_early, 1.5_dpi_late, 2.5_dpi, 3.5_dpi, 4.5_dpi_bleeding]
+    human: [secretory, menstrual]
 
 # ----------------------------------------------------------------------------
 # Display names -> uns["display_names"]. Applied ONLY at plot time. Never stored in obs.
@@ -208,42 +405,74 @@ display_names:
     smooth_muscle_cell: "Smooth muscle cells"
     immune_cell: "Immune cells"
   cell_subtype:
-    decidual_boundary: "Decidual boundary (dec1)"
-    decidual_proliferative: "Proliferative decidual (dec2)"
-    decidual_mature: "Mature decidual (dec3)"
-    decidual_apoptotic: "Apoptotic decidual (decAp)"
-    efib_outer: "Outer eFib (eFib1)"
-    efib_middle: "Middle eFib (eFib2)"
-    efib_middle_induced: "Induced middle eFib (eFib2i)"
-    efib_subluminal: "Subluminal eFib (eFib3)"
-    efib_proliferative: "Proliferative eFib (eFibP)"
+    dec1: "Decidual boundary (dec1)"
+    dec2: "Proliferative decidual (dec2)"
+    dec3: "Mature decidual (dec3)"
+    decAp: "Apoptotic decidual (decAp)"
+    eFib1: "Outer eFib (eFib1)"
+    eFib2: "Middle eFib (eFib2)"
+    eFib2i: "Induced middle eFib (eFib2i)"
+    eFib3: "Subluminal eFib (eFib3)"
+    eFibP: "Proliferative eFib (eFibP)"
     epithelial_ciliated: "Ciliated epithelial cells"
+    epithelial_inner: "Inner epithelial cells"
+    epithelial_outer: "Outer epithelial cells"
+    epithelial_luminal: "Luminal epithelial cells"
+    epithelial_glandular: "Glandular epithelial cells"
+    epithelial_proliferative: "Proliferative epithelial cells"
     endothelial_blood: "Blood endothelial cells"
     endothelial_lymph: "Lymphatic endothelial cells"
-    macrophage: "Macrophages"
-    macrophage_proliferative: "Proliferative macrophages"
-    monocyte: "Monocytes"
-    dendritic_cell: "Dendritic cells"
-    t_cell: "T cells"
-    t_cell_cd4: "CD4 T cells"
-    t_cell_cd8: "CD8 T cells"
-    t_cell_regulatory: "Regulatory T cells"
-    t_cell_gamma_delta: "Gamma/delta T cells"
-    b_cell: "B cells"
-    mast_cell: "Mast cells"
-    unk_cell_proliferative: "Proliferative uNK cells"
-    unk_cell_gzmb_high_itgax_low: "GZMB-hi/ITGAX-lo uNK cells"
-    unk_cell_gzmb_low_itgax_high: "GZMB-lo/ITGAX-hi uNK cells"
-    unk_cell_gzmb_high_itgax_high: "GZMB-hi/ITGAX-hi uNK cells"
-    unk_cell_gzmb_low_itgax_low: "GZMB-lo/ITGAX-lo uNK cells"
+    macrophage: "macrophage"                   # v6: immune names as on the immune dot plots
+    cycling_macrophage: "cycling macrophage"
+    monocyte: "monocyte"
+    dendritic_cell: "dendritic cell"
+    t_cell: "T cell"
+    cd4_t_cell: "CD4 T cell"
+    cd8_t_cell: "CD8 T cell"
+    treg_cell: "Treg cell"
+    gamma_delta_t_cell: "γδ T cell"
+    rorc_positive_lymphocyte: "RORC-positive lymphocyte"   # v9 (PI: "RORC-positive lymphocytes")
+    b_cell: "B cell"
+    neutrophil: "neutrophil"                   # v9 (mouse)
+    plasma_cell: "plasma cell"                 # v8
+    mast_cell: "mast cell"
+    cycling_unk_cell: "cycling uNK cell"
+    cytotoxic_unk_cell: "cytotoxic uNK cell"
+    unk_cell: "uNK cell"
 
 # ----------------------------------------------------------------------------
-# Legacy aliases: v1 strings that may appear in older objects, figures or notebooks.
+# Legacy aliases: superseded (v1-v5) strings that may appear in older objects, figures or notebooks.
 # Consumers may use this to migrate an old object forward. NEVER write these values.
 # ----------------------------------------------------------------------------
 legacy_aliases:
   cell_type:
     mesothelial_cell: perimetrial_cell
   cell_subtype:
-    decidual_border: decidual_boundary
-    efib_myometrial: efib_outer
+    decidual_border: dec1                                 # v1 -> v4
+    efib_myometrial: eFib1                                # v1 -> v4
+    unk_cell_gzmb_high_itgax_low: cytotoxic_unk_cell      # v2 -> v6
+    unk_cell_gzmb_low_itgax_high: unk_cell                # v2 -> v3
+    efib_outer: eFib1                         # v3 -> v4
+    efib_middle: eFib2
+    efib_middle_induced: eFib2i
+    efib_subluminal: eFib3
+    efib_proliferative: eFibP
+    decidual_boundary: dec1
+    decidual_proliferative: dec2
+    decidual_mature: dec3
+    decidual_apoptotic: decAp
+    macrophage_proliferative: cycling_macrophage          # v5 -> v6
+    unk_cell_proliferative: cycling_unk_cell
+    unk_cell_cytotoxic: cytotoxic_unk_cell
+    unk_cell_gzmb_high_itgax_high: cytotoxic_unk_cell
+    unk_cell_gzmb_low_itgax_low: unk_cell
+    t_cell_gamma_delta: gamma_delta_t_cell
+    t_cell_cd4: cd4_t_cell
+    t_cell_cd8: cd8_t_cell
+    t_cell_regulatory: treg_cell
+  timepoint:                                              # v4 -> v5; sample IDs keep the original names
+    1_dpi_early: 1.5_dpi_early
+    1_dpi_late: 1.5_dpi_late
+    2_dpi: 2.5_dpi
+    3_dpi: 3.5_dpi
+    4_dpi_bleeding: 4.5_dpi_bleeding

@@ -1,0 +1,5 @@
+species,atlas_cluster,n_nuclei,cell_type,cell_subtype,legacy_fine_name,evidence
+human,30,76,immune_cell,b_cell,B Cells,"B cells: BANK1 71%, BLK 61%, MS4A1 46%, PAX5 45% of nuclei; >=2 of 9 B-cell genes in 55 of 76 nuclei (72%) vs 0.4% of kept immune nuclei; 14 nuclei carry plasma-cell genes only (JCHAIN, IGHG1); mean doublet score 0.99"
+mouse,5,535,endothelial_cell,endothelial_lymph,,"lymphatic endothelium: Reln 85%, Prox1 76%, Mmrn1 68%, Flt4 66% of nuclei (<=3% elsewhere); all 9 samples; mean doublet score 2.86"
+mouse,7,1043,perivascular_cell,perivascular_cell,,"pericytes: Notch3 85%, Rgs5 82%, Pdgfrb 81%, Abcc9 80% of nuclei (<=7% elsewhere); stromal genes in 68% and endothelial genes in 38% of nuclei; mean doublet score 2.85"
+mouse,19,117,immune_cell,plasma_cell,Plasma Cells,"IgA plasma cells: Igha 92%, Igkc 91%, Jchain 86% of nuclei (<=1% elsewhere); mean doublet score 1.90"

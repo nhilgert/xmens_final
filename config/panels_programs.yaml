@@ -1,0 +1,25 @@
+# ---------------------------------------------------------------------------
+# panels_programs (added 2026-10-30) -- panels of the shared transcriptional programs:
+# Fig. 5E (SCENIC regulon quadrant plot). Rules: workflow/rules/91_panels_programs.smk;
+# target: panels_programs_all (not in rule all). Outputs:
+# results/figures/panels/programs/panel_5E_one.{svg,png,provenance.json}.
+# ---------------------------------------------------------------------------
+panels_programs:
+  python: /n/lab_storage/eddy_lab/users/nhilgert/.uv/envs/rsc_uv/bin/python
+  cache_dir: /n/lab_storage/eddy_lab/users/nhilgert/.cache_scratch   # matplotlib cache (HOME is full)
+
+  regulon_table:
+    # Staged copy of the table of record: one row per TF with a floor-6 SCENIC regulon in both species
+    # (Ensembl one-to-one pair); rho = Spearman correlation of regulon activity with pt_harmonized_rank,
+    # computed by scenic_quadrant_rho.py (2026-10-26) and reproduced on the v9 pseudotime. The plot script
+    # refuses a table whose sha256 differs from the pinned value.
+    path: resources/figures/panels_programs/regulon_quadrants_input.csv
+    sha256: 0b93fd193dc8a17e3fad72a47c196f9c97e7b80a45992dafa4b0d859a28e0d40
+    upstream_provenance: resources/figures/panels_programs/scenic_quadrant_rho.provenance.json
+    source_of_record: /n/lab_storage/eddy_lab/users/nhilgert/xmens_figures/scenic_quadrants/regulon_quadrants_input.csv
+
+  fig5e:
+    threshold: 0.2   # |rho| needed in both species for a regulon to be coloured (Fig. 5E legend)
+    # Regulons named on the manuscript panel, read off the figure. CEBPB (mouse rho 0.166) and IRF1
+    # (human rho 0.190) fall below the threshold in the table of record; they are drawn grey, with names.
+    named: [JUN, WT1, FOSL2, GATA2, FOS, JUNB, KLF6, CEBPB, BPTF, NFIA, IRF1, ETS1, FOXO1]

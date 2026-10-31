@@ -1,0 +1,26 @@
+species,cell_subtype,cell_type,coarse_refined,fine_refined,subtype,annotation_level
+mouse,macrophage,immune_cell,immune cells,Macrophages,,
+mouse,cycling_macrophage,immune_cell,immune cells,Prolif. Macrophages,,
+mouse,monocyte,immune_cell,immune cells,Monocytes,,
+mouse,dendritic_cell,immune_cell,immune cells,DCs,,
+mouse,neutrophil,immune_cell,immune cells,Neutrophils,,
+mouse,t_cell,immune_cell,immune cells,T Cells,,
+mouse,gamma_delta_t_cell,immune_cell,immune cells,Gamma/Delta T Cells,,
+mouse,b_cell,immune_cell,immune cells,B Cells,,
+mouse,plasma_cell,immune_cell,immune cells,Plasma Cells,,
+mouse,unk_cell,immune_cell,immune cells,Gzmb lo. Itgax hi. uNK cells,,
+mouse,cytotoxic_unk_cell,immune_cell,immune cells,Gzmb hi. Itgax lo. uNK Cells,,
+mouse,cycling_unk_cell,immune_cell,immune cells,Prolif. uNK Cells,,
+mouse,endothelial_blood,endothelial_cell,vascular cells,,,
+mouse,endothelial_lymph,endothelial_cell,vascular cells,,,
+mouse,smooth_muscle_cell,smooth_muscle_cell,smooth muscle cells,,,
+mouse,perivascular_cell,perivascular_cell,perivascular cells,,,
+human,cd8_t_cell,immune_cell,immune cells,CD8 T Cells,CD8 T Cells,subtype
+human,cd4_t_cell,immune_cell,immune cells,CD4 T Cells,CD4 T Cells,subtype
+human,treg_cell,immune_cell,immune cells,Regulatory T Cells,Regulatory T Cells,subtype
+human,rorc_positive_lymphocyte,immune_cell,immune cells,RORC-positive Lymphocytes,RORC-positive Lymphocytes,subtype
+human,macrophage,immune_cell,immune cells,Macrophages,Macrophages,subtype
+human,mast_cell,immune_cell,immune cells,Mast Cells,Mast Cells,subtype
+human,b_cell,immune_cell,immune cells,B Cells,B Cells,subtype
+human,unk_cell,immune_cell,immune cells,GZMB lo. ITGAX lo. uNK Cells,GZMB lo. ITGAX lo. uNK Cells,subtype
+human,cytotoxic_unk_cell,immune_cell,immune cells,GZMB hi. ITGAX hi uNK Cells,GZMB hi. ITGAX hi uNK Cells,subtype

@@ -19,7 +19,10 @@
 #                    redrawn from this CSV alone.
 #   zone_figures     render config[zone_modules][figures] from the plot table
 #                    only. Spatial panels hide embedding_outlier nuclei; heatmaps
-#                    keep them (rule of 2026-10-22).
+#                    keep them (rule of 2026-10-22). Spatial panels are turned by
+#                    resources/figures/mouse_section_rotation.yaml, the table every
+#                    mouse spatial panel reads (added 2026-10-30; was --rotate 135
+#                    in the figure arguments).
 #
 # One directory per run under results/zone_aucell/<run>/ and
 # results/figures/zone_modules/<run>/. Add a run instead of editing one.
@@ -32,6 +35,9 @@ import json
 
 ZM      = config["zone_modules"]
 ZM_RUNS = ZM["runs"]
+# Display rotation of the mouse sections: one table read by every mouse spatial panel, and its reader.
+ZM_ROTATION_TABLE  = "resources/figures/mouse_section_rotation.yaml"
+ZM_ROTATION_READER = "workflow/scripts/figures/section_rotation.py"
 # numba (pyscenic) and matplotlib caches must not land in the full HOME
 ZM_ENV  = ("export XDG_CACHE_HOME={c} NUMBA_CACHE_DIR={c}/numba MPLCONFIGDIR={c}/mpl; "
            "mkdir -p {c}/numba {c}/mpl").format(c=ZM["cache_dir"])
@@ -121,6 +127,8 @@ rule zone_figures:
         side   = "results/zone_aucell/{zone_run}/zone_plot_table.provenance.json",
         script = "workflow/scripts/zone_modules/fig_zone_modules.py",
         driver = "workflow/scripts/zone_modules/render_zone_figures.py",
+        rotation = ZM_ROTATION_TABLE,
+        rotation_reader = ZM_ROTATION_READER,
     output:
         directory("results/figures/zone_modules/{zone_run}"),
     params:
@@ -136,7 +144,8 @@ rule zone_figures:
         r"""
         {params.env}
         {params.py} -u {input.driver} --python {params.py} --script {input.script} \
-            --plot-table {input.table} --jobs '{params.jobs}' --out {output} > {log} 2>&1
+            --plot-table {input.table} --jobs '{params.jobs}' --section-rotation {input.rotation} \
+            --out {output} > {log} 2>&1
         """
 
 

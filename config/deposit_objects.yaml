@@ -1,0 +1,72 @@
+# ---------------------------------------------------------------------------
+# deposit_objects (added 2026-10-30) -- deposit copies of the release objects, with obs columns, uns entries and
+# obsm embeddings pruned and renamed as decided by the user on 2026-10-30. The release objects are read, never
+# modified. Rules: workflow/rules/95_deposit_objects.smk; target: deposit_objects_all (not in rule all).
+# Outputs: data/deposit/2026_10_30c/<set>/<object>.h5ad and <object>.provenance.json
+# (2026_10_30b added the rename of the pseudotime diffusion map; 2026_10_30c takes the human fibroblast/decidual
+# pseudotime from its 30 Oct refit, see pseudotime_of_record below. Each build supersedes the one before it; the earlier
+# builds, data/deposit/2026_10_30 and 2026_10_30b, are left in place because deposit copies are never overwritten.)
+# ---------------------------------------------------------------------------
+deposit_objects:
+  python: /n/lab_storage/eddy_lab/users/nhilgert/.uv/envs/rsc_uv/bin/python
+  out_dir: data/deposit/2026_10_30c
+
+  # Two sets: with the v9 cell types (release 2026_10_30) and without them (release 2026_10_29b, vocabulary v8).
+  # zone_aucell: the zone-module AUCell run of record (Fig. S24) made on that release.
+  sets:
+    with_new_cell_types:
+      release: "2026_10_30"
+      zone_aucell: results/zone_aucell/table1_auc005_g1pct_seed0_3dpi/zone_aucell.csv
+    without_new_cell_types:
+      release: "2026_10_29b"
+      # the v8 run of record, copied from the 2026_10_30 downstream backup on netscratch
+      zone_aucell: results/zone_aucell/table1_auc005_g1pct_seed0_3dpi__2026_10_29b/zone_aucell.csv
+
+  objects: [Cevrim_XMens_All_Cells, Cevrim_XMens_Only_Fib_Dec_Cells,
+            Cevrim_Human_All_Cells, Cevrim_Human_Only_Fib_Dec_Cells]
+
+  # obs columns removed wherever present: superseded annotations, donor, earlier clusterings and every pseudotime
+  # except the harmonized rank pseudotime, which is kept under the name 'pseudotime'.
+  obs_drop: [coarse_refined, fine_refined, origin_lineage, lineage, subtype, annotation_level, donor,
+             leiden_0.5, leiden_0.8, leiden_1.0, leiden_1.2,
+             pt_harmonized, dpt_pseudotime, dpt_pseudotime_rank_norm, dpt_pseudotime_no_apoptotic,
+             dpt_pseudotime_no_apoptotic_rank_norm, dpt_pseudotime_provenance, dpt_pseudotime_rank_normalized]
+  obs_rename: {pt_harmonized_rank: pseudotime}
+
+  # Mouse objects: every auc_* column of the release (an earlier AUCell run) is replaced by the run of record's
+  # scores for these modules, on the nuclei of one timepoint; all other nuclei are NaN.
+  auc:
+    modules: [PDZ, TDZ, SDZ, VSZ, MD, udStr]
+    timepoint: "3.5_dpi"
+
+  # uns entries tied to removed items: the earlier AUCell run, the earlier diffusion maps and pseudotimes, and the
+  # colours and relabel record of the removed human label columns. The pseudotime record follows its column's name.
+  uns_drop: [aucell, diffmap_evals, diffmap_provenance, diffmap_no_apoptotic, annotation_level_colors, label_colors,
+             label_relabel]
+  uns_rename: {pt_harmonized: pseudotime}
+
+  # Diffusion maps of the removed pseudotimes go. The diffusion map of the pseudotime kept stays, under a name that
+  # matches obs 'pseudotime' and uns 'pseudotime'.
+  obsm_drop: [X_diffmap, X_diffmap_no_apoptotic]
+  obsm_rename: {X_diffmap_harmonized: X_diffmap_pseudotime}
+
+  # Pseudotime of record, for objects whose pseudotime is newer than their release. The human fibroblast/decidual
+  # pseudotime was refit on 30 Oct 2026 on a stromal scVI latent of the fibroblast and decidual nuclei only (as in
+  # mouse); both releases predate the refit. The table holds, per barcode, the rank pseudotime (pt_rank) and the 15
+  # diffusion components (dc0-dc14, stored as float32 by the run); run_record is the run's provenance.json and script
+  # the exact script it ran. The object's obs 'pseudotime', obsm 'X_diffmap_pseudotime' and uns 'pseudotime' are taken
+  # from these instead of the release. The latent itself is too large for the object: latent_copy and latent_sha256
+  # identify it.
+  pseudotime_of_record:
+    Cevrim_Human_Only_Fib_Dec_Cells:
+      table: data/interim/human_pt_2026_10_30_run4_a40/cells.parquet
+      table_sha256: 956a07cdb97d9a99dd769088a66e717b60956b81b45cb3e3d625057dacb2f94f
+      run_record: data/interim/human_pt_2026_10_30_run4_a40/provenance.json
+      script: data/interim/human_pt_2026_10_30_run4_a40/harmonized_pseudotime_fibdec.py
+      latent_copy: /n/lab_storage/eddy_lab/users/nhilgert/tmp/2026_10_30_human_fibdec_latent/run4_a40/fibdec/latent_human_stromal_fibdec.h5ad
+      latent_sha256: 80f3f7eac5fdff9c17ef2b0a5580f5087a9720639704ecd381e481608181b471
+      note: >-
+        Human stromal scVI latent refit on the 47,533 fibroblast and decidual nuclei only, with the mouse settings
+        (30 Oct 2026). The pseudotime was computed on that latent (latent_copy), not on obsm X_scVI, the stromal-lineage
+        latent of 04b_reintegrate that gives the UMAP. The script is harmonized_pseudotime.py with only the latent path
+        changed.

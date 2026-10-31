@@ -1,30 +1,30 @@
 cluster,label,n_cells,res,note
-0,epithelial_cell,157,leiden_scVI_3.0,
-1,epithelial_cell,156,leiden_scVI_3.0,
-2,epithelial_cell,256,leiden_scVI_3.0,
-3,epithelial_cell,428,leiden_scVI_3.0,
+0,epithelial_glandular,157,leiden_scVI_3.0,"v7 2026-10-29: glandular by position (luminal votes 14 of 63 placed nuclei, 22.2%); expression intermediate (luminal-test genes near luminal levels, Prss28/Prss29 in 5%/3%); v3 marker values: Wnt7a 0.09; Foxa2/Prss28/Prss29 0.07; spatial nbrs epithelial 0.41; subluminal eFib 0.12"
+1,epithelial_luminal,156,leiden_scVI_3.0,"v7 2026-10-29: luminal by position (luminal votes 45 of 51 placed nuclei, 88.2%); v3 marker values: Wnt7a 0.19; Foxa2/Prss28/Prss29 0.02; spatial nbrs epithelial 0.62; subluminal eFib 0.23"
+2,epithelial_luminal,256,leiden_scVI_3.0,"v7 2026-10-29: luminal by position (luminal votes 89 of 105 placed nuclei, 84.8%); v3 marker values: Wnt7a 0.26; Foxa2/Prss28/Prss29 0.00; spatial nbrs epithelial 0.64; subluminal eFib 0.22"
+3,epithelial_luminal,428,leiden_scVI_3.0,"v7 2026-10-29: luminal by position (luminal votes 151 of 175 placed nuclei, 86.3%); v3 marker values: Wnt7a 0.14; Foxa2/Prss28/Prss29 0.07; spatial nbrs epithelial 0.54; subluminal eFib 0.28"
 4,EXCLUDE,173,leiden_scVI_3.0,Ptprc-dark -> immune contamination (mixed marker profile)
-5,epithelial_cell,148,leiden_scVI_3.0,
-6,epithelial_cell,207,leiden_scVI_3.0,
+5,epithelial_glandular,148,leiden_scVI_3.0,"v7 2026-10-29: glandular by position (luminal votes 10 of 65 placed nuclei, 15.4%); v3 marker values: Wnt7a 0.03; Foxa2/Prss28/Prss29 0.54; spatial nbrs epithelial 0.30; subluminal eFib 0.07"
+6,epithelial_glandular,207,leiden_scVI_3.0,"v7 2026-10-29: glandular by position (luminal votes 10 of 60 placed nuclei, 16.7%); v3 marker values: Wnt7a 0.03; Foxa2/Prss28/Prss29 0.19; spatial nbrs epithelial 0.23; subluminal eFib 0.06"
 7,EXCLUDE,243,leiden_scVI_3.0,Flt1+Pecam1-dark plus Pdgfra/Prl8a2/Myh11 -> multi-lineage
-8,epithelial_cell,140,leiden_scVI_3.0,
-9,epithelial_cell,258,leiden_scVI_3.0,
-10,epithelial_cell,105,leiden_scVI_3.0,
-11,epithelial_cell,317,leiden_scVI_3.0,
-12,epithelial_cell,336,leiden_scVI_3.0,
-13,epithelial_cell,290,leiden_scVI_3.0,
-14,epithelial_cell,106,leiden_scVI_3.0,
-15,epithelial_cell,352,leiden_scVI_3.0,
-16,epithelial_cell,261,leiden_scVI_3.0,
-17,epithelial_cell,173,leiden_scVI_3.0,
-18,epithelial_cell,194,leiden_scVI_3.0,
-19,epithelial_cell,298,leiden_scVI_3.0,
-20,epithelial_cell,350,leiden_scVI_3.0,
-21,epithelial_cell,365,leiden_scVI_3.0,
-22,epithelial_cell,171,leiden_scVI_3.0,
-23,epithelial_cell,358,leiden_scVI_3.0,
-24,epithelial_cell,245,leiden_scVI_3.0,
-25,epithelial_cell,115,leiden_scVI_3.0,
-26,epithelial_cell,187,leiden_scVI_3.0,
-27,epithelial_cell,274,leiden_scVI_3.0,
-28,epithelial_cell,18,leiden_scVI_3.0,
+8,epithelial_luminal,140,leiden_scVI_3.0,"v7 2026-10-29: luminal by position (luminal votes 49 of 53 placed nuclei, 92.5%); v3 marker values: Wnt7a 0.27; Foxa2/Prss28/Prss29 0.00; spatial nbrs epithelial 0.63; subluminal eFib 0.26"
+9,epithelial_luminal,258,leiden_scVI_3.0,"v7 2026-10-29: luminal by position (luminal votes 97 of 108 placed nuclei, 89.8%); v3 marker values: Wnt7a 0.23; Foxa2/Prss28/Prss29 0.01; spatial nbrs epithelial 0.57; subluminal eFib 0.28"
+10,epithelial_glandular,105,leiden_scVI_3.0,"v7 2026-10-29: glandular by position (luminal votes 2 of 40 placed nuclei, 5.0%); v3 marker values: Wnt7a 0.02; Foxa2/Prss28/Prss29 0.35; spatial nbrs epithelial 0.29; subluminal eFib 0.04"
+11,epithelial_glandular,317,leiden_scVI_3.0,"v7 2026-10-29: glandular by position (luminal votes 9 of 120 placed nuclei, 7.5%); v3 marker values: Wnt7a 0.00; Foxa2/Prss28/Prss29 0.17; spatial nbrs epithelial 0.36; subluminal eFib 0.06"
+12,epithelial_glandular,336,leiden_scVI_3.0,"v7 2026-10-29: glandular by position (luminal votes 18 of 125 placed nuclei, 14.4%); v3 marker values: Wnt7a 0.00; Foxa2/Prss28/Prss29 0.51; spatial nbrs epithelial 0.34; subluminal eFib 0.11"
+13,epithelial_luminal,290,leiden_scVI_3.0,"v7 2026-10-29: luminal by position (luminal votes 97 of 108 placed nuclei, 89.8%); v3 marker values: Wnt7a 0.24; Foxa2/Prss28/Prss29 0.00; spatial nbrs epithelial 0.67; subluminal eFib 0.22"
+14,epithelial_luminal,106,leiden_scVI_3.0,"v7 2026-10-29: luminal by position (luminal votes 31 of 39 placed nuclei, 79.5%); v3 marker values: Wnt7a 0.23; Foxa2/Prss28/Prss29 0.11; spatial nbrs epithelial 0.56; subluminal eFib 0.22; position luminal"
+15,epithelial_luminal,352,leiden_scVI_3.0,"v7 2026-10-29: luminal by position (luminal votes 126 of 139 placed nuclei, 90.6%); v3 marker values: Wnt7a 0.22; Foxa2/Prss28/Prss29 0.01; spatial nbrs epithelial 0.49; subluminal eFib 0.37"
+16,epithelial_luminal,261,leiden_scVI_3.0,"v7 2026-10-29: luminal by position (luminal votes 96 of 114 placed nuclei, 84.2%); v3 marker values: Wnt7a 0.33; Foxa2/Prss28/Prss29 0.01; spatial nbrs epithelial 0.60; subluminal eFib 0.22"
+17,epithelial_glandular,173,leiden_scVI_3.0,"v7 2026-10-29: glandular by position (luminal votes 35 of 71 placed nuclei, 49.3%); v3 marker values: Wnt7a 0.02; Foxa2/Prss28/Prss29 0.17; spatial nbrs epithelial 0.40; subluminal eFib 0.23"
+18,epithelial_luminal,194,leiden_scVI_3.0,"v7 2026-10-29: luminal by position (luminal votes 71 of 79 placed nuclei, 89.9%); v3 marker values: Wnt7a 0.18; Foxa2/Prss28/Prss29 0.01; spatial nbrs epithelial 0.58; subluminal eFib 0.26"
+19,epithelial_glandular,298,leiden_scVI_3.0,"v7 2026-10-29: glandular by position (luminal votes 21 of 88 placed nuclei, 23.9%); v3 marker values: Wnt7a 0.00; Foxa2/Prss28/Prss29 0.11; spatial nbrs epithelial 0.29; subluminal eFib 0.16"
+20,epithelial_glandular,350,leiden_scVI_3.0,"v7 2026-10-29: glandular by position (luminal votes 6 of 115 placed nuclei, 5.2%); v3 marker values: Wnt7a 0.00; Foxa2/Prss28/Prss29 0.12; spatial nbrs epithelial 0.30; subluminal eFib 0.05"
+21,epithelial_glandular,365,leiden_scVI_3.0,"v7 2026-10-29: glandular by position (luminal votes 4 of 145 placed nuclei, 2.8%); v3 marker values: Wnt7a 0.00; Foxa2/Prss28/Prss29 0.47; spatial nbrs epithelial 0.33; subluminal eFib 0.03"
+22,epithelial_glandular,171,leiden_scVI_3.0,"v7 2026-10-29: glandular by position (luminal votes 3 of 60 placed nuclei, 5.0%); v3 marker values: Wnt7a 0.00; Foxa2/Prss28/Prss29 0.25; spatial nbrs epithelial 0.36; subluminal eFib 0.05"
+23,epithelial_glandular,358,leiden_scVI_3.0,"v7 2026-10-29: glandular by position (luminal votes 10 of 169 placed nuclei, 5.9%); v3 marker values: Wnt7a 0.00; Foxa2/Prss28/Prss29 0.49; spatial nbrs epithelial 0.36; subluminal eFib 0.01"
+24,epithelial_proliferative,245,leiden_scVI_3.0,"v7 2026-10-29: proliferative (63.7% of nuclei in S or G2M by cell-cycle scoring of the epithelial lineage, against at most 43.9% in any luminal or glandular cluster; Mki67 33.1%, Cenpf 25.3%); no compartment (luminal votes 23 of 117 placed nuclei, 19.7%); v3 marker values: Wnt7a 0.14; Foxa2/Prss28/Prss29 0.21; spatial nbrs epithelial 0.22; subluminal eFib 0.09; position glandular"
+25,epithelial_luminal,115,leiden_scVI_3.0,"v7 2026-10-29: luminal by position (luminal votes 42 of 44 placed nuclei, 95.5%); v3 marker values: Wnt7a 0.24; Foxa2/Prss28/Prss29 0.01; spatial nbrs epithelial 0.63; subluminal eFib 0.27"
+26,epithelial_proliferative,187,leiden_scVI_3.0,"v7 2026-10-29: proliferative (72.2% of nuclei in S or G2M by cell-cycle scoring of the epithelial lineage; Mki67 35.3%, Cenpf 24.6%); no compartment (luminal votes 30 of 71 placed nuclei, 42.3%); v3 marker values: Wnt7a 0.12; Foxa2/Prss28/Prss29 0.09; spatial nbrs epithelial 0.29; subluminal eFib 0.21"
+27,epithelial_luminal,274,leiden_scVI_3.0,"v7 2026-10-29: luminal by position (luminal votes 90 of 97 placed nuclei, 92.8%); v3 marker values: Wnt7a 0.14; Foxa2/Prss28/Prss29 0.07; spatial nbrs epithelial 0.31; subluminal eFib 0.21"
+28,EXCLUDE,18,leiden_scVI_3.0,"v8 2026-10-29: EXCLUDE, low quality: median 811 genes per nucleus vs 2,519 in kept clusters; not a coherent cluster (21% of nearest neighbours in the cluster); epithelial panel genes in 22% of nuclei; 16 of 18 nuclei uninduced. v7 2026-10-29: luminal by position (luminal votes 4 of 5 placed nuclei, 80.0%); v3 marker values: Wnt7a 0.11; Foxa2/Prss28/Prss29 0.00; spatial nbrs epithelial 0.50; subluminal eFib 0.34; position luminal"

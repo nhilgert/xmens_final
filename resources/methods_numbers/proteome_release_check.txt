@@ -1,0 +1,7 @@
+## local (mtime in UTC)
+2024-08-15 13:44 Homo_sapiens.GRCh38.pep.all.fa
+2024-08-14 22:41 Mus_musculus.GRCm39.pep.all.fa
+## release 112 homo_sapiens: 2024-02-15 21:35 UTC (Homo_sapiens.GRCh38.pep.all.fa.gz, 14M)
+## release 112 mus_musculus: 2024-02-13 17:10 UTC (Mus_musculus.GRCm39.pep.all.fa.gz, 11M)
+## release 113 homo_sapiens: 2024-08-15 13:44 UTC (Homo_sapiens.GRCh38.pep.all.fa.gz, 14M)
+## release 113 mus_musculus: 2024-08-14 22:41 UTC (Mus_musculus.GRCm39.pep.all.fa.gz, 11M)

@@ -69,6 +69,28 @@ set-resources:
     cpus_per_task: 8
     gres: "gpu:1"
     slurm_extra: ""
+  # 04g: re-embedding of a rebuilt release. A40 only -- scVI fits reproduce within one GPU
+  # class, and the July fits and the 2026_10_29 release embedding were made on A40s.
+  reembed_release:
+    runtime: 240
+    mem_mb: 96000
+    cpus_per_task: 8
+    gres: "gpu:nvidia_a40:1"
+    slurm_extra: ""
+  # 04b2: round-2 per-lineage scVI fits (2026-10-29). A40 only, like reembed_release.
+  reintegrate_lineage_round2:
+    runtime: 240
+    mem_mb: 48000
+    cpus_per_task: 8
+    gres: "gpu:nvidia_a40:1"
+    slurm_extra: ""
+  # 04g2: re-embedding of the v9 release (2026-10-30). A40 only, like reembed_release.
+  reembed_release_round2:
+    runtime: 240
+    mem_mb: 96000
+    cpus_per_task: 8
+    gres: "gpu:nvidia_a40:1"
+    slurm_extra: ""
   # heavier CPU stages
   cellrank:
     mem_mb: 64000

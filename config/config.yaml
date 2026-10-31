@@ -44,6 +44,7 @@ doublet:
   p_thresh: 1.0e-07
   n_top_var_genes: 3000
 scvi:
+  retrain: false             # true defines the scVI-fitting rules (02, 04b, 04e); see README
   n_hvg: 3000
   hvg_flavor: seurat_v3
   n_latent: 30
@@ -56,40 +57,6 @@ leiden:
 pseudotime:
   knn: 15
   n_diffmap: 10
-pseudotime_tests:
-  input_h5ad: data/interim/migrated/xmens_annotation_v1_20260810/final_mouse_migrated.h5ad
-  test_output_dir: data/interim/_pt_test_20260811
-  n_hvg: 3000
-  n_latent: 30
-  n_neighbors: 15
-  n_diffmap: 15
-  max_epochs: 400
-  seed: 0
-  timepoints:
-    1dpi_late:
-      timepoint: 1_dpi_late
-      stage_tag: 1dpi_late
-      root_dc: 1
-      root_sign: 1
-      root_subtype: null
-      apop_quantile: null
-      exclude_apoptotic_subtype: true
-    4dpi:
-      timepoint: 4_dpi_bleeding
-      stage_tag: 4dpi
-      root_dc: 1
-      root_sign: 1
-      root_subtype: null
-      apop_quantile: null
-      exclude_apoptotic_subtype: true
-    3dpi:
-      timepoint: 3_dpi
-      stage_tag: 3dpi
-      root_dc: null
-      root_sign: null
-      root_subtype: null
-      apop_quantile: null
-      exclude_apoptotic_subtype: true
 mi:
   n_neighbors: 3
   n_perm: 1000
@@ -129,6 +96,31 @@ clustree:
     start: 0.1
     stop: 0.8
     step: 0.1
+annotation_round2:
+  # 04b2 (2026-10-29): the atlas clusters excluded in July that are identifiable populations go to their
+  # lineages, and the four lineages that gain nuclei are re-integrated (scVI, A40, seed 0) and re-annotated;
+  # see workflow/rules/04b2_reintegrate_round2.smk. All other lineages keep their July subsets and fits.
+  fit: false             # true defines the round-2 split and scVI rules (like scvi.retrain for 04b)
+  outdir: data/interim/round2_2026_10_29
+  atlas_decisions:       # the July atlas tables with these clusters reassigned
+    mouse: resources/annotations/round2/mouse_lineage.csv   # 5 -> vascular, 7 -> smc, 19 -> immune
+    human: resources/annotations/round2/human_lineage.csv   # 30 -> immune
+  atlas_sha256:          # the July whole-tissue fits, data/interim/latent_{species}.h5ad
+    mouse: e03cccf83408cd4b93e3223b9d02c3b4a77003c79c841e3a4d10568ebc4e0861
+    human: 3a04bba5b7b6e55b0304fb45de9223e85eaf8b32bcdd5217cc798211c10eba80
+  lineages:
+    mouse: [immune, vascular, smc]
+    human: [immune]
+  decisions_dir: resources/annotations/round2   # 04c2: {species}_{lineage}.csv, approved 2026-10-30
+  latent_sha256:         # the round-2 fits (PROVENANCE.json: A40, scvi-tools 1.4.2, seed 0)
+    human_immune: 661387a2218115847daac215713114525aea464ae00bf83387b1786b9f0b26a8
+    mouse_immune: 18fdd222d16b4550d55829256bba7840678e0f11107a6c3c2582733ce11dac06
+    mouse_vascular: ad3d7d84f07eccc6d398bb382d9c58a04633a20b42763702cc5c7599cafc8d2d
+    mouse_smc: 88e8954d55ad746041d35ab5dbc1f192745b2dcf380250c4841e6f675b8e754e
+  spatial_qc_overrides:  # 04c2 spatial_qc_round2: settings for species outside spatial_qc.species
+    # human: exact duplicate coordinates only (no kNN floor, no far cut, no boxes; one section per sample).
+    # These settings reproduce the human release QC of 2026-09-02 (user decision) for all 69,146 nuclei.
+    human: {n_mads: .inf, floor_um: 0.0, exclusions: {human: []}, sections: {human: []}, rotations: {human: {}}}
 deliverables:
   # 04g finalize_deliverables: promote the canonical source objects into an
   # immutable, sha256-manifested release dir. Cut a release deliberately:
@@ -141,13 +133,111 @@ deliverables:
   # (same size, 11 min apart, cause unrecorded); netscratch chosen for
   # consistency with the arms that consumed it. Supersedes
   # data/deliverables/2026_08_28_* and 2026_09_02_* (retained, untouched).
-  release: "2026_09_15"   # quoted: bare 2026_09_15 parses as the integer 20260915 in YAML
-  note: netscratch copies canonicalized 2026-09-15; see release MANIFEST.json
+  # 2026_10_25 is 2026_09_15 relabeled to vocabulary v3 by migrate_release_vocabulary
+  # (mouse uNK names; mouse luminal/glandular epithelium). Same cells and clusters;
+  # expression, embeddings and all other obs columns are unchanged.
+  # 2026_10_27 is 2026_10_22_flagged_harmonized (2026_09_15 plus embedding_outlier and the
+  # harmonized pseudotime of record) relabeled to vocabulary v4 by migrate_release_vocabulary:
+  # v3 names and splits as in 2026_10_25, mouse stromal subtypes stored as eFib1..eFibP, dec1..decAp.
+  # 2026_10_27b is the same source relabeled to vocabulary v5: 2026_10_27 with the mouse timepoints
+  # named half a day later (1.5_dpi_early ... 4.5_dpi_bleeding); sample IDs unchanged.
+  # 2026_10_28 is the same source relabeled to vocabulary v6: 2026_10_27b with the immune subtypes
+  # stored as the snake_case names of the immune dot plots (cd8_t_cell, cytotoxic_unk_cell, ...).
+  # 2026_10_29 is the same source relabeled to vocabulary v7 (epithelium split by tissue position in
+  # both species), with the human all-cells object rebuilt by release_reembed (since replaced by
+  # release_rebuild): 1,017 epithelial
+  # nuclei reinstated (clusters 11, 22, 44) and the whole-tissue embedding re-fitted.
+  # 2026_10_29b (vocabulary v8) is 2026_10_29 rebuilt by release_rebuild below: human immune cluster 0
+  # (55 macrophage-epithelial doublets) and mouse epithelial cluster 28 (18 low-quality nuclei) dropped; the
+  # whole-tissue embedding of each species re-fitted on its primary nuclei plus the supplementary populations
+  # (human B cells; mouse lymphatic endothelium, pericytes, IgA plasma cells), which are released only in the
+  # *_All_Cells_extended objects (obs in_primary); the fib/dec objects take the new whole-tissue embedding and
+  # outlier flags.
+  # 2026_10_30 (vocabulary v9) is 2026_10_29b rebuilt by release_round2 (04g2): the four lineages re-annotated in
+  # round 2 (mouse immune, vascular, smc; human immune) replace their v8 nuclei, the spatial QC is re-run over the
+  # nuclei the round-2 atlas tables keep, each species' whole-tissue embedding is re-fitted (A40) and the fib/dec
+  # objects take the new embedding, outlier flags and spatial QC. No extended objects.
+  # Rename the date to the day the release is actually cut.
+  release: "2026_10_30"   # quoted: a bare date parses as an integer in YAML
+  note: 2026_10_29b rebuilt to annotation vocabulary v9 (release_round2) - the four lineages re-annotated in round 2 (mouse immune, vascular, smc; human immune; resources/annotations/round2) replace their v8 nuclei; spatial QC re-run over the nuclei the round-2 atlas tables keep; whole-tissue embeddings re-fitted on all nuclei; fib/dec objects switched to the new embedding, outlier flags and spatial QC; see MANIFEST.json, results/tables/round2_release_cells_*_2026_10_30.tsv and results/tables/round2_embedding_outliers_*_2026_10_30.csv
   sources:
-    Cevrim_Human_All_Cells: /n/netscratch/eddy_lab/Everyone/nhilgert/2026_08_28_Cevrim_Human_All_Cells.h5ad
-    Cevrim_Human_Only_Fib_Dec_Cells: /n/netscratch/eddy_lab/Everyone/nhilgert/2026_08_28_Cevrim_Human_Only_Fib_Dec_Cells.h5ad
-    Cevrim_XMens_All_Cells: /n/netscratch/eddy_lab/Everyone/nhilgert/2026_08_28_Cevrim_XMens_All_Cells.h5ad
-    Cevrim_XMens_Only_Fib_Dec_Cells: /n/netscratch/eddy_lab/Everyone/nhilgert/2026_08_28_Cevrim_XMens_Only_Fib_Dec_Cells.h5ad
+    Cevrim_Human_All_Cells: /n/netscratch/eddy_lab/Everyone/nhilgert/2026_10_30_release_v9/Cevrim_Human_All_Cells.h5ad
+    Cevrim_Human_Only_Fib_Dec_Cells: /n/netscratch/eddy_lab/Everyone/nhilgert/2026_10_30_release_v9/Cevrim_Human_Only_Fib_Dec_Cells.h5ad
+    Cevrim_XMens_All_Cells: /n/netscratch/eddy_lab/Everyone/nhilgert/2026_10_30_release_v9/Cevrim_XMens_All_Cells.h5ad
+    Cevrim_XMens_Only_Fib_Dec_Cells: /n/netscratch/eddy_lab/Everyone/nhilgert/2026_10_30_release_v9/Cevrim_XMens_Only_Fib_Dec_Cells.h5ad
+vocab_migration:
+  # Release relabeled by migrate_release_vocabulary (04g), and where the relabeled
+  # objects are written before finalize_deliverables promotes them.
+  # 2026_10_22_flagged_harmonized: lab_storage copy (sha256-verified) of the netscratch set
+  # that added embedding_outlier and the harmonized pseudotime to 2026_09_15 (see its README).
+  from_release: "2026_10_22_flagged_harmonized"
+  outdir: /n/netscratch/eddy_lab/Everyone/nhilgert/2026_10_29_vocab_v7
+  # Cell-level subtype splits (content tasks), applied after the renames. Each relabels
+  # cells of `cell_type` whose cell_subtype is still the coarse fill, as
+  # decisions[cluster] on the clustering the decisions were written against. The
+  # clustering file is pinned by sha256: the split refuses any other embedding.
+  subtype_splits:
+    mouse_epithelial_split:            # expected counts: annotation_vocabulary.yaml content_tasks
+      object: Cevrim_XMens_All_Cells
+      cell_type: epithelial_cell
+      clusters: data/interim/latent_mouse_epithelial.h5ad      # July 29 mouse epithelial lineage embedding
+      clusters_sha256: 75243c93d329466424aa338c466ac8b4a4df51ff4421795b2769bb7573526429
+      cluster_column: leiden_scVI_3.0
+      decisions: resources/annotations/mouse_epithelial.csv
+# release_reembed (2026_10_29: human epithelial clusters 11, 22, 44 reinstated and re-embedded) was replaced by
+# release_rebuild for 2026_10_29b; its settings are in the 2026_10_29 patch and MANIFEST.
+release_rebuild:
+  # 04g rebuild_release_cells -> reembed_release -> finish_rebuilt_release -> refresh_fibdec_release (v8):
+  # each species' all-cells object of from_release loses the class clusters newly EXCLUDE in v8 (dropped),
+  # gains the supplementary populations (extended objects only), is re-embedded on all of these nuclei
+  # (integrate.py on an A40; see profiles/slurm) and is written as primary and extended objects; the fib/dec
+  # objects take the new whole-tissue embedding (fibdec_embedding: fib/dec obsm <- all-cells obsm) and flags.
+  from_release: "2026_10_29"
+  outdir: /n/netscratch/eddy_lab/Everyone/nhilgert/2026_10_29b_rebuild
+  supplementary: resources/annotations/supplementary_populations.csv
+  species:
+    human:
+      tag: Human
+      atlas: data/interim/latent_human.h5ad                  # whole-tissue clustering (July fit)
+      atlas_sha256: 3a04bba5b7b6e55b0304fb45de9223e85eaf8b32bcdd5217cc798211c10eba80
+      atlas_cluster_column: leiden_scVI_2.5
+      lineage_decisions: resources/annotations/human_lineage.csv
+      dropped:
+        - clusters: data/interim/latent_human_immune.h5ad
+          clusters_sha256: 50c0801938ed18e61a26f9d3f6a241106f7e9a5f2fc194984ac7785d0397b2a5
+          cluster_column: leiden_scVI_3.0
+          decisions: resources/annotations/human_immune.csv
+          excluded: ["0"]
+      fibdec_embedding: {X_scVI_wholetissue: X_scVI, X_umap_wholetissue: X_umap_scVI}
+    mouse:
+      tag: XMens
+      atlas: data/interim/latent_mouse.h5ad
+      atlas_sha256: e03cccf83408cd4b93e3223b9d02c3b4a77003c79c841e3a4d10568ebc4e0861
+      atlas_cluster_column: leiden_scVI_2.5
+      lineage_decisions: resources/annotations/mouse_lineage.csv
+      dropped:
+        - clusters: data/interim/latent_mouse_epithelial.h5ad
+          clusters_sha256: 75243c93d329466424aa338c466ac8b4a4df51ff4421795b2769bb7573526429
+          cluster_column: leiden_scVI_3.0
+          decisions: resources/annotations/mouse_epithelial.csv
+          excluded: ["28"]
+      fibdec_embedding: {X_scVI: X_scVI, X_umap_scVI: X_umap_scVI}
+release_round2:
+  # 04g2 rebuild_release_round2 -> reembed_release_round2 -> finish_release_round2 -> refresh_fibdec_round2 (v9):
+  # each species' all-cells object of from_release swaps the nuclei of the round-2 lineages for their kept
+  # round-2 nuclei (annotation_round2), takes the round-2 spatial QC, is re-embedded on all of its nuclei
+  # (integrate.py on an A40; see profiles/slurm) and finished; the fib/dec objects take the new embedding
+  # (fibdec_embedding: fib/dec obsm <- all-cells obsm), outlier flags and spatial QC.
+  from_release: "2026_10_29b"
+  outdir: /n/netscratch/eddy_lab/Everyone/nhilgert/2026_10_30_release_v9
+  legacy_names: resources/annotations/round2/legacy_names.csv   # legacy label columns of each v9 label
+  species:
+    human:
+      tag: Human
+      fibdec_embedding: {X_scVI_wholetissue: X_scVI, X_umap_wholetissue: X_umap_scVI}
+    mouse:
+      tag: XMens
+      fibdec_embedding: {X_scVI: X_scVI, X_umap_scVI: X_umap_scVI}
 samap:
   root: /n/lab_storage/eddy_lab/users/nhilgert/decidualization/revisions/samap_integrate
   coords_root: /n/lab_storage/eddy_lab/users/nhilgert/decidualization/revisions/crossspecies_radial_gp
@@ -156,6 +246,8 @@ samap:
   saturn_python: /n/lab_storage/eddy_lab/users/nhilgert/.uv/envs/saturn_uv/bin/python
   phmmer: /n/lab_storage/eddy_lab/users/nhilgert/software/hmmer-3.4/src/phmmer
   n_iter: 3
+  # Run names (and pt_h5ad keys) name existing SAMap runs: their timepoint slugs are the
+  # pre-v5 names the runs were created with (1dpi_early = 1.5 dpi early, ..., 4dpi = 4.5 dpi bleeding).
   pairs:
   - menstrual_x_uninduced_hmmer
   - menstrual_x_1dpi_early_hmmer
@@ -173,42 +265,52 @@ samap:
     menstrual_x_4dpi_hmmer: /n/lab_storage/eddy_lab/users/nhilgert/decidualization/revisions/adatas/pseudotime/adata_4dpi.h5ad
     secretory_x_1dpi_late_hmmer: /n/lab_storage/eddy_lab/users/nhilgert/decidualization/revisions/adatas/pseudotime/adata_1dpi.h5ad
 mi_pseudotime:
+  # MI(gene expression, harmonized pseudotime), rules in 11_mi_pseudotime.smk.
+  # Every arm scores all of its nuclei (no estimator subsample) on genes detected in
+  # >= 1% of them; Fig. S16, the cross-species overlap and the heatmap pool read these.
   python: /n/lab_storage/eddy_lab/users/nhilgert/.uv/envs/rsc_uv/bin/python
-  n_chunks: 200
-  perms: 1001
-  min_counts: 10
-  layer: log1p
-  runs:
+  outdir: results/mi_dpt
+  n_chunks: 200            # one SLURM job per chunk; genes split evenly across chunks
+  perms: 1001              # shuffles of pseudotime, counting the observed one: min p = 1/1001
+  min_counts: 10           # raw counts summed over the arm's nuclei
+  min_detect_frac: 0.01    # detected (count > 0) in >= 1% of the arm's nuclei
+  subsample_cells: 0       # 0 = the MI estimator uses every nucleus
+  seed: 0
+  control_seed: 0          # draw of the size-matched induced control arm
+  # Not a layer of the objects: prep then recomputes log1p(CP10K) from layers['counts'].
+  layer: derive_from_counts
+  # Fibroblast/decidual objects carrying obs pt_harmonized and pt_harmonized_rank
+  # (build_flagged_objects.py). Netscratch is purged: repoint once copied to lab_storage.
+  objects:
+    mouse: /n/netscratch/eddy_lab/Everyone/nhilgert/2026_10_22_flagged_harmonized/Cevrim_XMens_Only_Fib_Dec_Cells.h5ad
+    human: /n/netscratch/eddy_lab/Everyone/nhilgert/2026_10_22_flagged_harmonized/Cevrim_Human_Only_Fib_Dec_Cells.h5ad
+  # worker_runtime_min: SLURM limit per chunk; observed maxima were 6.1 h (mouse) and
+  # 7.0 h (human) for the main arms.
+  arms:
+    pt_harmonized_mouse_nall:
+      object: mouse
+      pt_key: pt_harmonized_rank
+      worker_runtime_min: 720
+    pt_harmonized_human_nall:
+      object: human
+      pt_key: pt_harmonized_rank
+      worker_runtime_min: 720
+    # Specificity controls: pt_key is ranked within each sample into pt_norm.
+    pt_harmonized_unind_mouse_nall:
+      object: mouse
+      control: uninduced
+      pt_key: pt_harmonized
+      worker_runtime_min: 240
+    pt_harmonized_indmatch_mouse_nall:
+      object: mouse
+      control: induced_matched
+      pt_key: pt_harmonized
+      worker_runtime_min: 240
 
-    # settled RTK coordinates carried by the 2026_09_15 release (added 2026-09-15).
-    # Additive: new run names -> new results/mi/<run>/ dirs; existing runs untouched.
-    mouse_dpt_release:
-      h5ad: "data/deliverables/2026_09_15/Cevrim_XMens_Only_Fib_Dec_Cells.h5ad"
-      pt_key: dpt_pseudotime
-    mouse_dpt_noapop_release:
-      h5ad: "data/deliverables/2026_09_15/Cevrim_XMens_Only_Fib_Dec_Cells.h5ad"
-      pt_key: dpt_pseudotime_no_apoptotic
-    human_dpt_release:
-      h5ad: "data/deliverables/2026_09_15/Cevrim_Human_Only_Fib_Dec_Cells.h5ad"
-      pt_key: dpt_pseudotime
-
-    mouse_dpt:
-      h5ad: archive/pseudotime_mouse_v2_induced_no_apop/2026_08_28_mouse_fibdec_pseudotime_rooted.h5ad
-      pt_key: dpt_pseudotime
-    mouse_palantir_rtk:
-      h5ad: archive/pseudotime_mouse_v2_induced_no_apop/2026_08_28_mouse_fibdec_pseudotime_rooted.h5ad
-      pt_key: palantir_pt_rtk
-    human_dpt:
-      h5ad: results/isodepth/human_fibdec_isodepth.h5ad
-      pt_key: dpt_pseudotime
-    human_isodepth:
-      h5ad: results/isodepth/human_fibdec_isodepth.h5ad
-      pt_key: isodepth_consensus
-    mouse_isodepth:
-      h5ad: results/isodepth/mouse_fibdec_isodepth.h5ad
-      pt_key: isodepth_consensus
 spatial_gp:
   python: /n/lab_storage/eddy_lab/users/nhilgert/.uv/envs/rsc_uv/bin/python
+  # timepoint values are the names stored in the 2026_08_28 archive object (pre-v5:
+  # 1_dpi_late = 1.5 dpi late, 4_dpi_bleeding = 4.5 dpi bleeding); run names keep them too.
   runs:
     mouse_dpt_1dpi_late:
       h5ad: archive/pseudotime_mouse_v2_induced_no_apop/2026_08_28_mouse_fibdec_pseudotime_rooted.h5ad
@@ -228,7 +330,8 @@ scenic:
   species:
   - mouse
   - human
-  source_h5ad:   # 2026-09-15: repointed at the finalized release (04g)
+  source_h5ad:   # 2026-09-15: repointed at the finalized release (04g). The GRN seeds of record ran on
+                 # it; later releases are relabel-only and are not re-pointed here (that re-runs every seed).
     mouse: data/deliverables/2026_09_15/Cevrim_XMens_Only_Fib_Dec_Cells.h5ad
     human: data/deliverables/2026_09_15/Cevrim_Human_Only_Fib_Dec_Cells.h5ad
   raw_layer: counts
@@ -236,77 +339,6 @@ scenic:
   celltype_col: cell_subtype   # composition printout in the loom log (sketch vs full)
   sketch_per_seed: true   # 2026-09-08: a new geosketch per GRN seed (bootstrap over cells); false = one shared sketch
   sketch_seed: 0          # shared-sketch seed, used only when sketch_per_seed is false
-liana:
-  # 2026-09-08: ported to workflow/scripts/liana/ and re-pointed at the 2026_08_28 deliverable
-  # objects on netscratch (per user 2026-09-08). NOTE: data/deliverables/2026_08_28_Cevrim_XMens_All_Cells.h5ad
-  # (Sep 2 15:04) differs in content from the netscratch copy (15:15, same size); Human copies are identical.
-  # Previous config (June 2026 inputs in decidualization/revisions/liana_pipeline_final) is in
-  # config/config.yaml.pre_liana_port_20260908.bak.
-  python: /n/lab_storage/eddy_lab/users/nhilgert/.uv/envs/rsc_uv/bin/python
-  scripts_dir: workflow/scripts/liana
-  cache_dir: /n/lab_storage/eddy_lab/users/nhilgert/.cache_scratch
-  expr_prop: 0.1
-  cell_type_key: cell_type_merged # derived from cell_subtype via cell_type_map (immune lineages + coarse stroma); alt: cell_type, cell_subtype
-  cell_type_map: resources/liana_cell_type_map.yaml   # port of merge_immune_xspecies.ipynb; adds cell_type_merged + cell_type_xspecies
-  orthology: resources/orthology/ensembl_human_mouse_components.tsv   # Ensembl 116 Compara; cross-species join uses homology_type == ortholog_one2one only
-  orthology_homology_type: ortholog_one2one
-  pseudotime:                     # rule liana_pt (17_liana_pseudotime.smk); fib/dec lineage only
-    bins: 5                       # equal-count quantile bins of the rank-normalised DPT
-    outdir: results/liana_pseudotime
-    runs:                           # 2026-09-15: repointed at the finalized release (04g)
-      mouse:
-        h5ad: data/deliverables/2026_09_15/Cevrim_XMens_Only_Fib_Dec_Cells.h5ad
-        pt_key: dpt_pseudotime_rank_norm          # 43,197 cells, 0-1, no NaN
-      human:
-        h5ad: data/deliverables/2026_09_15/Cevrim_Human_Only_Fib_Dec_Cells.h5ad
-        pt_key: dpt_pseudotime_rank_normalized    # 47,533 cells, 0-1, no NaN (note: name differs from mouse)
-  crossspecies:                   # rule liana_crossspecies (16_liana_crossspecies.smk)
-    liana_root: results/liana/no_commot
-    outdir: results/liana_crossspecies
-  counts_layer: counts            # log1p is recomputed: log1p(normalize_total(counts, target_sum))
-  target_sum: 10000
-  rank_column: magnitude_rank     # LR discovery (2026-09-09): magnitude_rank < rank_cutoff (Dimitrov et al. 2024); alt: specificity_rank
-  rank_cutoff: 0.05
-  top_n_lr: null                  # optional cap on discovered LR pairs after the filter; null = no cap
-  skip_spatial_no_commot: true    # no_commot = non-spatial deliverable: stop after rank_aggregate (no Moran's I / spatial plots)
-  moran_i_min: 0.01               # only used when a spatial arm runs (bivariate, or skip off); BH-FDR <= 0.05 always applied
-  variants:                       # variants built by liana_ccc_all; bivariate (spatial figures arm) is run on demand:
-  - no_commot                     #   snakemake ... results/liana/bivariate/{human,mouse}/.liana_complete
-  runs:
-    human:
-      h5ad: data/deliverables/2026_09_15/Cevrim_Human_All_Cells.h5ad   # 2026-09-15: finalized release (04g)
-      timepoints:
-      - menstrual
-      - secretory
-    mouse:
-      h5ad: data/deliverables/2026_09_15/Cevrim_XMens_All_Cells.h5ad   # 2026-09-15: finalized release (04g)
-      timepoints:
-      - uninduced
-      - 1_dpi_early
-      - 1_dpi_late
-      - 2_dpi
-      - 3_dpi
-      - 4_dpi_bleeding
-pt_per_timepoint:
-  python: /n/lab_storage/eddy_lab/users/nhilgert/.uv/envs/rsc_uv/bin/python
-  drop_subtypes:
-    mouse:
-    - decidual_apoptotic
-    human: []
-  h5ad:   # 2026-09-15: repointed at the finalized release (04g)
-    mouse: data/deliverables/2026_09_15/Cevrim_XMens_Only_Fib_Dec_Cells.h5ad
-    human: data/deliverables/2026_09_15/Cevrim_Human_Only_Fib_Dec_Cells.h5ad
-  timepoints:
-    mouse:
-    - uninduced
-    - 1_dpi_early
-    - 1_dpi_late
-    - 2_dpi
-    - 3_dpi
-    - 4_dpi_bleeding
-    human:
-    - secretory
-    - menstrual
 
 # ---------------------------------------------------------------------------
 # spatial_qc (stage 04f) -- "blank, don't drop" spatial-coordinate QC applied
@@ -327,6 +359,8 @@ spatial_qc:
   mad_scale: 1.0             # 1.0 = plain MADs; 1.4826 would express n_mads in sigma units
   log_scale: true            # ... computed on log1p(distance)
   mad_group: timepoint       # far threshold pooled per timepoint
+  # 04f runs before the release, on the sample sheet's timepoint names (config/samples.tsv):
+  # 1_dpi_early ... 4_dpi_bleeding here are released as 1.5_dpi_early ... 4.5_dpi_bleeding (vocabulary v5).
   action: blank
   drop_unmapped: false       # coordinate-less cells are KEPT (normal for slide-tags)
   tp_order:
@@ -374,7 +408,7 @@ spatial_qc:
 # re-pointed or overwritten; '_noapop' is the settled no-apoptotic coordinate
 # and lands beside it in runs_raw/<arm>/pt_transfer_noapop/.
 samap_raw:
-  pt_h5ad: "data/deliverables/2026_09_15/Cevrim_XMens_Only_Fib_Dec_Cells.h5ad"
+  pt_h5ad: "data/deliverables/2026_09_15/Cevrim_XMens_Only_Fib_Dec_Cells.h5ad"   # pt transfer of record; later releases are relabel-only
   pt_variants:
     "": dpt_pseudotime
     "_noapop": dpt_pseudotime_no_apoptotic
@@ -404,43 +438,53 @@ samap_figures:
 # Settled with the user (2026-10-22/24): pySCENIC default window
 # (auc_threshold 0.05), seed 0 (MD, C and AMMy lose specificity at this
 # window; the legend says so), raw counts as for SCENIC, the gene sets of
-# Li et al. 2022 Table 1 verbatim, 3 dpi nuclei only. Add a run rather than
+# Li et al. 2022 Table 1 verbatim, 3.5 dpi nuclei only. Add a run rather than
 # edit one: each run has its own results/zone_aucell/<run>/ and
 # results/figures/zone_modules/<run>/.
 # 2026-10-26 (user): rank genes as for SCENIC (count > 0 in >= 1% of the
 # object's nuclei) plus the Table 1 genes below 1% that are still detected
 # (>= 1 nucleus): run table1_auc005_g1pct_seed0_3dpi, the run of record. The
 # all-genes run stays for comparison (results/zone_aucell/2026_10_26_gene_universe_*).
+# 2026-10-28: reads release 2026_10_28 (vocabulary v6; scores unchanged, the release is
+# relabel-only). Run and figure names keep the names they were created under (3dpi = 3.5 dpi).
 # ---------------------------------------------------------------------------
 zone_modules:
   python: /n/lab_storage/eddy_lab/users/nhilgert/.uv/envs/rsc_uv/bin/python   # pyscenic 0.12.1, ctxcore 0.2.0
   cache_dir: /n/lab_storage/eddy_lab/users/nhilgert/.cache_scratch   # numba/matplotlib caches (HOME is full)
-  h5ad: "data/deliverables/2026_09_15/Cevrim_XMens_All_Cells.h5ad"
-  release_manifest: "data/deliverables/2026_09_15/MANIFEST.json"   # the object's sha256 is checked against this
+  # 2026-10-30 (user): re-pointed from 2026_10_29b to 2026_10_30 (vocabulary v9; mouse immune, vascular and smc
+  # lineages re-annotated in round 2, whole-tissue embedding re-fitted, outlier flags recomputed); the 2026_10_29b
+  # results are kept in /n/netscratch/eddy_lab/Everyone/nhilgert/2026_10_30_downstream_backup.
+  # 2026-10-29 (user): re-pointed from 2026_10_28 to 2026_10_29b (vocabulary v8; 18 low-quality luminal nuclei
+  # dropped, mouse whole-tissue embedding re-fitted, outlier flags recomputed); the 2026_10_28 results are kept in
+  # /n/netscratch/eddy_lab/Everyone/nhilgert/2026_10_29b_downstream_backup.
+  h5ad: "data/deliverables/2026_10_30/Cevrim_XMens_All_Cells.h5ad"
+  release_manifest: "data/deliverables/2026_10_30/MANIFEST.json"   # the object's sha256 is checked against this
   object_name: Cevrim_XMens_All_Cells
-  embedding_outliers: "resources/embedding_outliers_mouse_2026_10_13.csv"   # 34 nuclei: hidden in spatial panels, kept in heatmaps
+  embedding_outliers: "resources/embedding_outliers_mouse_2026_10_30.csv"   # the release object's embedding_outlier nuclei: hidden in spatial panels, kept in heatmaps
   runs:
     table1_auc005_seed0_3dpi:
       genesets: "resources/signatures/aucell_modules_mouse.yaml"
       auc_threshold: 0.05
       seed: 0
       normalization: none   # raw counts; cp10k gives identical scores (ranks are within each nucleus)
-      timepoints: ["3_dpi"]
+      timepoints: ["3.5_dpi"]
     table1_auc005_g1pct_seed0_3dpi:   # 2026-10-26 (user): the run of record
       genesets: "resources/signatures/aucell_modules_mouse.yaml"
       auc_threshold: 0.05
       seed: 0
       normalization: none
-      timepoints: ["3_dpi"]
+      timepoints: ["3.5_dpi"]
       gene_filter_frac: 0.01      # rank genes with count > 0 in >= 1% of the object's nuclei (SCENIC loom rule)...
       keep_geneset_genes: true    # ...plus the Table 1 genes below 1% that are still detected
       geneset_min_cells: 1        # detected = count > 0 in >= 1 nucleus of the object (drops Prl4a1, Cts7, Prl2a1)
   figures:   # fig_zone_modules.py invocations, rendered for every run (light + dark, PNG + SVG + sidecar)
+    # spatial panels are turned by resources/figures/mouse_section_rotation.yaml (rule zone_figures passes it to every
+    # job; 3.5 dpi = 135 deg, so the file names keep _rot135); the "rot135" in the names below is a label only
     - name: spatial_3dpi_rot135_noapop
-      args: "--figures spatial --timepoint 3_dpi --drop-apoptotic --rotate 135 --modules PDZ,TDZ,SDZ,VSZ,MD,udStr"
+      args: "--figures spatial --timepoint 3.5_dpi --drop-apoptotic --modules PDZ,TDZ,SDZ,VSZ,MD,udStr"
     - name: spatial_3dpi_rot135_noapop_viridis
-      args: "--figures spatial --timepoint 3_dpi --drop-apoptotic --rotate 135 --modules PDZ,TDZ,SDZ,VSZ,MD,udStr --cmap viridis"
+      args: "--figures spatial --timepoint 3.5_dpi --drop-apoptotic --modules PDZ,TDZ,SDZ,VSZ,MD,udStr --cmap viridis"
     - name: heatmap_3dpi_6zones_fibpooled_p99
-      args: "--figures heatmap --heatmap-scale p99 --heatmap-timepoint 3_dpi --modules PDZ,TDZ,SDZ,VSZ,MD,udStr --pool-fib"
+      args: "--figures heatmap --heatmap-scale p99 --heatmap-timepoint 3.5_dpi --modules PDZ,TDZ,SDZ,VSZ,MD,udStr --pool-fib"
     - name: heatmap_3dpi_6zones_fibpooled_p99_viridis
-      args: "--figures heatmap --heatmap-scale p99 --heatmap-timepoint 3_dpi --modules PDZ,TDZ,SDZ,VSZ,MD,udStr --pool-fib --cmap viridis"
+      args: "--figures heatmap --heatmap-scale p99 --heatmap-timepoint 3.5_dpi --modules PDZ,TDZ,SDZ,VSZ,MD,udStr --pool-fib --cmap viridis"

@@ -1,0 +1,1472 @@
+{
+ "figures": [
+  {
+   "species": "human",
+   "step": "atlas",
+   "panels": [
+    {
+     "category": "Cell-class markers used (v7 marker table)",
+     "groups": [
+      {
+       "label": "fibroblast/decidual",
+       "genes": [
+        "COL5A1",
+        "COL6A3",
+        "DCN",
+        "LEFTY2",
+        "IGFBP1"
+       ]
+      },
+      {
+       "label": "epithelial",
+       "genes": [
+        "EPCAM",
+        "KLF5",
+        "CDH1",
+        "PAX8",
+        "PAEP"
+       ]
+      },
+      {
+       "label": "endothelial",
+       "genes": [
+        "PECAM1",
+        "VWF",
+        "FLT1",
+        "CLDN5",
+        "CDH5"
+       ]
+      },
+      {
+       "label": "smooth muscle",
+       "genes": [
+        "ACTA2",
+        "MYH11",
+        "TAGLN",
+        "DES",
+        "CNN1"
+       ]
+      },
+      {
+       "label": "immune",
+       "genes": [
+        "PTPRC",
+        "STK17B"
+       ]
+      }
+     ]
+    },
+    {
+     "category": "Round-2 populations",
+     "groups": [
+      {
+       "label": "B cell",
+       "genes": [
+        "MS4A1",
+        "BANK1",
+        "PAX5",
+        "CD79A"
+       ]
+      },
+      {
+       "label": "plasma cell",
+       "genes": [
+        "JCHAIN",
+        "MZB1",
+        "IGHG1"
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "species": "mouse",
+   "step": "atlas",
+   "panels": [
+    {
+     "category": "Cell-class markers used (v7 marker table)",
+     "groups": [
+      {
+       "label": "fibroblast/decidual",
+       "genes": [
+        "Pdgfra",
+        "Wnt4",
+        "Prl8a2",
+        "Bmp2",
+        "Cdh3"
+       ]
+      },
+      {
+       "label": "epithelial",
+       "genes": [
+        "Cdh1",
+        "Pax8"
+       ]
+      },
+      {
+       "label": "endothelial",
+       "genes": [
+        "Flt1",
+        "Pecam1",
+        "Cldn5",
+        "Cdh5"
+       ]
+      },
+      {
+       "label": "perimetrium",
+       "genes": [
+        "Sox6",
+        "Msln",
+        "Upk3b",
+        "Wt1"
+       ]
+      },
+      {
+       "label": "smooth muscle",
+       "genes": [
+        "Acta2",
+        "Myh11",
+        "Tagln",
+        "Des",
+        "Cnn1"
+       ]
+      },
+      {
+       "label": "immune",
+       "genes": [
+        "Ptprc"
+       ]
+      }
+     ]
+    },
+    {
+     "category": "Round-2 populations",
+     "groups": [
+      {
+       "label": "lymphatic endothelium",
+       "genes": [
+        "Prox1",
+        "Reln",
+        "Mmrn1",
+        "Flt4"
+       ]
+      },
+      {
+       "label": "pericyte",
+       "genes": [
+        "Rgs5",
+        "Notch3",
+        "Pdgfrb",
+        "Abcc9"
+       ]
+      },
+      {
+       "label": "plasma cell",
+       "genes": [
+        "Jchain",
+        "Igha",
+        "Igkc"
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "species": "human",
+   "step": "stromal",
+   "panels": [
+    {
+     "category": "Class markers used",
+     "groups": [
+      {
+       "label": "fibroblast",
+       "genes": [
+        "COL5A1",
+        "COL6A3",
+        "DCN"
+       ]
+      },
+      {
+       "label": "decidual",
+       "genes": [
+        "LEFTY2",
+        "IGFBP1"
+       ]
+      }
+     ]
+    },
+    {
+     "category": "Fine-type markers used",
+     "groups": [
+      {
+       "label": "Decidual cells",
+       "genes": [
+        "FOXO1"
+       ]
+      },
+      {
+       "label": "Perivascular cells",
+       "genes": [
+        "RGS5",
+        "NOTCH3",
+        "MCAM"
+       ]
+      }
+     ]
+    },
+    {
+     "category": "Fine-type markers, characterising",
+     "groups": [
+      {
+       "label": "Decidual cells",
+       "genes": [
+        "PRL"
+       ]
+      },
+      {
+       "label": "Endometrial fibroblasts",
+       "genes": [
+        "PDGFRA",
+        "LUM",
+        "COL1A1"
+       ]
+      }
+     ]
+    },
+    {
+     "category": "Other-class markers",
+     "groups": [
+      {
+       "label": "epithelial",
+       "genes": [
+        "EPCAM",
+        "CDH1",
+        "PAX8"
+       ]
+      },
+      {
+       "label": "endothelial",
+       "genes": [
+        "PECAM1",
+        "VWF",
+        "CDH5"
+       ]
+      },
+      {
+       "label": "smooth muscle",
+       "genes": [
+        "ACTA2",
+        "MYH11",
+        "CNN1"
+       ]
+      },
+      {
+       "label": "immune",
+       "genes": [
+        "PTPRC",
+        "STK17B"
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "species": "human",
+   "step": "epithelial",
+   "panels": [
+    {
+     "category": "Class markers used",
+     "groups": [
+      {
+       "label": "epithelial",
+       "genes": [
+        "EPCAM",
+        "KLF5",
+        "CDH1",
+        "PAX8",
+        "PAEP"
+       ]
+      }
+     ]
+    },
+    {
+     "category": "Fine-type markers used",
+     "groups": [
+      {
+       "label": "Ciliated epithelial cells",
+       "genes": [
+        "CFAP54",
+        "CFAP43",
+        "CFAP299",
+        "DNAH12",
+        "DNAH9",
+        "DNAH5",
+        "RSPH1",
+        "ZBBX",
+        "SPAG17"
+       ]
+      }
+     ]
+    },
+    {
+     "category": "Fine-type markers, characterising",
+     "groups": [
+      {
+       "label": "Inner epithelial cells",
+       "genes": [
+        "DST",
+        "TANC2",
+        "ABCA1",
+        "SVIL",
+        "SOX4",
+        "SKIL",
+        "RDH10",
+        "MAP2"
+       ]
+      },
+      {
+       "label": "Outer epithelial cells",
+       "genes": [
+        "CTNNA2",
+        "ST3GAL5"
+       ]
+      }
+     ]
+    },
+    {
+     "category": "Other-class markers",
+     "groups": [
+      {
+       "label": "fibroblast/decidual",
+       "genes": [
+        "DCN",
+        "COL6A3",
+        "IGFBP1"
+       ]
+      },
+      {
+       "label": "endothelial",
+       "genes": [
+        "PECAM1",
+        "VWF",
+        "CDH5"
+       ]
+      },
+      {
+       "label": "smooth muscle",
+       "genes": [
+        "ACTA2",
+        "MYH11",
+        "CNN1"
+       ]
+      },
+      {
+       "label": "immune",
+       "genes": [
+        "PTPRC",
+        "STK17B"
+       ]
+      }
+     ]
+    },
+    {
+     "category": "Cited in notes",
+     "groups": [
+      {
+       "label": "cited",
+       "genes": [
+        "PDGFRA",
+        "COL1A1",
+        "FLT1"
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "species": "human",
+   "step": "perivascular",
+   "panels": [
+    {
+     "category": "Class markers used",
+     "groups": [
+      {
+       "label": "endothelial",
+       "genes": [
+        "PECAM1",
+        "VWF",
+        "FLT1",
+        "CLDN5",
+        "CDH5"
+       ]
+      }
+     ]
+    },
+    {
+     "category": "Fine-type markers used",
+     "groups": [
+      {
+       "label": "Blood endothelial cells",
+       "genes": [
+        "MECOM"
+       ]
+      },
+      {
+       "label": "Lymphatic endothelial cells",
+       "genes": [
+        "PROX1",
+        "RELN",
+        "FLT4",
+        "PDPN"
+       ]
+      }
+     ]
+    },
+    {
+     "category": "Other-class markers",
+     "groups": [
+      {
+       "label": "fibroblast/decidual",
+       "genes": [
+        "DCN",
+        "COL6A3",
+        "IGFBP1"
+       ]
+      },
+      {
+       "label": "epithelial",
+       "genes": [
+        "EPCAM",
+        "CDH1",
+        "PAX8"
+       ]
+      },
+      {
+       "label": "smooth muscle",
+       "genes": [
+        "ACTA2",
+        "MYH11",
+        "CNN1"
+       ]
+      },
+      {
+       "label": "immune",
+       "genes": [
+        "PTPRC",
+        "STK17B"
+       ]
+      }
+     ]
+    },
+    {
+     "category": "Cited in notes",
+     "groups": [
+      {
+       "label": "cited",
+       "genes": [
+        "PDGFRA",
+        "LUM"
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "species": "human",
+   "step": "smc",
+   "panels": [
+    {
+     "category": "Class markers used",
+     "groups": [
+      {
+       "label": "smooth muscle",
+       "genes": [
+        "ACTA2",
+        "MYH11",
+        "TAGLN",
+        "DES",
+        "CNN1"
+       ]
+      }
+     ]
+    },
+    {
+     "category": "Other-class markers",
+     "groups": [
+      {
+       "label": "fibroblast/decidual",
+       "genes": [
+        "DCN",
+        "COL6A3",
+        "IGFBP1"
+       ]
+      },
+      {
+       "label": "epithelial",
+       "genes": [
+        "EPCAM",
+        "CDH1",
+        "PAX8"
+       ]
+      },
+      {
+       "label": "endothelial",
+       "genes": [
+        "PECAM1",
+        "VWF",
+        "CDH5"
+       ]
+      },
+      {
+       "label": "immune",
+       "genes": [
+        "PTPRC",
+        "STK17B"
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "species": "human",
+   "step": "immune",
+   "panels": [
+    {
+     "category": "Class markers used",
+     "groups": [
+      {
+       "label": "immune",
+       "genes": [
+        "PTPRC",
+        "STK17B"
+       ]
+      }
+     ]
+    },
+    {
+     "category": "Immune dot-plot panel (Wilcoxon)",
+     "groups": [
+      {
+       "label": "macrophage",
+       "genes": [
+        "CD163",
+        "MRC1",
+        "MERTK"
+       ]
+      },
+      {
+       "label": "mast cell",
+       "genes": [
+        "CPA3",
+        "TPSB2",
+        "MS4A2",
+        "KIT"
+       ]
+      },
+      {
+       "label": "RORC-positive lymphocyte",
+       "genes": [
+        "IL1R1",
+        "IL23R",
+        "RORC"
+       ]
+      },
+      {
+       "label": "CD4 T cell",
+       "genes": [
+        "IL7R",
+        "CD40LG",
+        "CD226"
+       ]
+      },
+      {
+       "label": "Treg cell",
+       "genes": [
+        "FOXP3",
+        "CTLA4",
+        "TBC1D4"
+       ]
+      },
+      {
+       "label": "CD8 T cell",
+       "genes": [
+        "CD8A",
+        "CD8B",
+        "GZMK"
+       ]
+      },
+      {
+       "label": "uNK cell",
+       "genes": [
+        "ITGAE",
+        "KLRD1",
+        "LDB2"
+       ]
+      },
+      {
+       "label": "cytotoxic uNK cell",
+       "genes": [
+        "GNLY",
+        "GZMB",
+        "ITGAX"
+       ]
+      },
+      {
+       "label": "B cell",
+       "genes": [
+        "MS4A1",
+        "CD79A",
+        "BANK1",
+        "PAX5"
+       ]
+      },
+      {
+       "label": "plasma cell",
+       "genes": [
+        "JCHAIN",
+        "MZB1",
+        "IGHG1"
+       ]
+      }
+     ]
+    },
+    {
+     "category": "Other-class markers",
+     "groups": [
+      {
+       "label": "fibroblast/decidual",
+       "genes": [
+        "DCN",
+        "COL6A3",
+        "IGFBP1"
+       ]
+      },
+      {
+       "label": "epithelial",
+       "genes": [
+        "EPCAM",
+        "CDH1",
+        "PAX8"
+       ]
+      },
+      {
+       "label": "endothelial",
+       "genes": [
+        "PECAM1",
+        "VWF",
+        "CDH5"
+       ]
+      },
+      {
+       "label": "smooth muscle",
+       "genes": [
+        "ACTA2",
+        "MYH11",
+        "CNN1"
+       ]
+      }
+     ]
+    },
+    {
+     "category": "Cited in notes",
+     "groups": [
+      {
+       "label": "cited",
+       "genes": [
+        "PDGFRA"
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "species": "mouse",
+   "step": "stromal",
+   "panels": [
+    {
+     "category": "Class markers used",
+     "groups": [
+      {
+       "label": "fibroblast",
+       "genes": [
+        "Pdgfra"
+       ]
+      },
+      {
+       "label": "decidual",
+       "genes": [
+        "Wnt4",
+        "Prl8a2",
+        "Bmp2",
+        "Cdh3"
+       ]
+      }
+     ]
+    },
+    {
+     "category": "2026-10-27 cell-type panel",
+     "groups": [
+      {
+       "label": "fibroblast",
+       "genes": [
+        "Col1a1"
+       ]
+      },
+      {
+       "label": "ER / PR",
+       "genes": [
+        "Pgr",
+        "Esr1"
+       ]
+      }
+     ]
+    },
+    {
+     "category": "lineage_spec group",
+     "groups": [
+      {
+       "label": "proliferation",
+       "genes": [
+        "Mki67",
+        "Top2a"
+       ]
+      }
+     ]
+    },
+    {
+     "category": "Other-class markers",
+     "groups": [
+      {
+       "label": "epithelial",
+       "genes": [
+        "Cdh1",
+        "Pax8"
+       ]
+      },
+      {
+       "label": "endothelial",
+       "genes": [
+        "Pecam1",
+        "Flt1",
+        "Cdh5"
+       ]
+      },
+      {
+       "label": "perimetrium",
+       "genes": [
+        "Msln",
+        "Upk3b",
+        "Sox6"
+       ]
+      },
+      {
+       "label": "smooth muscle",
+       "genes": [
+        "Acta2",
+        "Myh11",
+        "Tagln"
+       ]
+      },
+      {
+       "label": "immune",
+       "genes": [
+        "Ptprc"
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "species": "mouse",
+   "step": "epithelial",
+   "panels": [
+    {
+     "category": "Class markers used",
+     "groups": [
+      {
+       "label": "epithelial",
+       "genes": [
+        "Cdh1",
+        "Pax8"
+       ]
+      }
+     ]
+    },
+    {
+     "category": "Fine-type markers used",
+     "groups": [
+      {
+       "label": "Proliferative epithelial cells",
+       "genes": [
+        "Mki67",
+        "Cenpf",
+        "Top2a",
+        "Cdk1",
+        "Birc5"
+       ]
+      }
+     ]
+    },
+    {
+     "category": "Fine-type markers, characterising",
+     "groups": [
+      {
+       "label": "Glandular epithelial cells",
+       "genes": [
+        "Foxa2",
+        "Ihh",
+        "Lif",
+        "Ntn1",
+        "Chrm3",
+        "Tshr",
+        "Limch1",
+        "Fam3d",
+        "Tns1"
+       ]
+      },
+      {
+       "label": "Luminal epithelial cells",
+       "genes": [
+        "Wnt7a",
+        "Muc1",
+        "Lgr5",
+        "Lama3",
+        "Npas2",
+        "Lrrc31",
+        "Plpp3",
+        "Agpat4",
+        "Cwh43"
+       ]
+      }
+     ]
+    },
+    {
+     "category": "Other-class markers",
+     "groups": [
+      {
+       "label": "fibroblast/decidual",
+       "genes": [
+        "Pdgfra",
+        "Prl8a2",
+        "Wnt4"
+       ]
+      },
+      {
+       "label": "endothelial",
+       "genes": [
+        "Pecam1",
+        "Flt1",
+        "Cdh5"
+       ]
+      },
+      {
+       "label": "perimetrium",
+       "genes": [
+        "Msln",
+        "Upk3b",
+        "Sox6"
+       ]
+      },
+      {
+       "label": "smooth muscle",
+       "genes": [
+        "Acta2",
+        "Myh11",
+        "Tagln"
+       ]
+      },
+      {
+       "label": "immune",
+       "genes": [
+        "Ptprc"
+       ]
+      }
+     ]
+    },
+    {
+     "category": "Cited in notes",
+     "groups": [
+      {
+       "label": "cited",
+       "genes": [
+        "Prss28",
+        "Prss29"
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "species": "mouse",
+   "step": "vascular",
+   "panels": [
+    {
+     "category": "Class markers used",
+     "groups": [
+      {
+       "label": "endothelial",
+       "genes": [
+        "Flt1",
+        "Pecam1",
+        "Cldn5",
+        "Cdh5"
+       ]
+      }
+     ]
+    },
+    {
+     "category": "Fine-type markers",
+     "groups": [
+      {
+       "label": "Lymphatic endothelial cells",
+       "genes": [
+        "Prox1",
+        "Reln",
+        "Mmrn1",
+        "Flt4",
+        "Ccl21a"
+       ]
+      },
+      {
+       "label": "Blood endothelial cells",
+       "genes": [
+        "Emcn",
+        "Plvap"
+       ]
+      },
+      {
+       "label": "arterial endothelium",
+       "genes": [
+        "Gja5",
+        "Efnb2",
+        "Jag1"
+       ]
+      }
+     ]
+    },
+    {
+     "category": "Other-class markers",
+     "groups": [
+      {
+       "label": "fibroblast/decidual",
+       "genes": [
+        "Pdgfra",
+        "Prl8a2",
+        "Wnt4"
+       ]
+      },
+      {
+       "label": "epithelial",
+       "genes": [
+        "Cdh1",
+        "Pax8"
+       ]
+      },
+      {
+       "label": "perimetrium",
+       "genes": [
+        "Msln",
+        "Upk3b",
+        "Sox6"
+       ]
+      },
+      {
+       "label": "smooth muscle",
+       "genes": [
+        "Acta2",
+        "Myh11",
+        "Tagln"
+       ]
+      },
+      {
+       "label": "immune",
+       "genes": [
+        "Ptprc"
+       ]
+      }
+     ]
+    },
+    {
+     "category": "Mural markers",
+     "groups": [
+      {
+       "label": "pericyte",
+       "genes": [
+        "Pdgfrb",
+        "Rgs5",
+        "Notch3"
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "species": "mouse",
+   "step": "perimetrium",
+   "panels": [
+    {
+     "category": "Class markers used",
+     "groups": [
+      {
+       "label": "perimetrium",
+       "genes": [
+        "Sox6",
+        "Msln",
+        "Upk3b",
+        "Wt1"
+       ]
+      }
+     ]
+    },
+    {
+     "category": "Other-class markers",
+     "groups": [
+      {
+       "label": "fibroblast/decidual",
+       "genes": [
+        "Pdgfra",
+        "Prl8a2",
+        "Wnt4"
+       ]
+      },
+      {
+       "label": "epithelial",
+       "genes": [
+        "Cdh1",
+        "Pax8"
+       ]
+      },
+      {
+       "label": "endothelial",
+       "genes": [
+        "Pecam1",
+        "Flt1",
+        "Cdh5"
+       ]
+      },
+      {
+       "label": "smooth muscle",
+       "genes": [
+        "Acta2",
+        "Myh11",
+        "Tagln"
+       ]
+      },
+      {
+       "label": "immune",
+       "genes": [
+        "Ptprc"
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "species": "mouse",
+   "step": "smc",
+   "panels": [
+    {
+     "category": "Class markers used",
+     "groups": [
+      {
+       "label": "smooth muscle",
+       "genes": [
+        "Acta2",
+        "Myh11",
+        "Tagln",
+        "Des",
+        "Cnn1"
+       ]
+      }
+     ]
+    },
+    {
+     "category": "Fine-type markers",
+     "groups": [
+      {
+       "label": "Pericytes",
+       "genes": [
+        "Rgs5",
+        "Notch3",
+        "Pdgfrb",
+        "Abcc9",
+        "Kcnj8",
+        "Cspg4"
+       ]
+      }
+     ]
+    },
+    {
+     "category": "Other-class markers",
+     "groups": [
+      {
+       "label": "fibroblast/decidual",
+       "genes": [
+        "Pdgfra",
+        "Prl8a2",
+        "Wnt4"
+       ]
+      },
+      {
+       "label": "epithelial",
+       "genes": [
+        "Cdh1",
+        "Pax8"
+       ]
+      },
+      {
+       "label": "endothelial",
+       "genes": [
+        "Pecam1",
+        "Flt1",
+        "Cdh5"
+       ]
+      },
+      {
+       "label": "perimetrium",
+       "genes": [
+        "Msln",
+        "Upk3b",
+        "Sox6"
+       ]
+      },
+      {
+       "label": "immune",
+       "genes": [
+        "Ptprc"
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "species": "mouse",
+   "step": "immune",
+   "panels": [
+    {
+     "category": "Class markers used",
+     "groups": [
+      {
+       "label": "immune",
+       "genes": [
+        "Ptprc"
+       ]
+      }
+     ]
+    },
+    {
+     "category": "Immune dot-plot panel (Wilcoxon)",
+     "groups": [
+      {
+       "label": "dendritic cell",
+       "genes": [
+        "Clec9a",
+        "Xcr1",
+        "Flt3"
+       ]
+      },
+      {
+       "label": "monocyte",
+       "genes": [
+        "Fgr",
+        "Sirpb1b",
+        "Itgam"
+       ]
+      },
+      {
+       "label": "macrophage",
+       "genes": [
+        "Mrc1",
+        "Adgre1",
+        "Csf1r"
+       ]
+      },
+      {
+       "label": "cycling macrophage",
+       "genes": [
+        "Mki67",
+        "Top2a"
+       ]
+      },
+      {
+       "label": "cycling uNK cell",
+       "genes": [
+        "Kif11",
+        "Depdc1a"
+       ]
+      },
+      {
+       "label": "uNK cell",
+       "genes": [
+        "Ncr1",
+        "Klrk1",
+        "Styk1"
+       ]
+      },
+      {
+       "label": "cytotoxic uNK cell",
+       "genes": [
+        "Gzmb",
+        "Prf1",
+        "Gzmg"
+       ]
+      },
+      {
+       "label": "γδ T cell",
+       "genes": [
+        "Il23r",
+        "Scart1",
+        "Trgc1"
+       ]
+      },
+      {
+       "label": "T cell",
+       "genes": [
+        "Cd3e",
+        "Themis",
+        "Tcf7"
+       ]
+      },
+      {
+       "label": "B cell",
+       "genes": [
+        "Pax5",
+        "Ebf1",
+        "Ighm"
+       ]
+      },
+      {
+       "label": "plasma cell",
+       "genes": [
+        "Jchain",
+        "Igha",
+        "Igkc",
+        "Mzb1"
+       ]
+      }
+     ]
+    },
+    {
+     "category": "Other-class markers",
+     "groups": [
+      {
+       "label": "fibroblast/decidual",
+       "genes": [
+        "Pdgfra",
+        "Prl8a2",
+        "Wnt4"
+       ]
+      },
+      {
+       "label": "epithelial",
+       "genes": [
+        "Cdh1",
+        "Pax8"
+       ]
+      },
+      {
+       "label": "endothelial",
+       "genes": [
+        "Pecam1",
+        "Flt1",
+        "Cdh5"
+       ]
+      },
+      {
+       "label": "perimetrium",
+       "genes": [
+        "Msln",
+        "Upk3b",
+        "Sox6"
+       ]
+      },
+      {
+       "label": "smooth muscle",
+       "genes": [
+        "Acta2",
+        "Myh11",
+        "Tagln"
+       ]
+      }
+     ]
+    }
+   ]
+  }
+ ],
+ "genes": {
+  "human": [
+   "ABCA1",
+   "ACTA2",
+   "CD163",
+   "CD226",
+   "CD40LG",
+   "CD8A",
+   "CD8B",
+   "CDH1",
+   "CDH5",
+   "CFAP299",
+   "CFAP43",
+   "CFAP54",
+   "CLDN5",
+   "CNN1",
+   "COL1A1",
+   "COL5A1",
+   "COL6A3",
+   "CPA3",
+   "CTLA4",
+   "CTNNA2",
+   "DCN",
+   "DES",
+   "DNAH12",
+   "DNAH5",
+   "DNAH9",
+   "DST",
+   "EPCAM",
+   "FLT1",
+   "FLT4",
+   "FOXO1",
+   "FOXP3",
+   "GNLY",
+   "GZMB",
+   "GZMK",
+   "IGFBP1",
+   "IL1R1",
+   "IL23R",
+   "IL7R",
+   "ITGAE",
+   "ITGAX",
+   "KLF5",
+   "KLRD1",
+   "LDB2",
+   "LEFTY2",
+   "LUM",
+   "MAP2",
+   "MCAM",
+   "MECOM",
+   "MERTK",
+   "MRC1",
+   "MS4A2",
+   "MYH11",
+   "NOTCH3",
+   "PAEP",
+   "PAX8",
+   "PDGFRA",
+   "PDPN",
+   "PECAM1",
+   "PRL",
+   "PROX1",
+   "PTPRC",
+   "RDH10",
+   "RELN",
+   "RGS5",
+   "RORC",
+   "RSPH1",
+   "SKIL",
+   "SOX4",
+   "SPAG17",
+   "ST3GAL5",
+   "STK17B",
+   "SVIL",
+   "TAGLN",
+   "TANC2",
+   "TBC1D4",
+   "TPSB2",
+   "VWF",
+   "ZBBX"
+  ],
+  "mouse": [
+   "Acta2",
+   "Adgre1",
+   "Agpat4",
+   "Birc5",
+   "Bmp2",
+   "Ccl21a",
+   "Cd3e",
+   "Cdh1",
+   "Cdh3",
+   "Cdh5",
+   "Cdk1",
+   "Cenpf",
+   "Chrm3",
+   "Cldn5",
+   "Clec9a",
+   "Cnn1",
+   "Col1a1",
+   "Csf1r",
+   "Cwh43",
+   "Depdc1a",
+   "Des",
+   "Ebf1",
+   "Esr1",
+   "Fam3d",
+   "Fgr",
+   "Flt1",
+   "Flt3",
+   "Foxa2",
+   "Gzmb",
+   "Gzmg",
+   "Ighm",
+   "Ihh",
+   "Il23r",
+   "Itgam",
+   "Kif11",
+   "Klrk1",
+   "Lama3",
+   "Lgr5",
+   "Lif",
+   "Limch1",
+   "Lrrc31",
+   "Mki67",
+   "Mrc1",
+   "Msln",
+   "Muc1",
+   "Myh11",
+   "Ncr1",
+   "Npas2",
+   "Ntn1",
+   "Pax5",
+   "Pax8",
+   "Pdgfra",
+   "Pdgfrb",
+   "Pecam1",
+   "Pgr",
+   "Plpp3",
+   "Prf1",
+   "Prl8a2",
+   "Prox1",
+   "Prss28",
+   "Prss29",
+   "Ptprc",
+   "Rgs5",
+   "Scart1",
+   "Sirpb1b",
+   "Sox6",
+   "Styk1",
+   "Tagln",
+   "Tcf7",
+   "Themis",
+   "Tns1",
+   "Top2a",
+   "Trgc1",
+   "Tshr",
+   "Upk3b",
+   "Wnt4",
+   "Wnt7a",
+   "Wt1",
+   "Xcr1"
+  ]
+ },
+ "note": "29 Oct annotation dot-plot panels (2026_10_29_annotation_dotplots/scripts/panels.json) with the v9 changes: round-2 populations on the atlas plots; mouse vascular lymphatic/blood/arterial genes; mouse smc pericyte genes; plasma cells in both immune panels; human B cells; human gamma-delta T renamed RORC-positive lymphocyte and KIT added to mast cells (PI, 2026-10-29)."
+}
