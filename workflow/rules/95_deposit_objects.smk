@@ -41,8 +41,9 @@ rule deposit_object:
         settings="config/deposit_objects.yaml",
         script="workflow/scripts/deposit/prune_release_object.py",
     output:
-        h5ad=DEP_OUT + "/{set}/{obj}.h5ad",
-        provenance=DEP_OUT + "/{set}/{obj}.provenance.json",
+        # protected(): deposit copies are never overwritten; a new build needs a new out_dir.
+        h5ad=protected(DEP_OUT + "/{set}/{obj}.h5ad"),
+        provenance=protected(DEP_OUT + "/{set}/{obj}.provenance.json"),
     params:
         py=DEP["python"],
         release=lambda wildcards: DEP["sets"][wildcards.set]["release"],

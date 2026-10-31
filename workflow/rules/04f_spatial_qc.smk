@@ -26,22 +26,27 @@ def spatial_qc_targets():
     return expand("data/interim/qc_spatial_{s}.h5ad", s=SQC_SPECIES)
 
 
-rule spatial_qc:
-    input:
-        h5ad="data/interim/annotated_{species}.h5ad",
-    output:
-        h5ad="data/interim/qc_spatial_{species}.h5ad",
-        tally="results/tables/spatial_qc_{species}.csv",
-    params:
-        sqc=SQC,
-    wildcard_constraints:
-        species="|".join(SQC_SPECIES) if SQC_SPECIES else "__nospatialqc__",
-    log:
-        "logs/04f_spatial_qc_{species}.log",
-    script:
-        "../scripts/atlas/spatial_qc.py"
+# Defined only when config atlas_annotation.rerun is true, with 04_annotate: data/interim/qc_spatial_mouse.h5ad
+# and results/tables/spatial_qc_mouse.csv are the September QC of record, made from the July annotated object.
+# The releases since v9 take the round-2 spatial QC (04c2 spatial_qc_round2).
+if config.get("atlas_annotation", {}).get("rerun", False):
+
+    rule spatial_qc:
+        input:
+            h5ad="data/interim/annotated_{species}.h5ad",
+        output:
+            h5ad="data/interim/qc_spatial_{species}.h5ad",
+            tally="results/tables/spatial_qc_{species}.csv",
+        params:
+            sqc=SQC,
+        wildcard_constraints:
+            species="|".join(SQC_SPECIES) if SQC_SPECIES else "__nospatialqc__",
+        log:
+            "logs/04f_spatial_qc_{species}.log",
+        script:
+            "../scripts/atlas/spatial_qc.py"
 
 
-rule spatial_qc_all:
-    input:
-        spatial_qc_targets(),
+    rule spatial_qc_all:
+        input:
+            spatial_qc_targets(),

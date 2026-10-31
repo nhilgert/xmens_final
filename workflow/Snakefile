@@ -22,19 +22,6 @@ for r in ["00a_slidetags","00_cellbender","00b_ingest","01_qc","01c_concat","01b
           "22_crossspecies","23_invitro","90_figures","09_homology","10_samap"]:
     include: f"rules/{r}.smk"
 
-rule all:
-    input:
-        *lineage_latents(),          # 04b per-lineage latents
-        expand("results/tables/markers_{sp}.csv", sp=SPECIES),
-        expand("results/tables/mi_{sp}.csv", sp=SPECIES),
-        expand("results/tables/scenic_{sp}.csv", sp=SPECIES),
-        "results/tables/conservation.csv",
-        "data/interim/pt/global_mouse.h5ad",
-        "data/interim/pt/cellrank_mouse.h5ad",
-        expand("data/interim/pt/spatial_{s}.h5ad", s=SLIDETAGS),
-        *spatial_qc_targets(),       # 04f spatial-coordinate QC (mouse; after annotation)
-        "results/tables/invitro_comparison.csv",
-        "results/figures/.done",
 include: "rules/11_mi_pseudotime.smk"
 include: "rules/12_spatial_gp.smk"
 include: "rules/13_scenic.smk"
@@ -61,3 +48,22 @@ include: "rules/91_panels_cross_species.smk"   # Fig. 6A, 6B, 6D, 6E
 include: "rules/91_panels_marker_dotplots.smk"  # Table M1 v9 marker dot plots and per-step review dot plots
 include: "rules/91_panels_programs.smk"        # Fig. 5E
 include: "rules/95_deposit_objects.smk"        # deposit copies of the release objects
+
+# Default target: the release of record (finalize_deliverables), its deposit copies and the figure panels of the
+# revision. Stages that rewrite objects of record are defined only when their config flag is set (scvi.retrain,
+# annotation_round2.fit, atlas_annotation.rerun). The never-built stub stages (03, 05_de, 06, 07, 08,
+# 09_pt_genes_mi, 21-23, 90) are no longer requested.
+rule all:
+    default_target: True
+    input:
+        rules.finalize_deliverables.output,
+        rules.deposit_objects_all.input,
+        rules.panels_mouse_tissue_all.input,
+        rules.panels_mouse_stroma_all.input,
+        rules.panels_human_tissue_all.input,
+        rules.panels_human_epithelium_all.input,
+        rules.panels_cross_species_all.input,
+        rules.panels_marker_dotplots_all.input,
+        rules.panels_programs_all.input,
+        rules.samap_figures_all.input,
+        rules.zone_modules_all.input,

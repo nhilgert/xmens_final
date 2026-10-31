@@ -11,27 +11,33 @@ import yaml as _yaml
 _SPEC = _yaml.safe_load(open("resources/lineage_spec.yaml"))
 
 
-for _sp, _lins in config["lineages"].items():
+# Defined only when config atlas_annotation.rerun is true, like scvi.retrain for 02/04b/04e. The outputs are the
+# July atlas objects of record (data/interim/annotated_{species}.h5ad, data/interim/lineages/, the Leiden ladder),
+# and the vocabulary and lineage_spec edited for later releases are inputs here, so by default the pipeline reads
+# these objects and never rewrites them. To rerun: snakemake --config 'atlas_annotation={rerun: true}' <targets>
+if config.get("atlas_annotation", {}).get("rerun", False):
 
-    rule:
-        name:
-            f"annotate_{_sp}"
-        input:
-            h5ad="data/interim/latent_{sp}.h5ad".format(sp=_sp),
-            csv="resources/annotations/{sp}_lineage.csv".format(sp=_sp),
-            spec="resources/lineage_spec.yaml",
-            vocab="resources/annotation_vocabulary.yaml",
-        output:
-            h5ad="data/interim/annotated_{sp}.h5ad".format(sp=_sp),
-            subsets=["data/interim/lineages/{sp}_{lin}.h5ad".format(sp=_sp, lin=_l)
-                     for _l in _lins],
-            ladder="results/tables/clusters/{sp}/leiden_all_resolutions.csv".format(sp=_sp),
-        params:
-            level="atlas",
-            species=_sp,
-            res=_SPEC["atlas"][_sp]["res"],   # single source of truth = the spec
-            repo=config.get("repo", "."),
-        log:
-            "logs/04_annotate_{sp}.log".format(sp=_sp),
-        script:
-            "../scripts/atlas/apply_annotation.py"
+    for _sp, _lins in config["lineages"].items():
+
+        rule:
+            name:
+                f"annotate_{_sp}"
+            input:
+                h5ad="data/interim/latent_{sp}.h5ad".format(sp=_sp),
+                csv="resources/annotations/{sp}_lineage.csv".format(sp=_sp),
+                spec="resources/lineage_spec.yaml",
+                vocab="resources/annotation_vocabulary.yaml",
+            output:
+                h5ad="data/interim/annotated_{sp}.h5ad".format(sp=_sp),
+                subsets=["data/interim/lineages/{sp}_{lin}.h5ad".format(sp=_sp, lin=_l)
+                         for _l in _lins],
+                ladder="results/tables/clusters/{sp}/leiden_all_resolutions.csv".format(sp=_sp),
+            params:
+                level="atlas",
+                species=_sp,
+                res=_SPEC["atlas"][_sp]["res"],   # single source of truth = the spec
+                repo=config.get("repo", "."),
+            log:
+                "logs/04_annotate_{sp}.log".format(sp=_sp),
+            script:
+                "../scripts/atlas/apply_annotation.py"

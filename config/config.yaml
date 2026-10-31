@@ -51,6 +51,8 @@ scvi:
   n_layers: 2
   batch_key: sample
   exclude_mito_ribo: true
+atlas_annotation:
+  rerun: false             # true defines annotate_mouse, annotate_human (04) and spatial_qc (04f); like scvi.retrain
 leiden:
   resolution: 0.1
   knn: 100

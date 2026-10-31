@@ -256,8 +256,11 @@ rule finalize_deliverables:
         sources=[ancient(p) for p in DELIV_SRC.values()],
         vocab="resources/annotation_vocabulary.yaml",
     output:
-        manifest=f"{DELIV_DIR}/MANIFEST.json",
-        objects=[f"{DELIV_DIR}/{name}.h5ad" for name in DELIV_SRC],
+        # protected(): Snakemake deletes a job's existing outputs before running it, so the sha256 guard in
+        # finalize_deliverables.py never sees an older release file. Write-protected outputs make Snakemake
+        # refuse the job instead (bump deliverables.release to cut a new release).
+        manifest=protected(f"{DELIV_DIR}/MANIFEST.json"),
+        objects=[protected(f"{DELIV_DIR}/{name}.h5ad") for name in DELIV_SRC],
     params:
         sources=DELIV_SRC,
         release=DELIV_REL,
