@@ -1259,6 +1259,19 @@
      ]
     },
     {
+     "category": "Table M1 genes of v9-only labels",
+     "groups": [
+      {
+       "label": "neutrophil",
+       "genes": [
+        "Csf3r",
+        "S100a8",
+        "S100a9"
+       ]
+      }
+     ]
+    },
+    {
      "category": "Other-class markers",
      "groups": [
       {
@@ -1405,6 +1418,7 @@
    "Cnn1",
    "Col1a1",
    "Csf1r",
+   "Csf3r",
    "Cwh43",
    "Depdc1a",
    "Des",
@@ -1450,6 +1464,8 @@
    "Prss29",
    "Ptprc",
    "Rgs5",
+   "S100a8",
+   "S100a9",
    "Scart1",
    "Sirpb1b",
    "Sox6",
@@ -1468,5 +1484,5 @@
    "Xcr1"
   ]
  },
- "note": "29 Oct annotation dot-plot panels (2026_10_29_annotation_dotplots/scripts/panels.json) with the v9 changes: round-2 populations on the atlas plots; mouse vascular lymphatic/blood/arterial genes; mouse smc pericyte genes; plasma cells in both immune panels; human B cells; human gamma-delta T renamed RORC-positive lymphocyte and KIT added to mast cells (PI, 2026-10-29)."
+ "note": "29 Oct annotation dot-plot panels (2026_10_29_annotation_dotplots/scripts/panels.json) with the v9 changes: round-2 populations on the atlas plots; mouse vascular lymphatic/blood/arterial genes; mouse smc pericyte genes; plasma cells in both immune panels; human B cells; human gamma-delta T renamed RORC-positive lymphocyte and KIT added to mast cells (PI, 2026-10-29). Mouse immune: Table M1 neutrophil genes (Csf3r, S100a8, S100a9) added for the v9 neutrophil label."
 }

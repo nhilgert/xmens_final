@@ -1,7 +1,0 @@
-subtype,human_cluster,human_cosine,human_call,mouse_query,mouse_full_panel,mouse_panel_cosine,n_shared_drivers,shared_drivers,verdict
-Stro-5 RUNX3+,5,0.0654161266503833,no counterpart above negative controls,-,,,0,-,"not recovered in either species (immune program absent in human by construction; mouse best is efib_middle_induced, UNRESOLVED)"
-Stro-7 C7,3,0.343016290608037,confident,efib_outer,0.1744466506865669,0.2429,6,"APOD, ITGA11, PTGIS, RERG, SCN7A, TNXB","recovered in both species, identity-driven - the three-way anchor"
-Stro-8 dS1,5,0.2729383511293804,probable,decidual_mature,-0.0866812429283621,0.2553,2,"PALMD, SHOC2",human probable; mouse support panel-dependent (negative on the full panel)
-Stro-9 dS2,5,0.1615347732001752,not resolved from Stro-8 dS1,-,,,0,-,not resolved from dS1 in human; not recovered in mouse (held-out agreement 0.13)
-Stro-10 dS3,1,0.3894166776300001,confident,efib_subluminal (+efib_middle; decidual_boundary panel-dep.),0.0996268241885715,0.1249,11,"APCDD1, CDH11, HDDC2, KAT6B, LMO4, NR2F2, SEZ6L2, SMAD5, TMEM219, WNT2, ZNF516",recovered in both species; mouse signal diffuse across clusters
-Stro-11 progenitor,0,0.0891897205249049,no counterpart above negative controls,efib_proliferative,0.2593004514703549,0.3466,0,- (no human route),"mouse only, and cell-cycle-driven: a state match, not an identity match"

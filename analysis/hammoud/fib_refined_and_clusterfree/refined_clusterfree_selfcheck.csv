@@ -1,7 +1,0 @@
-claim,recomputed,recorded,status
-stromal subtype columns in S5B,11,11,PASS
-gene axis is species-prefixed,True,True,PASS
-human: cell count,47533,47533,PASS
-human: no marker gene in the cosine panel,0,0,PASS
-mouse: cell count,43197,43197,PASS
-mouse: no marker gene in the cosine panel,0,0,PASS

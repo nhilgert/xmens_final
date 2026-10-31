@@ -1,7 +1,0 @@
-group,best_subtype,cosine,runner_up,margin,perm_null_max,above_null
-0,Stro-10_dS3,0.2027,Stro-8_dS1,0.0581,0.0605,True
-1,Stro-10_dS3,0.3304,Stro-11_Stromal progenitor,0.217,0.0644,True
-2,Stro-10_dS3,0.1153,Stro-7_C7 Fibroblast,0.0134,0.0579,True
-3,Stro-7_C7 Fibroblast,0.2577,Stro-6_uSMC,0.1342,0.0596,True
-4,Stro-8_dS1,0.154,Stro-4_Tissue resident vascular progenitor,0.059,0.0534,True
-5,Stro-8_dS1,0.1432,Stro-1_PV MYH11 FOXC1hi CTGFlo,0.042,0.0663,True

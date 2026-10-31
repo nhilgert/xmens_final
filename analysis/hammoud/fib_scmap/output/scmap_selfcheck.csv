@@ -1,8 +1,0 @@
-"claim","recomputed","recorded","status"
-"39 atlas subtypes","39","39","PASS"
-"11 stromal subtypes","11","11","PASS"
-"cells","47533","47533","PASS"
-"median expm1 row-sum is CP10K","10000","10000","PASS"
-"selectFeatures returned the requested count","500","500","PASS"
-"our index has 6 clusters","6","6","PASS"
-"B: all 39 centroids scored","39","39","PASS"

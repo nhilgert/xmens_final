@@ -1,5 +1,0 @@
-"claim","recomputed","recorded","status"
-"cells","47533","47533","PASS"
-"11 stromal / 5 controls","11 5","11 5","PASS"
-"B: controls all unassigned under the null threshold","0","0","PASS"
-"B: Stro-7 -> cluster 3 (published call)","unassigned","3","MISMATCH"

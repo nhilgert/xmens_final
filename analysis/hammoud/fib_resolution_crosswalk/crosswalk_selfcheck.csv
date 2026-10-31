@@ -1,5 +1,0 @@
-claim,recomputed,recorded,status
-leiden_0.8 cluster count reproduces the notebook,8,8,PASS
-leiden_0.8 cluster SIZES reproduce the notebook exactly,"{'0': 8220, '1': 4207, '2': 9967, '3': 5056, '4': 12220, '5': 5882, '6': 1235, '7': 746}","{'0': 8220, '1': 4207, '2': 9967, '3': 5056, '4': 12220, '5': 5882, '6': 1235, '7': 746}",PASS
-saved 0.5 assignment count matches the 0.8 object,47533,47533,PASS
-barcodes align one-to-one across the two objects,47533,47533,PASS

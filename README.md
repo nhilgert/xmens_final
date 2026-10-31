@@ -1,155 +1,75 @@
 # xmens_final
 
-Reproducible analysis pipeline for the X-Mens / decidualization spatial
-transcriptomics study (Çevrim et al. 2025, *Induction of menstruation in mice
-reveals the regulation of menstrual shedding*, bioRxiv 2025.10.08.681007).
+Snakemake pipeline for Çevrim et al., *Induction of menstruation in mice reveals the regulation of menstrual
+shedding* (bioRxiv 2025.10.08.681007): single-nucleus Slide-tags spatial transcriptomics of the mouse X-Mens
+induced-menstruation time course and of human endometrium (15 samples), from CellBender-corrected counts and
+Slide-tags coordinates to the released objects, the figure panels and the numbers quoted in the Methods.
 
-Cross-species single-nucleus **Slide-tags** spatial transcriptomics of the
-endometrium: a transgenic mouse model (GsD X-Mens, an induction timecourse) and
-human endometrial samples (secretory + menstrual phases). The pipeline takes
-CellBender-corrected counts + spatial coordinates through QC, integration,
-clustering, annotation, pseudotime, and cross-species comparison.
-
-> **Status:** under active development. The data-provisioning + QC stages
-> (00–01) are wired and validated on all 15 samples; downstream stages are in
-> progress. <!-- TODO: update as stages are completed -->
-
----
-
-## Quickstart
-
-<!-- TODO: finalize once envs/base is built and the slurm profile is confirmed -->
+## Run it
 
 ```bash
-# 1. clone with submodules (the slide-tags fork is a pinned submodule)
-git clone --recurse-submodules <repo-url> xmens_final
-cd xmens_final
-# if already cloned without submodules:
-#   git submodule update --init --recursive
-
-# 2. build environments    # TODO: document env build (uv for base, conda for isolates)
-
-# 3. configure: edit config/config.yaml (paths, thresholds) and config/samples.tsv
-
-# 4. dry-run, then run
-snakemake -n                              # full DAG dry-run
-snakemake --cores 4 data/interim/raw/<sample>.h5ad   # single stage/sample
-# TODO: document the SLURM-profile production run once profiles/slurm is validated
+# Snakemake 9.23.1, scanpy and scvi-tools in the rsc_uv environment on FASRC
+export PATH=/n/lab_storage/eddy_lab/users/nhilgert/.uv/envs/rsc_uv/bin:$PATH
+snakemake --profile profiles/slurm -n      # always look at the dry run first
+snakemake --profile profiles/slurm         # build the default target
 ```
 
----
+The default target builds the release named by `deliverables.release` in `config/config.yaml`
+(`data/deliverables/<release>/`, four objects and a `MANIFEST.json` with sha256 checksums), its deposit copies
+(`data/deposit/`), the figure panels, the SAMap figures and the zone modules. Release and deposit outputs are
+protected: Snakemake will not overwrite them.
 
-## Inputs & data
+The stages that made the objects of record are not rerun by default. They are defined only when a config flag is
+set: `atlas_annotation.rerun` (atlas annotation and spatial QC), `scvi.retrain` (scVI integration, lineage
+reintegration, re-embedding) and `annotation_round2.fit` (the round-2 lineage split and fits).
 
-The pipeline starts from **CellBender-corrected count matrices** + **Slide-tags
-spatial coordinates** (it does NOT re-run cellranger/CellBender — those are
-upstream, documented for provenance). See **`DATA_PROVENANCE.md`** for the full
-record: the 15-sample inventory, where the inputs live, the reference genomes
-(custom transgenic mouse + stock human), and the key data decisions.
+## Where things are
 
-- `config/samples.tsv` — the sample manifest (one row per sample). Adding a row
-  adds a sample to the DAG. Authoritative source for `species` and `timepoint`.
-- `config/config.yaml` — all parameters/thresholds, pinned to the paper Methods.
+| Path | Contents |
+|---|---|
+| `workflow/Snakefile` | Included rule files and the default target |
+| `workflow/rules/` | One file per stage, numbered in pipeline order |
+| `workflow/scripts/` | The Python and R scripts the rules call, by topic |
+| `config/` | `config.yaml` (all paths and parameters), `samples.tsv`, deposit and panel settings |
+| `resources/` | Curated inputs: annotation decision tables (`annotations/`, `annotations/round2/`), vocabulary, |
+| | lineage spec, figure settings, review records |
+| `profiles/slurm/` | SLURM settings for the FASRC eddy partition |
+| `notebooks/` | `public/` and `review/` are rendered by rules 99 and 99b, `samap/` by 10c; `mi_dpt/` holds the MI overlap record |
+| `tools/` | `check_annotations.py` and the generators of the public annotation notebooks |
+| `analysis/hammoud/` | Code of the comparison with the Ulrich et al. atlas (cited in the Methods; not yet a rule) |
+| `external/slidetags` | Pinned submodule: the Slide-tags mapping code (provenance) |
+| `xmens_pipeline/DATA_PROVENANCE.md` | Sample inventory, input locations and reference genomes |
 
-Released objects are in `data/deliverables/<release>/` (current release:
-`deliverables.release` in `config/config.yaml`; every file is sha256-listed in the
-release's `MANIFEST.json`). Per species there are three:
+Not in git: `data/`, `results/` and `logs/` (outputs) and installed environments.
 
-- `Cevrim_{Human,XMens}_All_Cells.h5ad` — the annotated nuclei analysed in the paper;
-- `Cevrim_{Human,XMens}_All_Cells_extended.h5ad` — the same nuclei plus the
-  supplementary populations of `resources/annotations/supplementary_populations.csv`
-  (human B cells; mouse lymphatic endothelium, pericytes and IgA plasma cells),
-  which were set aside before the class re-integrations and are not used in any
-  analysis. They are marked `obs['in_primary'] == False`; both objects share one
-  whole-tissue embedding, and `adata[adata.obs.in_primary]` equals the primary object;
-- `Cevrim_{Human,XMens}_Only_Fib_Dec_Cells.h5ad` — fibroblasts and decidual cells.
+## Stages
 
-Raw sequencing data: available on request, to be released on publication.
-<!-- TODO: add accession/DOI when data is deposited -->
+| Rule files | Stage |
+|---|---|
+| `00a`-`01c` | Ingest, CellBender (upstream), QC, per-species concatenation (provenance; not rerun) |
+| `02`, `04`, `04e`, `04f` | scVI integration, atlas annotation, re-embedding, spatial QC |
+| `04b`, `04c` / `04b2`, `04c2` | Lineage reintegration and annotation: July / round 2 (October) |
+| `04g2`, `04g`, `95` | Release: rebuild, re-embed and finish (round 2), finalize with MANIFEST, deposit copies |
+| `05`, `09`, `10`, `10b`, `11`, `12`, `13`, `16` | DE, homology, SAMap, MI against pseudotime, spatial GP, SCENIC, zone modules |
+| `10c`, `91_panels_*` | Figures |
+| `98`, `99`, `99b` | Clustering stability, annotation notebooks, annotation review kit |
 
----
+## Release of record
 
-## Pipeline structure
-
-Built with [Snakemake](https://snakemake.readthedocs.io/). Three layers:
-
-1. **Spine** (`workflow/rules/00–09`) — the linear must-reproduce path:
-   ingest → QC → integrate → cluster → annotate → DE → pseudotime → spatial → …
-2. **Analysis modules** (`workflow/rules/20+`) — LIANA, SCENIC, cross-species,
-   in-vitro.
-3. **`src/xmens/`** — installable shared utilities, editable-installed into envs.
-
-```
-xmens_final/
-├── config/            config.yaml + samples.tsv  (drive everything)
-├── workflow/
-│   ├── Snakefile      includes + rule all
-│   ├── rules/         one .smk per stage
-│   └── scripts/       one script per rule (uses the snakemake object)
-├── src/xmens/         installable shared utils
-├── envs/              per-tool environments
-├── external/slidetags pinned submodule: the Slide-tags mapping fork (provenance)
-├── preprocessing/     documented upstream steps (reference build, etc.)
-├── analysis/          exploratory notebooks (not part of the DAG)
-├── data/              raw/interim  (gitignored)
-└── results/           figures/tables  (gitignored)
-```
-
-<!-- TODO: a figure→rule map (which paper figure each stage produces) -->
-
----
-
-## Environments
-
-Mixed by design — uv for the modern Python spine, conda for legacy-dependency
-tools:
-
-- **Driver + spine** (snakemake + scanpy): <!-- TODO: rsc_uv now / envs/base later -->
-- **`01_qc`** (DoubletDetection 4.2): conda env via the rule's `conda:` directive
-  (run snakemake with `--use-conda`). <!-- TODO: replace abs path with committed env.yml -->
-- **scenic / samap**: existing conda envs (see `config.yaml` `envs:`).
-- **slide-tags mapping**: lives entirely inside the submodule; not run by this DAG.
-
-<!-- TODO: commit lockfiles (uv.lock / environment.yml) for full reproducibility -->
-
----
+v9 = `data/deliverables/2026_10_30` (`Cevrim_XMens_All_Cells`, `Cevrim_XMens_Only_Fib_Dec_Cells`,
+`Cevrim_Human_All_Cells`, `Cevrim_Human_Only_Fib_Dec_Cells`); deposit copies in
+`data/deposit/2026_10_30c/{with,without}_new_cell_types/`.
 
 ## Reproducibility notes
 
-This repo aims for **analytical + provenance reproducibility**, not bit-identity
-(CellBender and scVI are stochastic; bit-identical output is not a goal). The
-recipe is fully pinned; conclusions should be robust to numerical noise.
-
-- Versions pinned in `config.yaml` (cellranger 7.2.0, CellBender 0.2.2,
-  scvi-tools 1.4.2, DoubletDetection 4.2, …).
-- Nuclei passing QC (`qc.py`): **68,069 mouse / 70,363 human**; annotated nuclei in
-  release 2026_10_29b: **57,015 mouse / 67,792 human**. Re-running `qc.py` on all 15
-  samples (2026-10-29) reproduced the threshold filters exactly; DoubletDetection
-  calls differed for about 1% of nuclei, so the QC outputs of 26 July 2026 are the
-  pinned starting point.
-- Stochastic upstream steps (CellBender) are checkpointed — the pipeline consumes
-  their output rather than re-running them.
-- scVI fits repeat exactly only within one GPU class. On an A40 (scvi-tools 1.4.2,
-  PyTorch 2.11) the July 2026 atlas fits reproduce bit-for-bit; the whole-tissue
-  embeddings of release 2026_10_29b (both species) were fitted there by 04g
-  `reembed_release` on the primary nuclei plus the supplementary populations (after
-  `rebuild_release_cells`), and each fit records its device and versions in
-  `uns['scvi_fit']`.
-
----
+- QC (`qc.py`) keeps 68,069 mouse and 70,363 human nuclei; the QC outputs of 26 July 2026 are the pinned
+  starting point (a rerun on 29 Oct reproduced the threshold filters exactly; DoubletDetection calls differed for
+  about 1% of nuclei).
+- scVI fits repeat exactly only within one GPU class; release embeddings are fitted on A40 GPUs and record device
+  and versions in `uns['scvi_fit']`.
+- Still outside the rules (being brought in before submission): the Ulrich comparison (`analysis/hammoud/`), the
+  30 Oct human pseudotime refit, the in vitro decidualization DE, and the Methods-numbers build.
 
 ## Citation
 
-<!-- TODO: add CITATION.cff and full citation on publication -->
-Çevrim et al. 2025, bioRxiv 2025.10.08.681007.
-
-## License
-
-<!-- TODO: add LICENSE -->
-
-
-## Layout
-
-Four layers: `workflow/ config/ resources/ external/` (the pipeline), `data/ results/` (generated, gitignored), `analysis/` (living human work), `archive/` (fossil record).
-
-**Rule: a new top-level directory requires a README line justifying it. Anything that can't earn the line goes in `analysis/` (living) or `archive/` (dead).**
+Çevrim et al. 2025, bioRxiv 2025.10.08.681007. License: to be added.

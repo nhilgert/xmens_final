@@ -1,8 +1,0 @@
-{
-  "source": "/n/lab_storage/eddy_lab/users/nhilgert/xmens_final/data/interim/2026_08_05_Cevrim_Human_Only_Fib_Dec_Cells.h5ad",
-  "key": "neighbors_scVI_100_connectivities",
-  "n": 47533,
-  "nnz": 7138530,
-  "mean_degree": 150.1805061746576,
-  "order": "fib_scmap/input/obs.csv barcode order"
-}

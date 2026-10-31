@@ -1,7 +1,0 @@
-claim,recomputed,recorded,status,note
-39 atlas centroids,39.0,39.0,PASS,"['L_Endo', 'Endo-1_Artery', 'Endo-2_EndoMT'] ... ['Imm-9_NK cells', 'Imm-10_Hematopoietic progenitor']"
-shared genes with the atlas,1.0,1.0,PASS,"33,791"
-gene panel size,3000.0,3000.0,PASS,
-Stro-7 lands on a fibroblast/stromal human group,1.0,1.0,PASS,endometrial_fibroblast
-all 39 centroids scored,39.0,39.0,PASS,
-fraction of centroids above their group's null max,1.0,1.0,PASS,"recorded, not asserted"

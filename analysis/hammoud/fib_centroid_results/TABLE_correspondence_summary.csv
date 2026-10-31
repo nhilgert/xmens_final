@@ -1,7 +1,0 @@
-,best_query,score,margin,above_neg_controls,reciprocal,bootstrap_freq,heldout_agreement,sample_agreement,spearman_best,n_in_best_query,call
-Stro-5 RUNX3+,5,0.0654161266503833,0.0548077829321582,False,False,1.0,0.024,0.5,4,1044,no counterpart above negative controls
-Stro-7 C7,3,0.343016290608037,0.2364279612397596,True,True,1.0,1.0,1.0,1,4657,confident
-Stro-8 dS1,5,0.2729383511293804,0.0372907659206073,True,True,0.988,0.934,0.5,4,1044,probable
-Stro-9 dS2,5,0.1615347732001752,0.0256294924419082,True,False,0.882,0.996,0.5,4,1044,not resolved from Stro-8 dS1
-Stro-10 dS3,1,0.3894166776300001,0.1723521371463414,True,True,1.0,1.0,1.0,1,11103,confident
-Stro-11 progenitor,0,0.0891897205249049,0.0396430502803243,False,False,0.994,1.0,1.0,4,9383,no counterpart above negative controls

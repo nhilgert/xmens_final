@@ -1,6 +1,0 @@
-program,nuclei_positive_for_any,genes
-cycling (defines Stro-11),0.029326993877937434,"MKI67, TOP2A, CENPF, UBE2C, BIRC5, CDK1"
-immune (defines Stro-5),0.009824753329265983,"PTPRC, GNLY, NKG7, CCL5, TYROBP, TPSAB1"
-immediate-early / stress (defines Stro-9),0.3841331285633139,"FOSB, JUND, ATF3, NR4A1, IER2"
-C7 program (defines Stro-7),0.4852839080217954,"C7, CFH, CTSK, APOD, CCDC80, IGFBP5"
-decidual (defines Stro-8/9/10),0.7599562409273557,"IGFBP1, PRL, FOXO1, WNT4"
