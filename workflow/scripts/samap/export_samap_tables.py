@@ -78,6 +78,7 @@ def human_pseudotime(human: pd.DataFrame, table_path: Path, column: str):
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--joint", type=Path, required=True, help="samap_transferred_pt_harmonized.h5ad")
+    parser.add_argument("--joint-sha256", required=True, help="sha256 the joint object must have")
     parser.add_argument("--mouse-table", type=Path, required=True, help="release mouse_fibdec_plot_table.parquet")
     parser.add_argument("--human-table", type=Path, required=True, help="release human_fibdec_plot_table.parquet")
     parser.add_argument("--human-pt", type=Path, required=True, help="human pseudotime of record, indexed by nucleus")
@@ -87,6 +88,10 @@ def main() -> None:
     parser.add_argument("--out-dir", type=Path, required=True)
     args = parser.parse_args()
     args.out_dir.mkdir(parents=True, exist_ok=True)
+
+    joint_sha256 = sha256_of(args.joint)
+    if joint_sha256 != args.joint_sha256:
+        raise ValueError(f"{args.joint}: sha256 {joint_sha256}, expected {args.joint_sha256}")
 
     human_pt_sha256 = sha256_of(args.human_pt)
     if human_pt_sha256 != args.human_pt_sha256:

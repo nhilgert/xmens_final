@@ -37,6 +37,7 @@ SF_CACHE  = PANEL_CACHE
 SF_ARM    = SF.get("arm", "vanilla_raw")
 SF_PT     = SF.get("pt_variant", "_harmonized")
 SF_JOINT  = f"{SR_ROOT}/runs_raw/{SF_ARM}/samap_transferred_pt{SF_PT}.h5ad"
+SF_JOINT_SHA256 = SF["joint_sha256"]   # verified by export_samap_tables.py; see config
 
 # Release of record: its version tag names every output folder below, its folder the plot tables.
 SF_TAG     = PANEL_LIVE_TAG
@@ -154,6 +155,7 @@ rule samap_figure_tables:
         outdir       = f"{SF_OUT}/tables",
         human_pt_col = SF_HUMAN_PT_COL,
         human_pt_sha = SF_HUMAN_PT_SHA256,
+        joint_sha    = SF_JOINT_SHA256,
         release      = SF_RELEASE,
     threads: 1
     resources:
@@ -165,6 +167,7 @@ rule samap_figure_tables:
         {params.env}
         {params.py} -u {input.script} \
             --joint {input.joint} \
+            --joint-sha256 {params.joint_sha} \
             --mouse-table {input.mouse} \
             --human-table {input.human} \
             --human-pt {input.human_pt} \

@@ -116,6 +116,9 @@ def main() -> None:
     genes = [gene for gene in args.genes.split(",") if gene]
     table = build_table(args.h5ad, embeddings, args.diffmap_key, genes)
 
+    # Index named as in the 2026_10_22 plot tables: export_samap_tables.py writes it to CSV and samap_edge_share.py /
+    # ptnull_permutation.py read index_col="cell" (bundle a66e05b wrote it unnamed and the S30 chain failed).
+    table.index.name = "cell"
     args.out.parent.mkdir(parents=True, exist_ok=True)
     table.to_parquet(args.out)
 
