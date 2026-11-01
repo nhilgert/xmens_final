@@ -10,7 +10,6 @@ names live in config["supp_tables"]["s13"], so the selection can be changed with
 The row count and the nucleus total are checked against config["supp_tables"]["s13"]["expected"], i.e. the numbers
 the Methods quote ("38 clusters (12,274 nuclei)").
 """
-from __future__ import annotations
 
 import hashlib
 import json

@@ -11,7 +11,6 @@ One line of the log is deliberately NOT used: "3-MAD <metric> (log10): ... flag 
 which double-counts cells already removed by an earlier filter. The per-filter "removed N" lines are what the
 Methods sentence adds up, and they are what this script reads.
 """
-from __future__ import annotations
 
 import hashlib
 import json

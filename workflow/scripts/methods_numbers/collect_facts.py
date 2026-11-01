@@ -76,7 +76,7 @@ rec("git_head", lambda: sh(f"git --no-optional-locks -C {X} log -1 --format='%h 
 rec("zone_genesets", lambda: {k: list(v) for k, v in yaml.safe_load(open(f"{X}/resources/signatures/aucell_modules_mouse.yaml")).items()})
 CODE = {"harmonized_pseudotime.py": f"{O22}/provenance/harmonized_pseudotime.py",
         "integrate.py": f"{X}/workflow/scripts/atlas/integrate.py", "reintegrate.py": f"{X}/workflow/scripts/atlas/reintegrate.py",
-        "qc.py": f"{X}/workflow/scripts/ingest_qc/qc.py", "09_homology.smk": f"{X}/workflow/rules/09_homology.smk",
+        "qc.py": f"{X}/workflow/scripts/ingest_qc/qc.py", "19_homology.smk": f"{X}/workflow/rules/19_homology.smk",
         "scenic_make_loom.py": f"{X}/workflow/scripts/scenic/scenic_make_loom.py", "ctx_only.py": f"{SCENIC_REV}/scripts/ctx_only.py",
         "build_consensus_aucell.py": f"{SCENIC_REV}/scripts/build_consensus_aucell.py", "scenic_README.md": f"{SCENIC_REV}/README.md",
         "crossspecies_gene_selection.py": f"{X}/workflow/scripts/mi/crossspecies_gene_selection.py",
