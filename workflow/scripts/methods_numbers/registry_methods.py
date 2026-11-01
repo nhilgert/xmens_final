@@ -153,11 +153,12 @@ class Ctx2(rr.Ctx):
     # ------------------------------------------------------------------ cross-species heatmap selection
     def sel_phase(self, which):
         rows = self.F["mi"]["heatmap_selected"]["rows"]; assert len(rows) == self.F["mi"]["heatmap_selected"]["n"]
-        return sum(r["phase"] == which for r in rows), f"{X}/results/mi_dpt/overlap_harmonized_nall/crossspecies_heatmap_selection/conserved_profiles_selected_genes.csv"
+        selected = self.overlap_file("crossspecies_heatmap_selection/conserved_profiles_selected_genes.csv")
+        return sum(r["phase"] == which for r in rows), selected
 
     def sel_code(self, pat, cast):
         m = re.search(pat, self.code("crossspecies_gene_selection.py")); assert m, pat
-        return cast(m.group(1)), f"{X}/results/mi_dpt/overlap_harmonized_nall/crossspecies_heatmap_selection/crossspecies_gene_selection.py"
+        return cast(m.group(1)), f"{X}/workflow/scripts/mi/crossspecies_gene_selection.py"
 
     # ------------------------------------------------------------------ SAMap
     def edge_share(self, species, src):

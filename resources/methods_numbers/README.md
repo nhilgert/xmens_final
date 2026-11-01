@@ -6,16 +6,12 @@ recomputed from the current outputs, the file and step that produce it, and the 
 
 ## Rebuild
 
-```bash
-cd /n/lab_storage/eddy_lab/users/nhilgert/xmens_final
-bash workflow/scripts/methods_numbers/submit.sh results/methods_numbers/YYYY_MM_DD path/to/methods_draft.txt
-```
-
-This submits three read-only collection jobs (about 5 minutes; 64, 80 and 8 GB) and a build job that starts when all
-three succeed. The outputs are `pipeline_numbers.csv` and `pipeline_numbers_flags.md` in the run directory. The draft
-must be plain text, for example extracted from the docx or PDF; `registry_core.normalize_draft` joins line breaks and
-writes superscript exponents the way the document's plain text reads them: `10−84`, with the U+2212 minus sign and no
-caret. `doc_phrase`, `draft_value` and `value` all use that form, so a value can be substituted into its phrase directly.
+The numbers are the Snakemake target `methods_numbers_all` (`workflow/rules/97_methods_numbers.smk`, config
+`methods_numbers`); `workflow/scripts/methods_numbers/README.md` describes the run and its outputs. The draft it checks
+is `methods_draft.txt` in this folder. It must be plain text, for example extracted from the docx or PDF;
+`registry_core.normalize_draft` joins line breaks and writes superscript exponents the way the document's plain text
+reads them: `10−84`, with the U+2212 minus sign and no caret. `doc_phrase`, `draft_value` and `value` all use that
+form, so a value can be substituted into its phrase directly.
 
 ## Columns
 
@@ -55,7 +51,8 @@ submission:
 | file | why it is needed |
 |---|---|
 | `artifact_inputs/consensus123_stadtmauer_fix_bundle.zip` | the corrected in vitro consensus (2026-10-22) that the methods describe. The cluster copy, `cagri_ivd_end_to_end_20260815/resources/consensus123.csv`, is the list before the correction (it lacks ADAMTS5 and CLU and includes KLF4 and TSHZ1) and gives 49 called, 19 concordant, 54 not called, 38.8% (45.2% expected) instead of the draft's 50, 20, 53, 40% (46%). |
-| `artifact_inputs/figS16_revision_adopted_cutoff_sweep.csv` | the Fig. S16 C-D cutoff sweep, made outside Snakemake. Its 90th-percentile row is checked against the MI runs at every build. |
+| `artifact_inputs/figS16_revision_adopted_cutoff_sweep.csv` | the Fig. S16 C-D cutoff sweep, made outside Snakemake. Its 90th-percentile row is checked against the MI runs at every build. Rule `mi_overlap` now writes the same table (`overlap_percentile_sweep.csv`; identical on the 22 Oct human arm). |
+| `fig5f_panel_genes.csv` | the 28 genes drawn in Fig. 5F (selection on the 30 Oct human pseudotime refit, netscratch `2026_10_30_s29_5f_bigheat/xsp_selection_fibdec_latent`). Rule `mi_heatmap_selection` reports how its selection compares with them. |
 | `artifact_inputs/monocle_heatmap_repro.R`, `render_crossspecies_heatmaps.py`, `disp_table_mouse.tsv.gz`, `gene_peak_order.tsv` | the pseudotime heatmaps, made outside Snakemake |
 | `proteome_release_check.txt` | output of `check_proteome_release.sh` on 2026-10-26: the local proteome files carry the Ensembl 113 FTP times to the minute (release 112's files are from February 2024). There is no download record. |
 | `draft_2026_10_22.txt` | the draft text the first run compared against |

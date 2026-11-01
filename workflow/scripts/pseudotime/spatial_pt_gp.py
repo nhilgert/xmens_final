@@ -26,11 +26,12 @@ What it does, per (h5ad, pt-key, timepoint):
 
 Usage:
     python spatial_pt_gp.py \
-        --h5ad   pseudotime_mouse_v2_induced_no_apop/2026_08_28_mouse_fibdec_pseudotime_rooted.h5ad \
-        --pt-key palantir_pt_rtk \
+        --h5ad   archive/pseudotime_mouse_v2_induced_no_apop/2026_08_28_mouse_fibdec_pseudotime_rooted.h5ad \
+        --pt-key dpt_pseudotime \
         --timepoint 1_dpi_late \
         --x-key x_um_dbscan --y-key y_um_dbscan \
-        --outdir results/spatial_gp/mouse_palantir_rtk_1_dpi_late
+        --seed 0 \
+        --outdir results/spatial_gp/mouse_dpt_1dpi_late
 
 Env: needs torch + gpytorch (+ geosketch if --sketch-n). CPU is fine at 5k cells;
 CUDA is used automatically when available.
@@ -72,7 +73,7 @@ def parse_args():
     p.add_argument("--grid-res", type=int, default=200)
     p.add_argument("--run-null", action="store_true", default=True)
     p.add_argument("--no-null", dest="run_null", action="store_false")
-    p.add_argument("--seed", type=int, default=42)
+    p.add_argument("--seed", type=int, required=True, help="config seed (rule spatial_gp)")
     p.add_argument("--outdir", type=pathlib.Path, required=True)
     return p.parse_args()
 
@@ -175,12 +176,9 @@ def main():
 
     # ---- 2. sketch ----------------------------------------------------------
     if args.sketch_n and len(y_all) > args.sketch_n:
-        try:
-            from geosketch import gs
-            idx = np.array(gs(X_all, args.sketch_n, replace=False))
-        except ImportError:
-            print("geosketch not importable — falling back to uniform subsample", flush=True)
-            idx = rng.choice(len(y_all), args.sketch_n, replace=False)
+        # geosketch is required here: a uniform subsample would be a different method than the one described.
+        from geosketch import gs
+        idx = np.array(gs(X_all, args.sketch_n, replace=False, seed=args.seed))
         X_fit, y_fit = X_all[idx], y_all[idx]
     else:
         X_fit, y_fit = X_all, y_all

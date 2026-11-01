@@ -11,15 +11,22 @@ import os, sys, re, json, glob, time, subprocess, traceback
 import gzip
 import shutil
 import numpy as np, pandas as pd
+import yaml
 
 from release_objects import read_release
 
 T0 = time.time()
 OUT = sys.argv[1]; os.makedirs(OUT)
-L = "/n/lab_storage/eddy_lab/users/nhilgert"; X = f"{L}/xmens_final"; N = "/n/netscratch/eddy_lab/Everyone/nhilgert"
+L = "/n/lab_storage/eddy_lab/users/nhilgert"; N = "/n/netscratch/eddy_lab/Everyone/nhilgert"
+# Repository root: three folders above this file (workflow/scripts/methods_numbers), so a run reads the checkout it
+# belongs to, including its config.yaml and the release that config names.
+X = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", ".."))
 O22 = f"{N}/2026_10_22_flagged_harmonized"  # provenance/ of the pseudotime of record
 RELEASE = read_release(X)
 OBJ = RELEASE["paths"]  # registry tag -> released object
+# Overlap tables and the Fig. 5F gene selection: outputs of rules mi_overlap and mi_heatmap_selection, in the folder
+# config mi.overlap.outdir names (relative to the repository root unless absolute).
+OVERLAP = os.path.join(X, yaml.safe_load(open(f"{X}/config/config.yaml"))["mi"]["overlap"]["outdir"])
 
 # Executed runs of the epithelium notebooks (04c_*); their outputs are not yet written under results/.
 EPI_HUMAN = f"{N}/2026_10_29b_human_epithelial_layers"
@@ -63,17 +70,16 @@ def mtime(p):
 
 
 # ------------------------------------------------------------------ configs and code texts
-import yaml
 rec("config", lambda: yaml.safe_load(open(f"{X}/config/config.yaml")))
 rec("lineage_spec", lambda: yaml.safe_load(open(f"{X}/resources/lineage_spec.yaml")))
-rec("git_head", lambda: sh(f"cd {X} && git log -1 --format='%h %ci %s'").strip())
+rec("git_head", lambda: sh(f"git --no-optional-locks -C {X} log -1 --format='%h %ci %s'").strip())
 rec("zone_genesets", lambda: {k: list(v) for k, v in yaml.safe_load(open(f"{X}/resources/signatures/aucell_modules_mouse.yaml")).items()})
 CODE = {"harmonized_pseudotime.py": f"{O22}/provenance/harmonized_pseudotime.py",
         "integrate.py": f"{X}/workflow/scripts/atlas/integrate.py", "reintegrate.py": f"{X}/workflow/scripts/atlas/reintegrate.py",
         "qc.py": f"{X}/workflow/scripts/ingest_qc/qc.py", "09_homology.smk": f"{X}/workflow/rules/09_homology.smk",
         "scenic_make_loom.py": f"{X}/workflow/scripts/scenic/scenic_make_loom.py", "ctx_only.py": f"{SCENIC_REV}/scripts/ctx_only.py",
         "build_consensus_aucell.py": f"{SCENIC_REV}/scripts/build_consensus_aucell.py", "scenic_README.md": f"{SCENIC_REV}/README.md",
-        "crossspecies_gene_selection.py": f"{X}/results/mi_dpt/overlap_harmonized_nall/crossspecies_heatmap_selection/crossspecies_gene_selection.py",
+        "crossspecies_gene_selection.py": f"{X}/workflow/scripts/mi/crossspecies_gene_selection.py",
         "samap_FULL_REPORT.md": f"{SAMAP_RUN}/FULL_REPORT.md", "samap_INTEGRATION_SUMMARY.md": f"{SAMAP_RUN}/INTEGRATION_SUMMARY.md",
         "samap_HANDOFF.md": f"{SAMAP_RUN}/HANDOFF.md", "label_stain_full.py": f"{SAMAP_RUN}/label_stain_full.py",
         "samap_supp_README.md": f"{N}/figures/samap_supp/README.md", "SAMAP_FIGURES_HANDOFF.md": f"{N}/figures/samap_supp/SAMAP_FIGURES_HANDOFF.md",
@@ -111,7 +117,7 @@ rec("qc_logs", qc_logs)
 
 # ------------------------------------------------------------------ annotation decision tables and atlas clusters
 def decision_table_paths():
-    """Path of each annotation decision table, keyed by file name, as release v9 uses it: the round-2 tables of
+    """Path of each annotation decision table, keyed by file name, as the round-2 releases use it: the round-2 tables of
     config annotation_round2 for the atlas ({species}_lineage.csv) and the round-2 lineages, the July tables under
     resources/annotations/ for every other step. small_reads.py applies the same rule to the table texts, from which
     the registry takes the atlas EXCLUDE clusters."""
@@ -288,15 +294,17 @@ def mi():
         D = f"{X}/results/mi_dpt/{run}"
         out[run] = {"manifest": jload(f"{D}/manifest.json"), "mi_all": f"{D}/mi_all.csv", "mtime": mtime(f"{D}/mi_all.csv")}
         pd.read_csv(f"{D}/mi_all.csv").to_csv(f"{OUT}/mi_{run}.csv.gz", index=False, compression="gzip")
-    O = f"{X}/results/mi_dpt/overlap_harmonized_nall"
+    O = OVERLAP
+    out["overlap_dir"] = O
     out["overlap_report"] = jload(f"{O}/overlap_report.json")
     sw = pd.read_csv(f"{O}/overlap_cutoff_sweep.csv"); out["sweep"] = {"file": f"{O}/overlap_cutoff_sweep.csv", "cols": list(sw.columns),
                                                                        "frac_min": float(sw.frac.min()), "frac_max": float(sw.frac.max()), "n": int(sw.frac.nunique())}
     S = f"{O}/crossspecies_heatmap_selection"
     out["heatmap_selection"] = jload(f"{S}/selection_summary.json")
     g = pd.read_csv(f"{S}/conserved_profiles_selected_genes.csv"); out["heatmap_selected"] = {"cols": list(g.columns), "n": len(g), "rows": g.head(40).astype(str).to_dict("records")}
-    orth = pd.read_csv(f"{X}/results/mi_dpt/overlap/ortholog_pairs_one2one.csv")
-    out["orth"] = {"file": f"{X}/results/mi_dpt/overlap/ortholog_pairs_one2one.csv", "n_pairs": len(orth), "cols": list(orth.columns), "mtime": mtime(f"{X}/results/mi_dpt/overlap/ortholog_pairs_one2one.csv")}
+    orth_path = f"{O}/ortholog_pairs_one2one.csv"
+    orth = pd.read_csv(orth_path)
+    out["orth"] = {"file": orth_path, "n_pairs": len(orth), "cols": list(orth.columns), "mtime": mtime(orth_path)}
     orth.to_csv(f"{OUT}/orth.csv.gz", index=False, compression="gzip")
     return out
 rec("mi", mi)

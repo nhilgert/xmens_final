@@ -13,7 +13,10 @@ from release_objects import read_release
 
 T0 = time.time()
 OUT = sys.argv[1]; os.makedirs(OUT); os.makedirs(f"{OUT}/files")
-L = "/n/lab_storage/eddy_lab/users/nhilgert"; X = f"{L}/xmens_final"; N = "/n/netscratch/eddy_lab/Everyone/nhilgert"
+L = "/n/lab_storage/eddy_lab/users/nhilgert"; N = "/n/netscratch/eddy_lab/Everyone/nhilgert"
+# Repository root: three folders above this file (workflow/scripts/methods_numbers), so a run reads the checkout it
+# belongs to, including its config.yaml and the release that config names.
+X = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", ".."))
 RELEASE = read_release(X)
 # Supplementary tables of 28 Oct, built on the X-Mens fit with the uninduced fibroblasts (read-only; Drive mirror).
 # The build's directory lost its date prefix (README: built 2026-10-28; Wang provenance built 2026-10-27T22:20:53 by

@@ -3,14 +3,15 @@
 # Spatial GP fit of pseudotime + gradient field (single species, native pt —
 # the cross-species transfer arm is DEFERRED; see spatial_pt_gp.py docstring).
 #
-# config.yaml:
+# config.yaml (runs of record):
 #   spatial_gp:
 #     python: <rsc_uv python>          # torch + gpytorch (+ geosketch)
 #     runs:
-#       mouse_palantir_rtk_1dpi_late:
-#         h5ad: pseudotime_mouse_v2_induced_no_apop/2026_08_28_mouse_fibdec_pseudotime_rooted.h5ad
-#         pt_key: palantir_pt_rtk
+#       mouse_dpt_1dpi_late:
+#         h5ad: archive/pseudotime_mouse_v2_induced_no_apop/2026_08_28_mouse_fibdec_pseudotime_rooted.h5ad
+#         pt_key: dpt_pseudotime       # the 28 Aug DPT (root idx 6766), not pt_harmonized
 #         timepoint: 1_dpi_late
+# The object is outside the pipeline: notebooks/root_selection_mouse.ipynb (cell 14) wrote its dpt_pseudotime.
 # =============================================================================
 import re
 
@@ -34,6 +35,7 @@ rule spatial_gp:
         tp_arg = lambda wc: (f"--timepoint {SGP_RUNS[wc.sgp_run]['timepoint']}"
                              if SGP_RUNS[wc.sgp_run].get("timepoint") else ""),
         outdir = lambda wc: f"results/spatial_gp/{wc.sgp_run}",
+        seed   = config["seed"],           # geosketch, permutations and the GP fit
     threads: 4
     resources:
         mem_mb = 32000, runtime = 120,     # CPU exact GP at 5k sketch
@@ -43,6 +45,7 @@ rule spatial_gp:
         r"""
         {params.py} {input.script} \
             --h5ad {input.h5ad} --pt-key {params.pt_key} {params.tp_arg} \
+            --seed {params.seed} \
             --outdir {params.outdir} > {log} 2>&1
         """
 

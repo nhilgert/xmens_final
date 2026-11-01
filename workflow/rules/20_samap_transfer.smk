@@ -96,147 +96,154 @@ wildcard_constraints:
     run      = "|".join(re.escape(r) for r in PAIRS),
     basename = "|".join(re.escape(b) for b in _NEEDED_INPUTS),
 
-# -----------------------------------------------------------------------------
-# BRIDGE — v2 deliverable -> one per-timepoint SAMap input. Subset to the timepoint,
-# rename columns to the shared schema, validate the CP10K scale. Since deliverables already
-# carry fib/dec and v2 labels, this is mostly a pass-through with sanity checks.
-rule prep_samap_input:
-    input:
-        refined = lambda wc: _REFINED[_parse_input_basename(wc.basename)[0]]["path"],
-        script  = "workflow/scripts/samap/prep_samap_input.py",
-    output:
-        h5ad = f"{SAMAP_ROOT}/inputs/h5ads_samap/{{basename}}.h5ad",
-    params:
-        py      = SAMAP_PY,
-        species = lambda wc: _parse_input_basename(wc.basename)[0],
-        tp      = lambda wc: _parse_input_basename(wc.basename)[1],
-        coarse  = lambda wc: _REFINED[_parse_input_basename(wc.basename)[0]]["coarse"],
-        fine    = lambda wc: _REFINED[_parse_input_basename(wc.basename)[0]]["fine"],
-        expect  = lambda wc: _REFINED[_parse_input_basename(wc.basename)[0]]["expect"],
-    log:
-        "logs/prep_samap_input/{basename}.log",
-    shell:
-        r"""
-        module load gcc/14.2.0-fasrc01
-        {params.py} {input.script} \
-            --refined       {input.refined} \
-            --species       {params.species} \
-            --coarse-col    {params.coarse} \
-            --fine-col      {params.fine} \
-            --timepoint     {params.tp} \
-            --expect-fibdec {params.expect} \
-            --out           {output.h5ad} \
-            > {log} 2>&1
-        """
+# The rules below are defined only with samap.fit: true (like scvi.retrain). The SAMap inputs and fits of record
+# predate the 2026_09_15 objects named in _REFINED, and Snakemake re-runs 35 jobs (12 fits of 128 GB, 6 h) for
+# them even with ancient() ("Set of input files has changed since last execution").
+if config["samap"]["fit"]:
 
-# -----------------------------------------------------------------------------
-# FIT — fresh runs/<run>/samap.pkl (stock v3). hs/mm inputs are now PRODUCED by prep_samap_input
-# (no longer ancient external files), so SAMap sits downstream of the annotation.
-rule run_samap:
-    input:
-        hs         = lambda wc: _hs_input(wc.run),               # <- prep_samap_input output
-        mm         = lambda wc: _mm_input(wc.run),               # <- prep_samap_input output
-        map_hm     = lambda wc: ancient(f"{_maps_dir(wc.run)}/hsmm/hs_to_mm.txt"),
-        map_mh     = lambda wc: ancient(f"{_maps_dir(wc.run)}/hsmm/mm_to_hs.txt"),
-        fit_script = ancient("workflow/scripts/samap/run_samap.py"),  # ancient: fit is expensive, don't re-fit on edit
-    output:
-        pkl = f"{SAMAP_ROOT}/runs/{{run}}/samap.pkl",           # meta.json + umap left undeclared (crash trail / best-effort)
-    params:
-        py       = SAMAP_PY,
-        maps_dir = lambda wc: _maps_dir(wc.run),
-        out_dir  = lambda wc: f"{SAMAP_ROOT}/runs/{wc.run}",
-        n_iter   = N_ITER,
-    threads: 8
-    resources:
-        mem_mb  = 128000,   # TUNE to eddy; first fit also pays a one-time numba JIT cost
-        runtime = 360,      # TUNE: minutes
-    log:
-        f"{SAMAP_ROOT}/slurm/logs/run_samap_{{run}}.log",
-    shell:
-        r"""
-        module load gcc/14.2.0-fasrc01
-        {params.py} {input.fit_script} \
-            --hs-h5ad  {input.hs} \
-            --mm-h5ad  {input.mm} \
-            --maps-dir {params.maps_dir} \
-            --out-dir  {params.out_dir} \
-            --n-iter   {params.n_iter} \
-            --ncpus    {threads} \
-            > {log} 2>&1
-        """
+    # -----------------------------------------------------------------------------
+    # BRIDGE — v2 deliverable -> one per-timepoint SAMap input. Subset to the timepoint,
+    # rename columns to the shared schema, validate the CP10K scale. Since deliverables already
+    # carry fib/dec and v2 labels, this is mostly a pass-through with sanity checks.
+    rule prep_samap_input:
+        input:
+            refined = lambda wc: _REFINED[_parse_input_basename(wc.basename)[0]]["path"],
+            script  = "workflow/scripts/samap/prep_samap_input.py",
+        output:
+            h5ad = f"{SAMAP_ROOT}/inputs/h5ads_samap/{{basename}}.h5ad",
+        params:
+            py      = SAMAP_PY,
+            species = lambda wc: _parse_input_basename(wc.basename)[0],
+            tp      = lambda wc: _parse_input_basename(wc.basename)[1],
+            coarse  = lambda wc: _REFINED[_parse_input_basename(wc.basename)[0]]["coarse"],
+            fine    = lambda wc: _REFINED[_parse_input_basename(wc.basename)[0]]["fine"],
+            expect  = lambda wc: _REFINED[_parse_input_basename(wc.basename)[0]]["expect"],
+        log:
+            "logs/prep_samap_input/{basename}.log",
+        shell:
+            r"""
+            module load gcc/14.2.0-fasrc01
+            {params.py} {input.script} \
+                --refined       {input.refined} \
+                --species       {params.species} \
+                --coarse-col    {params.coarse} \
+                --fine-col      {params.fine} \
+                --timepoint     {params.tp} \
+                --expect-fibdec {params.expect} \
+                --out           {output.h5ad} \
+                > {log} 2>&1
+            """
 
-# -----------------------------------------------------------------------------
-# CONSUMER — coarse dec/fib label-transfer staining. Reads the fresh pkl.
-rule samap_label_stain:
-    input:
-        pkl       = f"{SAMAP_ROOT}/runs/{{run}}/samap.pkl",
-        hs_coords = lambda wc: ancient(_hs_coords(wc.run)),     # external isodepth/radius npz, frozen
-        mm_coords = lambda wc: ancient(_mm_coords(wc.run)),
-        script    = "workflow/scripts/samap/transfer_label_staining.py",
-    output:
-        png   = "results/figures/samap_transfer/{run}_labelstain.png",
-        stats = "results/tables/samap_transfer/{run}_labelstain.json",
-    params:
-        py  = SAMAP_PY,     # same stock-v3 env (unpickling the pkl needs samap importable)
-        run = "{run}",
-    log:
-        "logs/samap_label_stain/{run}.log",
-    shell:
-        # If pickle.load fails on the v3 pkl, switch the loader in transfer_label_staining.py to
-        # samap's load_samap. Verify on the first fit.
-        r"""
-        module load gcc/14.2.0-fasrc01
-        {params.py} {input.script} \
-            --run-name  {params.run} \
-            --samap-pkl {input.pkl} \
-            --hs-coords {input.hs_coords} \
-            --mm-coords {input.mm_coords} \
-            --out-png   {output.png} \
-            --out-stats {output.stats} \
-            > {log} 2>&1
-        """
+    # -----------------------------------------------------------------------------
+    # FIT — fresh runs/<run>/samap.pkl (stock v3). hs/mm inputs are now PRODUCED by prep_samap_input
+    # (no longer ancient external files), so SAMap sits downstream of the annotation.
+    rule run_samap:
+        input:
+            hs         = lambda wc: _hs_input(wc.run),               # <- prep_samap_input output
+            mm         = lambda wc: _mm_input(wc.run),               # <- prep_samap_input output
+            map_hm     = lambda wc: ancient(f"{_maps_dir(wc.run)}/hsmm/hs_to_mm.txt"),
+            map_mh     = lambda wc: ancient(f"{_maps_dir(wc.run)}/hsmm/mm_to_hs.txt"),
+            # ancient: the fit is expensive, so editing the script does not re-fit
+            fit_script = ancient("workflow/scripts/samap/run_samap.py"),
+        output:
+            # meta.json and the UMAP stay undeclared (crash trail, best effort)
+            pkl = f"{SAMAP_ROOT}/runs/{{run}}/samap.pkl",
+        params:
+            py       = SAMAP_PY,
+            maps_dir = lambda wc: _maps_dir(wc.run),
+            out_dir  = lambda wc: f"{SAMAP_ROOT}/runs/{wc.run}",
+            n_iter   = N_ITER,
+        threads: 8
+        resources:
+            mem_mb  = 128000,   # TUNE to eddy; first fit also pays a one-time numba JIT cost
+            runtime = 360,      # TUNE: minutes
+        log:
+            f"{SAMAP_ROOT}/slurm/logs/run_samap_{{run}}.log",
+        shell:
+            r"""
+            module load gcc/14.2.0-fasrc01
+            {params.py} {input.fit_script} \
+                --hs-h5ad  {input.hs} \
+                --mm-h5ad  {input.mm} \
+                --maps-dir {params.maps_dir} \
+                --out-dir  {params.out_dir} \
+                --n-iter   {params.n_iter} \
+                --ncpus    {threads} \
+                > {log} 2>&1
+            """
 
-# -----------------------------------------------------------------------------
-# DELIVERABLE OBJECT — the joint post-integration object with transferred labels attached,
-# for a collaborator to open and plot (joint UMAP for both species, or per-species spatial).
-# Same transfer computation as the stain (make_transferred_object.py imports it). Pseudotime
-# later just adds another obs column here — no new rule.
-rule samap_transferred_object:
-    input:
-        pkl       = f"{SAMAP_ROOT}/runs/{{run}}/samap.pkl",
-        hs_coords = lambda wc: ancient(_hs_coords(wc.run)),
-        mm_coords = lambda wc: ancient(_mm_coords(wc.run)),
-        pt        = lambda wc: ancient(PT_H5AD[wc.run]),             # mouse per-timepoint pseudotime object
-        script    = "workflow/scripts/samap/make_transferred_object.py",
-        core      = "workflow/scripts/samap/transfer_label_staining.py",   # imported by the script
-    output:
-        h5ad = "results/samap_transfer/{run}_transferred.h5ad",
-    params:
-        py  = SAMAP_PY,     # stock-v3 env (unpickling the pkl needs samap importable)
-        run = "{run}",
-    log:
-        "logs/samap_transferred_object/{run}.log",
-    shell:
-        r"""
-        module load gcc/14.2.0-fasrc01
-        {params.py} {input.script} \
-            --samap-pkl     {input.pkl} \
-            --run-name      {params.run} \
-            --hs-coords     {input.hs_coords} \
-            --mm-coords     {input.mm_coords} \
-            --transfer-fine \
-            --pt-h5ad       {input.pt} \
-            --out           {output.h5ad} \
-            > {log} 2>&1
-        """
+    # -----------------------------------------------------------------------------
+    # CONSUMER — coarse dec/fib label-transfer staining. Reads the fresh pkl.
+    rule samap_label_stain:
+        input:
+            pkl       = f"{SAMAP_ROOT}/runs/{{run}}/samap.pkl",
+            hs_coords = lambda wc: ancient(_hs_coords(wc.run)),     # external isodepth/radius npz, frozen
+            mm_coords = lambda wc: ancient(_mm_coords(wc.run)),
+            script    = "workflow/scripts/samap/transfer_label_staining.py",
+        output:
+            png   = "results/figures/samap_transfer/{run}_labelstain.png",
+            stats = "results/tables/samap_transfer/{run}_labelstain.json",
+        params:
+            py  = SAMAP_PY,     # same stock-v3 env (unpickling the pkl needs samap importable)
+            run = "{run}",
+        log:
+            "logs/samap_label_stain/{run}.log",
+        shell:
+            # If pickle.load fails on the v3 pkl, switch the loader in transfer_label_staining.py to
+            # samap's load_samap. Verify on the first fit.
+            r"""
+            module load gcc/14.2.0-fasrc01
+            {params.py} {input.script} \
+                --run-name  {params.run} \
+                --samap-pkl {input.pkl} \
+                --hs-coords {input.hs_coords} \
+                --mm-coords {input.mm_coords} \
+                --out-png   {output.png} \
+                --out-stats {output.stats} \
+                > {log} 2>&1
+            """
 
-# -----------------------------------------------------------------------------
-# Paper target. Full fresh chain: 4x prep_samap_input -> 2x run_samap -> 2x {stain, object}.
-rule samap_all:
-    input:
-        expand("results/figures/samap_transfer/{run}_labelstain.png", run=list(PAIRS)),
-        expand("results/tables/samap_transfer/{run}_labelstain.json", run=list(PAIRS)),
-        # transferred-object deliverables only exist for runs with a pt_h5ad entry
-        # (the two paper pairings); the 12-pairing sweep added pairs without one,
-        # which made this expand KeyError at DAG time (fixed 2026-09-01).
-        expand("results/samap_transfer/{run}_transferred.h5ad", run=list(PT_H5AD)),
+    # -----------------------------------------------------------------------------
+    # DELIVERABLE OBJECT — the joint post-integration object with transferred labels attached,
+    # for a collaborator to open and plot (joint UMAP for both species, or per-species spatial).
+    # Same transfer computation as the stain (make_transferred_object.py imports it). Pseudotime
+    # later just adds another obs column here — no new rule.
+    rule samap_transferred_object:
+        input:
+            pkl       = f"{SAMAP_ROOT}/runs/{{run}}/samap.pkl",
+            hs_coords = lambda wc: ancient(_hs_coords(wc.run)),
+            mm_coords = lambda wc: ancient(_mm_coords(wc.run)),
+            pt        = lambda wc: ancient(PT_H5AD[wc.run]),             # mouse per-timepoint pseudotime object
+            script    = "workflow/scripts/samap/make_transferred_object.py",
+            core      = "workflow/scripts/samap/transfer_label_staining.py",   # imported by the script
+        output:
+            h5ad = "results/samap_transfer/{run}_transferred.h5ad",
+        params:
+            py  = SAMAP_PY,     # stock-v3 env (unpickling the pkl needs samap importable)
+            run = "{run}",
+        log:
+            "logs/samap_transferred_object/{run}.log",
+        shell:
+            r"""
+            module load gcc/14.2.0-fasrc01
+            {params.py} {input.script} \
+                --samap-pkl     {input.pkl} \
+                --run-name      {params.run} \
+                --hs-coords     {input.hs_coords} \
+                --mm-coords     {input.mm_coords} \
+                --transfer-fine \
+                --pt-h5ad       {input.pt} \
+                --out           {output.h5ad} \
+                > {log} 2>&1
+            """
+
+    # -----------------------------------------------------------------------------
+    # Paper target. Full fresh chain: 4x prep_samap_input -> 2x run_samap -> 2x {stain, object}.
+    rule samap_all:
+        input:
+            expand("results/figures/samap_transfer/{run}_labelstain.png", run=list(PAIRS)),
+            expand("results/tables/samap_transfer/{run}_labelstain.json", run=list(PAIRS)),
+            # transferred-object deliverables only exist for runs with a pt_h5ad entry
+            # (the two paper pairings); the 12-pairing sweep added pairs without one,
+            # which made this expand KeyError at DAG time (fixed 2026-09-01).
+            expand("results/samap_transfer/{run}_transferred.h5ad", run=list(PT_H5AD)),

@@ -9,7 +9,10 @@ import numpy as np, pandas as pd
 from scipy.stats import spearmanr, hypergeom
 from registry_core import Row, fmt
 
-L = "/n/lab_storage/eddy_lab/users/nhilgert"; X = f"{L}/xmens_final"; N = "/n/netscratch/eddy_lab/Everyone/nhilgert"
+L = "/n/lab_storage/eddy_lab/users/nhilgert"; N = "/n/netscratch/eddy_lab/Everyone/nhilgert"
+# Repository root: three folders above this file (workflow/scripts/methods_numbers), so a run reads the checkout it
+# belongs to, including its config.yaml and the release that config names.
+X = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", ".."))
 O22 = f"{N}/2026_10_22_flagged_harmonized"; IVD = f"{L}/cagri_ivd_end_to_end_20260815"; HIR = f"{L}/human_ivd_repro"
 CFG = f"{X}/config/config.yaml"; LSPEC = f"{X}/resources/lineage_spec.yaml"; ANN = f"{X}/resources/annotations"
 
@@ -34,6 +37,10 @@ class Ctx:
 
     def code(self, name):
         return open(f"{self.FD}/code/{name}").read()
+
+    def overlap_file(self, name):
+        """Path of an output of rules mi_overlap / mi_heatmap_selection, in the folder collect_facts.py read."""
+        return f"{self.F['mi']['overlap_dir']}/{name}"
 
     # ---------------------------------------------------------------- QC
     def qc(self, sp, field):
@@ -153,10 +160,14 @@ def mi_file(run):
     return f"{X}/results/mi_dpt/{run}/mi_all.csv"
 
 
+SELECTION_SUMMARY = "crossspecies_heatmap_selection/selection_summary.json"
+
+
 S_QC = "04_qc.smk: ingest_qc/qc.py"; S_INT = "07_integrate.smk: atlas/integrate.py"; S_ANN = "08_annotate.smk: atlas/apply_annotation.py"
 S_REI = "09_reintegrate_lineages.smk + 10_annotate_lineages.smk + 04d_merge.smk"; S_SPA = "12_spatial_qc.smk: atlas/spatial_qc.py"
 S_PT = "harmonized pseudotime (provenance/harmonized_pseudotime.py, 2026-10-22)"; S_MI = "22_mi_pseudotime.smk: mi/mi_pseudotime.py"
-S_OV = "overlap (results/mi_dpt/overlap_harmonized_nall)"; S_SC = "24_scenic.smk (scenic_v2_2026_08_28 scripts)"; S_SAM = "21_samap_raw.smk / code/samap-scvi/full_fibdec"
+S_OV = "mi_overlap (22_mi_pseudotime.smk)"
+S_SC = "24_scenic.smk (scenic_v2_2026_08_28 scripts)"; S_SAM = "21_samap_raw.smk / code/samap-scvi/full_fibdec"
 S_IVD = "cagri_ivd_end_to_end_20260815 (build_xmens_v2_tables.py)"; S_CFG = "config/config.yaml"
 OW = "objects 2026_10_22_flagged_harmonized"
 
@@ -516,16 +527,40 @@ def rows():
     add("heatmap_genes_dispersion", "fitted across all 27,064 genes detected in more than one nucleus", "27,064", "int", nohm, unit="genes", kind="statistic", step="pseudotime heatmaps", desc="Genes in the dispersion-mean fit")
     add("heatmap_points", "Fitted values at 100 evenly spaced points", "100", "intplain", nohm, unit="points", kind="parameter", step="pseudotime heatmaps", desc="Points along pseudotime")
     HS = "candidate genes were the strict one-to-one orthologs ranked in the top 10% by MI"
-    add("xs_heatmap_topfrac", HS, "10%", "pct:0", lambda c: (c.F["mi"]["overlap_report"]["topfrac"], f"{X}/results/mi_dpt/overlap_harmonized_nall/overlap_report.json"), unit="%", kind="parameter", step="crossspecies_gene_selection.py", desc="Top MI fraction for cross-species heatmap candidates")
+    add(
+        "xs_heatmap_topfrac", HS, "10%", "pct:0",
+        lambda c: (c.F["mi"]["overlap_report"]["topfrac"], c.overlap_file("overlap_report.json")),
+        unit="%", kind="parameter", step="crossspecies_gene_selection.py",
+        desc="Top MI fraction for cross-species heatmap candidates",
+    )
     add("xs_heatmap_bins", "(mean log-normalized expression in 50 equal-count pseudotime bins", "50", "intplain", lambda c: c.sel_param(r"(?:nbin|n_bins|NBIN)\s*=\s*(\d+)", int), unit="bins", kind="parameter", step="crossspecies_gene_selection.py", desc="Bins for the cross-species profiles")
-    add("xs_heatmap_rmin", "Among genes with r > 0.8", "0.8", "dec:1", lambda c: (c.F["mi"]["heatmap_selection"]["rmin"], f"{X}/results/mi_dpt/overlap_harmonized_nall/crossspecies_heatmap_selection/selection_summary.json"), kind="parameter", step="crossspecies_gene_selection.py", desc="Minimum human-mouse profile correlation")
+    add(
+        "xs_heatmap_rmin", "Among genes with r > 0.8", "0.8", "dec:1",
+        lambda c: (c.F["mi"]["heatmap_selection"]["rmin"], c.overlap_file(SELECTION_SUMMARY)),
+        kind="parameter", step="crossspecies_gene_selection.py", desc="Minimum human-mouse profile correlation",
+    )
     add("xs_heatmap_early", "(< 0.4 or > 0.6)", "0.4", "dec:1", lambda c: c.sel_param(r"(?:EARLY|early_max|early_cut|early)\s*=\s*(0\.\d+)", float), kind="parameter", step="crossspecies_gene_selection.py", desc="Centroid cutoff for early genes")
     add("xs_heatmap_late", "(< 0.4 or > 0.6)", "0.6", "dec:1", lambda c: c.sel_param(r"(?:LATE|late_min|late_cut|late)\s*=\s*(0\.\d+)", float), kind="parameter", step="crossspecies_gene_selection.py", desc="Centroid cutoff for late genes")
     XS = "the 14 most concordant early and 14 most concordant late genes were displayed (r = 0.88-0.99)"
     add("xs_heatmap_n_early", XS, "14", "intplain", lambda c: c.sel_phase("early"), unit="genes", step="crossspecies_gene_selection.py", desc="Early genes displayed", nth=0)
     add("xs_heatmap_n_late", XS, "14", "intplain", lambda c: c.sel_phase("late"), unit="genes", step="crossspecies_gene_selection.py", desc="Late genes displayed", nth=1)
-    add("xs_heatmap_r_min", XS, "0.88", "dec:2", lambda c: (c.F["mi"]["heatmap_selection"]["r50_range_selected"][0], f"{X}/results/mi_dpt/overlap_harmonized_nall/crossspecies_heatmap_selection/selection_summary.json"), unit="Pearson r", kind="statistic", step="crossspecies_gene_selection.py", desc="Lowest r among displayed genes")
-    add("xs_heatmap_r_max", XS, "0.99", "dec:2", lambda c: (c.F["mi"]["heatmap_selection"]["r50_range_selected"][1], f"{X}/results/mi_dpt/overlap_harmonized_nall/crossspecies_heatmap_selection/selection_summary.json", f"selection on the harmonized MI runs; {c.F['mi']['heatmap_selection'].get('overlap_with_previous_28')} of 28 genes shared with the previous selection"), unit="Pearson r", kind="statistic", step="crossspecies_gene_selection.py", desc="Highest r among displayed genes")
+    add(
+        "xs_heatmap_r_min", XS, "0.88", "dec:2",
+        lambda c: (c.F["mi"]["heatmap_selection"]["r50_range_selected"][0], c.overlap_file(SELECTION_SUMMARY)),
+        unit="Pearson r", kind="statistic", step="crossspecies_gene_selection.py",
+        desc="Lowest r among displayed genes",
+    )
+    add(
+        "xs_heatmap_r_max", XS, "0.99", "dec:2",
+        lambda c: (
+            c.F["mi"]["heatmap_selection"]["r50_range_selected"][1],
+            c.overlap_file(SELECTION_SUMMARY),
+            f"selection on the harmonized MI runs; {c.F['mi']['heatmap_selection'].get('overlap_with_previous_28')} "
+            "of 28 genes shared with the previous selection",
+        ),
+        unit="Pearson r", kind="statistic", step="crossspecies_gene_selection.py",
+        desc="Highest r among displayed genes",
+    )
 
     # ================================================================ SAMap
     add("samap_proteome_release", "(Ensembl release 113; GRCh38, GRCm39)", "113", "intplain", lambda c: c.proteome_release(), kind="reference", step="19_homology.smk", desc="Ensembl release of the proteomes")

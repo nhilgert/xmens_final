@@ -61,11 +61,39 @@ leiden:
 pseudotime:
   knn: 15
   n_diffmap: 10
+  # Rules that document how the human pseudotime of record (config pseudotime_of_record.human) was made
+  # (06c_pseudotime_of_record.smk). fit: false leaves them undefined; they write the record's own path.
+  record:
+    fit: false
+    python: /n/lab_storage/eddy_lab/users/nhilgert/.uv/envs/rsc_uv/bin/python
+    human:
+      object: data/deliverables/2026_08_28_Cevrim_Human_Only_Fib_Dec_Cells.h5ad   # input_object of the record
+      # Folder of the record's stromal fib/dec latent (latent_human_stromal_fibdec.h5ad, the lab_storage copy of the
+      # netscratch run4_a40 output; config/deposit_objects.yaml names the same file).
+      latent_dir: /n/lab_storage/eddy_lab/users/nhilgert/tmp/2026_10_30_human_fibdec_latent/run4_a40/fibdec
+      latent_sha256: 80f3f7eac5fdff9c17ef2b0a5580f5087a9720639704ecd381e481608181b471
+      leiden_resolution: 1.0   # reintegrate.py runs at least one Leiden resolution; X_scVI does not depend on it
 mi:
   n_neighbors: 3
   n_perm: 1000
   q_thresh: 0.05
   top_percentile: 90
+  # Cross-species overlap of the MI arms and the Fig. 5F gene selection (rules mi_overlap, mi_heatmap_selection in
+  # 11_mi_pseudotime.smk). The permutation null uses the top-level seed.
+  overlap:
+    outdir: results/mi_dpt/overlap_of_record
+    mouse_arm: pt_harmonized_mouse_nall
+    human_arm: pt_harmonized_human_nall
+    control_arms: [pt_harmonized_unind_mouse_nall, pt_harmonized_indmatch_mouse_nall]   # uninduced, induced_matched
+    # Ensembl Compara release 116 human-mouse components (sha256 7c69c3a5...); read only.
+    orthologs: /n/lab_storage/eddy_lab/users/nhilgert/human_ivd_repro/orthogroups/ensembl_human_mouse_components.tsv
+    top_fraction: 0.10       # top 10% by MI in both species (overlap tables and heatmap pool)
+    n_perm: 500              # shuffled ortholog pairings
+    heatmap:
+      rmin: 0.8              # profile concordance r over 50 bins
+      n_early: 14
+      n_late: 14
+      panel_genes: resources/methods_numbers/fig5f_panel_genes.csv   # the 28 genes drawn in Fig. 5F
 expected_cells:
   mouse_postqc: 57242
   human_postqc: 64553
@@ -284,6 +312,9 @@ release_round2:
       tag: XMens
       fibdec_embedding: {X_scVI: X_scVI, X_umap_scVI: X_umap_scVI}
 samap:
+  # true defines the 10_samap rules (inputs, 12 fits of 128 GB, stains, transferred objects); like scvi.retrain.
+  # The fits of record predate the 2026_09_15 objects they name, so defining the rules re-runs all 35 jobs.
+  fit: false
   root: /n/lab_storage/eddy_lab/users/nhilgert/decidualization/revisions/samap_integrate
   coords_root: /n/lab_storage/eddy_lab/users/nhilgert/decidualization/revisions/crossspecies_radial_gp
   proteomes_root: /n/lab_storage/eddy_lab/users/nhilgert/data/proteomes
@@ -315,7 +346,7 @@ mi_pseudotime:
   # >= 1% of them; Fig. S16, the cross-species overlap and the heatmap pool read these.
   python: /n/lab_storage/eddy_lab/users/nhilgert/.uv/envs/rsc_uv/bin/python
   outdir: results/mi_dpt
-  n_chunks: 200            # one SLURM job per chunk; genes split evenly across chunks
+  n_chunks: 200            # one SLURM job per chunk, genes split evenly; an arm's n_chunks overrides this
   perms: 1001              # shuffles of pseudotime, counting the observed one: min p = 1/1001
   min_counts: 10           # raw counts summed over the arm's nuclei
   min_detect_frac: 0.01    # detected (count > 0) in >= 1% of the arm's nuclei
@@ -324,22 +355,35 @@ mi_pseudotime:
   control_seed: 0          # draw of the size-matched induced control arm
   # Not a layer of the objects: prep then recomputes log1p(CP10K) from layers['counts'].
   layer: derive_from_counts
-  # Fibroblast/decidual objects carrying obs pt_harmonized and pt_harmonized_rank
-  # (build_flagged_objects.py). Netscratch is purged: repoint once copied to lab_storage.
+  # Fibroblast/decidual objects carrying obs pt_harmonized and pt_harmonized_rank (build_flagged_objects.py, 22 Oct).
+  # human: the lab_storage copy (sha256 36c86b27... equals the netscratch object and MANIFEST.json output_sha256);
+  # only the record arm reads it, and that arm is rebuilt anyway. mouse stays on purgeable netscratch: repointing it
+  # changes the recorded input of three finished arms, and the default rerun triggers would recompute them (810
+  # jobs). To move it, repoint to data/deliverables/2026_10_22_flagged_harmonized/Cevrim_XMens_Only_Fib_Dec_Cells.h5ad
+  # (sha256 75f1a7c5..., same file) and run mi_all once with --rerun-triggers mtime params code.
   objects:
     mouse: /n/netscratch/eddy_lab/Everyone/nhilgert/2026_10_22_flagged_harmonized/Cevrim_XMens_Only_Fib_Dec_Cells.h5ad
-    human: /n/netscratch/eddy_lab/Everyone/nhilgert/2026_10_22_flagged_harmonized/Cevrim_Human_Only_Fib_Dec_Cells.h5ad
+    human: data/deliverables/2026_10_22_flagged_harmonized/Cevrim_Human_Only_Fib_Dec_Cells.h5ad
   # worker_runtime_min: SLURM limit per chunk; observed maxima were 6.1 h (mouse) and
-  # 7.0 h (human) for the main arms.
+  # 7.0 h (human) for the 200-chunk main arms. worker_mem_mb: memory per chunk (default 32000).
+  # n_chunks is part of the result (each chunk seeds its own permutations), so every arm keeps the count it ran with.
   arms:
     pt_harmonized_mouse_nall:
       object: mouse
       pt_key: pt_harmonized_rank
       worker_runtime_min: 720
+    # Human arm of record (decision G): obs pt_harmonized_rank replaced by the human pseudotime of record (config
+    # pseudotime_of_record.human, the 30 Oct 2026 refit, sha256-checked) before prep. 1,500 chunks, as in the run the
+    # Methods quote (netscratch 2026_10_30_human_fibdec_latent/mi_fibdec_a40: sbatch --array=0-1499, 3 h and 6 GB
+    # per chunk; 8 GB is requested here for headroom, below the 32 GB worker default); the 22 Oct object and that
+    # run's input hold the same nuclei, order and counts.
     pt_harmonized_human_nall:
       object: human
       pt_key: pt_harmonized_rank
-      worker_runtime_min: 720
+      pseudotime_of_record: human
+      n_chunks: 1500
+      worker_runtime_min: 180
+      worker_mem_mb: 8000
     # Specificity controls: pt_key is ranked within each sample into pt_norm.
     pt_harmonized_unind_mouse_nall:
       object: mouse
@@ -351,6 +395,25 @@ mi_pseudotime:
       control: induced_matched
       pt_key: pt_harmonized
       worker_runtime_min: 240
+
+# ---------------------------------------------------------------------------
+# methods_numbers (stage 97) -- pipeline-derived numbers of the computational Methods for the release of record
+# (deliverables.release). Rules: workflow/rules/97_methods_numbers.smk; target: methods_numbers_all; outputs in
+# results/methods_numbers/<release>/registry/. Registry: workflow/scripts/methods_numbers (README.md).
+# ---------------------------------------------------------------------------
+methods_numbers:
+  python: /n/lab_storage/eddy_lab/users/nhilgert/.uv/envs/rsc_uv/bin/python
+  cache_dir: /n/lab_storage/eddy_lab/users/nhilgert/.cache_scratch   # matplotlib/numba caches (HOME is full)
+  # Plain-text export of the Methods draft the numbers are checked against (registry_core.normalize_draft). Replace
+  # the file when the draft changes; the copy in each run folder records which text a table was checked against.
+  draft: resources/methods_numbers/methods_draft.txt
+  artifact_inputs: resources/methods_numbers/artifact_inputs
+  proteome_check: resources/methods_numbers/proteome_release_check.txt
+  # Project artifacts staged outside the repository, with a MANIFEST.json (the X-Mens fit with the uninduced
+  # fibroblasts, 27 Oct): the folder the 2026_10_30b run used. Netscratch is purged: copy it under
+  # resources/methods_numbers/ and repoint.
+  extra_inputs: /n/netscratch/eddy_lab/Everyone/nhilgert/2026_10_29_methods_numbers/artifact_inputs
+  legacy_mi_arms: [dpt_noapop_mouse_nall, dpt_full_human_nall]   # superseded runs quoted in the registry's notes
 
 spatial_gp:
   python: /n/lab_storage/eddy_lab/users/nhilgert/.uv/envs/rsc_uv/bin/python
@@ -366,6 +429,10 @@ spatial_gp:
       pt_key: dpt_pseudotime
       timepoint: 4_dpi_bleeding
 scenic:
+  # true defines the 13_scenic rules (pooled objects, 100 sketches and GRNBoost2 seeds per species, cisTarget,
+  # consensus); like scvi.retrain. The regulons of record (7-10 Sep) predate the source objects named below, so
+  # defining the rules re-runs all 605 jobs.
+  fit: false
   python: /n/lab_storage/eddy_lab/users/nhilgert/.conda/envs/pyscenic/bin/python
   rev: /n/lab_storage/eddy_lab/users/nhilgert/decidualization/revisions/scenic_v2_2026_08_28   # v2 lane (2026_08_28 fib/dec deliverables); June lane at revisions/scenic
   n_seeds: 100
@@ -375,8 +442,8 @@ scenic:
   species:
   - mouse
   - human
-  source_h5ad:   # 2026-09-15: repointed at the finalized release (04g). The GRN seeds of record ran on
-                 # it; later releases are relabel-only and are not re-pointed here (that re-runs every seed).
+  source_h5ad:   # 2026-09-15: repointed at the finalized release (04g); later releases are relabel-only and are
+                 # not re-pointed here. The outputs of record (pooled 8-10 Sep) were made from the 2026_08_28 objects.
     mouse: data/deliverables/2026_09_15/Cevrim_XMens_Only_Fib_Dec_Cells.h5ad
     human: data/deliverables/2026_09_15/Cevrim_Human_Only_Fib_Dec_Cells.h5ad
   raw_layer: counts

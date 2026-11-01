@@ -16,10 +16,16 @@
 # INDEPENDENT of 20_samap_transfer.smk (the CP10K per-timepoint-pair paper arm): different
 # root, different scripts, different env. Nothing here reads or writes 20_samap_transfer paths.
 #
-# All heavy outputs already exist under ROOT (fits 2026-09-01, stains/transfers
-# 2026-09-02), so `snakemake samap_raw_all` only builds what is missing —
-# currently the pt-attach step. Scripts are ancient() where outputs pre-exist,
-# mirroring 20_samap_transfer's "fit is expensive, don't re-fit on edit" convention.
+# Provenance of the outputs under ROOT. Only runs_raw/vanilla_raw/samap_transferred_pt.h5ad (rule
+# samap_raw_attach_pt, 2026-09-09) was made by this file and has Snakemake metadata. The rest were made by the
+# sbatch scripts in ROOT before the rules existed, with scripts byte-identical to the ones named here:
+#   inputs_raw/*_raw.h5ad                job_prep_raw.sbatch (2026-09-01; read the netscratch
+#                                        2026_08_28_*_Only_Fib_Dec_Cells.h5ad, not the 2026_09_15 objects below)
+#   runs_raw/<arm>/{samap.pkl,eval.json} job_arms_raw.sbatch -> run_arm.py (= run_samap_arm.py), 2026-09-01
+#   runs_raw/<arm>/staining/*.csv        job_stain_all.sbatch -> label_stain_full.py, 2026-09-01
+#   runs_raw/<arm>/samap_transferred.h5ad make_transferred_h5ad.py (= make_samap_transferred_h5ad.py), 2026-09-02
+#   runs_raw/vanilla_raw/pt_transfer_harmonized/, samap_transferred_pt_harmonized.h5ad: 2026-10-24, no log
+# Scripts are ancient() where outputs pre-exist, so `snakemake samap_raw_all` does not re-fit them.
 #
 # The 2026_09_02_samap_raw_all.h5ad on netscratch is a dated DEPLOY COPY of
 # runs_raw/vanilla_raw/samap_transferred(_pt).h5ad (+ synced QC coords); deploying
@@ -29,16 +35,8 @@
 # harmonypy PINNED to 0.0.10 (the >=2.0 API breaks SAMap's built-in batch_key
 # hook; see code/samap-scvi/harmonypy2-fix.patch).
 #
-# config.yaml is NOT required — every key below has an inline default. To
-# override, add a block:
-#   samap_raw:
-#     root: ...          # external project root (holds inputs_raw/, runs_raw/)
-#     python: ...        # samap_harmony_uv interpreter, ABSOLUTE
-#     maps_dir: ...      # parent of hsmm/ (SAMap convention)
-#     n_iter: 3
-#     pt_h5ad: ...       # mouse object carrying pseudotime
-#     pt_col: dpt_pseudotime
-#     pt_arms: [vanilla_raw]
+# config[samap_raw] sets pt_h5ad and pt_variants (suffix -> obs column, or {col, h5ad}); root, python,
+# maps_dir, n_iter, pt_col and pt_arms fall back to the defaults below, which are absolute lab_storage paths.
 # Snakefile:  include: "rules/21_samap_raw.smk"
 # =============================================================================
 import re as _sr_re
@@ -147,7 +145,7 @@ rule samap_raw_fit:
         r"""
         module load gcc/14.2.0-fasrc01
         export HDF5_USE_FILE_LOCKING=FALSE
-        export PYTHONPATH=workflow/scripts    # samap_scvi.py (scvi arm only)
+        export PYTHONPATH=workflow/scripts/attic    # samap_scvi.py, imported only by --arm scvi (not in SR_ARMS)
         {params.py} {input.script} \
             --hs {input.hs} --mm {input.mm} --maps-dir {params.maps} \
             --arm {params.base} --out-dir {params.out_dir} \
@@ -210,8 +208,9 @@ rule samap_raw_transferred:
         """
 
 # -----------------------------------------------------------------------------
-# PT TRANSFER — mouse dpt_pseudotime -> human cells, Nadaraya-Watson over the
-# cross-species block of the stitched graph; three variants side by side.
+# PT TRANSFER — mouse pseudotime -> human cells, Nadaraya-Watson over the cross-species block of the
+# stitched graph. One output directory per pt variant (config samap_raw.pt_variants); the transfer of
+# record is _harmonized (pt_harmonized of the 2026_10_22 release).
 rule samap_raw_pt_transfer:
     input:
         joint  = f"{SR_ROOT}/runs_raw/{{arm}}/samap_transferred.h5ad",

@@ -9,7 +9,10 @@ def sh(c, t=120):
         return f"TIMEOUT: {c[:120]}"
 
 
-L = "/n/lab_storage/eddy_lab/users/nhilgert"; X = f"{L}/xmens_final"; N = "/n/netscratch/eddy_lab/Everyone/nhilgert"
+L = "/n/lab_storage/eddy_lab/users/nhilgert"; N = "/n/netscratch/eddy_lab/Everyone/nhilgert"
+# Repository root: three folders above this file (workflow/scripts/methods_numbers), so a run reads the checkout it
+# belongs to, including its config.yaml and the release that config names.
+X = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", ".."))
 R = f"{L}/decidualization/revisions/scenic_v2_2026_08_28"; S = f"{N}/figures/samap_supp"
 out = {}
 
@@ -70,7 +73,7 @@ safe("samap_supp_exporters", lambda: {os.path.basename(p): open(p).read() for p 
 safe("proteomes", lambda: sh(f"ls -la {L}/data/proteomes {L}/data/proteomes/fasta 2>/dev/null | head -24; for f in {L}/data/proteomes/README* {L}/data/proteomes/*.md {L}/data/proteomes/*.txt {L}/data/proteomes/*.json; do test -f $f && (echo \"## $f\"; head -40 $f); done; grep -rhoE 'release-[0-9]+' {L}/data/proteomes --include=*.md --include=*.txt --include=*.json --include=*.sh --include=*.log 2>/dev/null | sort | uniq -c | head"))
 safe("heatmap_dir", lambda: sh(f"ls -la {N}/figures/pt_gene_heatmaps | head -60"))
 def decision_tables():
-    """Text of each annotation decision table, keyed by file name as before, as release v9 uses it: the round-2 tables
+    """Text of each annotation decision table, keyed by file name, as the round-2 releases use it: the round-2 tables
     of config annotation_round2 for the atlas ({species}_lineage.csv) and the round-2 lineages, the July tables under
     resources/annotations/ for every other step (the rule of collect_facts.py). The registry takes the atlas EXCLUDE
     clusters, and so the atlas nuclei counts and doublet means, from these texts."""

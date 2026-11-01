@@ -10,9 +10,9 @@ Arms (--arm):
             rebuilt from a precomputed scVI latent found in obsm
             (samap_scvi.use_embedding_manifold; SAMap itself is stock)
 
-All arms share identical inputs (CP10K fib/dec objects from prep_full_input.py)
-and identical SAMAP settings, so differences are attributable to the
-within-species manifold alone.
+All arms share identical inputs (fib/dec objects from prep_samap_full_input.py; raw counts,
+--scale raw, for the arms of record in 10b_samap_raw.smk) and identical SAMAP settings, so
+differences are attributable to the within-species manifold alone.
 
 Outputs under --out-dir:
   samap.pkl, meta.json, eval.json,

@@ -34,24 +34,30 @@ rule de_lineage_clusters:
         "../scripts/de/de_lineage.py"
 
 
-rule de_lineage_subtypes:
-    input:
-        h5ad="data/interim/reannotated/{species}_{lineage}.h5ad",
-    output:
-        tsv="results/tables/de/{species}_{lineage}_subtypes_top{n}.tsv",
-    wildcard_constraints:
-        n=r"\d+",
-    params:
-        level="subtypes",
-        res=lambda w: LINEAGE_RES(w.species, w.lineage),
-        top_n=lambda w: w.n,
-    log:
-        "logs/05_de_{species}_{lineage}_subtypes_top{n}.log",
-    script:
-        "../scripts/de/de_lineage.py"
+# Defined only with config atlas_annotation.rerun true (the 04_annotate gate of D2): the subtype tables read the July
+# per-lineage objects (data/interim/reannotated/*.h5ad), so the target pulled 11 reannotate_lineage jobs that rewrite
+# those objects of record (and the tables carry neither v9 labels nor v9 vocabulary for the round-2 lineages). With
+# the flag false nothing in this file reaches them; de and de_lineage_clusters are unchanged.
+if config["atlas_annotation"]["rerun"]:
+
+    rule de_lineage_subtypes:
+        input:
+            h5ad="data/interim/reannotated/{species}_{lineage}.h5ad",
+        output:
+            tsv="results/tables/de/{species}_{lineage}_subtypes_top{n}.tsv",
+        wildcard_constraints:
+            n=r"\d+",
+        params:
+            level="subtypes",
+            res=lambda w: LINEAGE_RES(w.species, w.lineage),
+            top_n=lambda w: w.n,
+        log:
+            "logs/05_de_{species}_{lineage}_subtypes_top{n}.log",
+        script:
+            "../scripts/de/de_lineage.py"
 
 
-rule de_lineages:
-    input:
-        [f"results/tables/de/{sp}_{lin}_{lvl}_top{DE_TOP_N}.tsv"
-         for sp, lins in LINEAGES.items() for lin in lins for lvl in ("clusters", "subtypes")],
+    rule de_lineages:
+        input:
+            [f"results/tables/de/{sp}_{lin}_{lvl}_top{DE_TOP_N}.tsv"
+             for sp, lins in LINEAGES.items() for lin in lins for lvl in ("clusters", "subtypes")],

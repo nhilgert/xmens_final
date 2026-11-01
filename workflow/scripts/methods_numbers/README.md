@@ -6,28 +6,40 @@ recomputed from the current outputs, the file and step that produce it, and the 
 
 ## Rebuild
 
+The numbers are a Snakemake target (`workflow/rules/97_methods_numbers.smk`, config `methods_numbers`):
+
 ```bash
 cd /n/lab_storage/eddy_lab/users/nhilgert/xmens_final
-bash workflow/scripts/methods_numbers/submit.sh results/methods_numbers/YYYY_MM_DD path/to/methods_draft.txt [EXTRA_INPUTS]
+snakemake --profile profiles/slurm methods_numbers_all
 ```
 
-This submits three read-only collection jobs (about 5 minutes; 64, 80 and 8 GB) and a build job that starts when all
-three succeed. The outputs are `pipeline_numbers.csv` and `pipeline_numbers_flags.md` in the run directory. The draft
-must be plain text, for example extracted from the docx or PDF; `registry_core.normalize_draft` joins line breaks and
+Three read-only collection rules (about 5 minutes; 64, 80 and 8 GB) feed a build rule. The outputs are
+`pipeline_numbers.csv`, `pipeline_numbers_flags.md` and the `draft.txt` they were checked against, in
+`results/methods_numbers/<release>/registry/`, where `<release>` is `deliverables.release`. The run reads the release's
+`MANIFEST.json`, the MI arms of record, the overlap folder of rules `mi_overlap` and `mi_heatmap_selection`
+(`mi.overlap.outdir`) and the SAMap permutation table, so it runs after them. The scripts take the repository root from
+their own location (three folders up), so a run in a scratch copy of the repository reads that copy.
+
+The draft is `methods_numbers.draft` (`resources/methods_numbers/methods_draft.txt`, the text of the 2026_10_30b run).
+It must be plain text, for example extracted from the docx or PDF; `registry_core.normalize_draft` joins line breaks and
 writes superscript exponents the way the document's plain text reads them: `10−84`, with the U+2212 minus sign and no
 caret. `doc_phrase`, `draft_value` and `value` all use that form, so a value can be substituted into its phrase directly.
+Replace the file with the current Methods text before a release's numbers are read for the manuscript.
 
 The objects are those of the release that `config/config.yaml` names under `deliverables.release`; their paths come
 from `data/deliverables/<release>/MANIFEST.json` (`release_objects.py`). Cutting a new release and updating the config
 is enough to point the registry at it.
 
-`EXTRA_INPUTS` is a directory of project artifacts that no pipeline output holds yet, with a `MANIFEST.json` giving each
-file's artifact version and sha256 (same format as `resources/methods_numbers/artifact_inputs/MANIFEST.json`):
-`xmens_with_uninduced_20261027.zip` (the X-Mens fit with the uninduced fibroblasts: fit diagnostics, pseudobulk table
-and DE table). Without it, the rows that read it are `no_source`. The permutation statistics of the SAMap pseudotime
-transfer are read from `results/samap_figures/ptnull/ptnull_statistics_table.csv`, written by rule `samap_ptnull`
-(`workflow/rules/10c_samap_figures.smk`). The copy used for the
-2026-10-29 rebuild is `/n/netscratch/eddy_lab/Everyone/nhilgert/2026_10_29_methods_numbers/artifact_inputs`.
+`methods_numbers.extra_inputs` is a directory of project artifacts that no pipeline output holds yet, with a
+`MANIFEST.json` giving each file's artifact version and sha256 (same format as
+`resources/methods_numbers/artifact_inputs/MANIFEST.json`): `xmens_with_uninduced_20261027.zip` (the X-Mens fit with the
+uninduced fibroblasts: fit diagnostics, pseudobulk table and DE table). The permutation statistics of the SAMap
+pseudotime transfer are read from `results/samap_figures/ptnull/ptnull_statistics_table.csv`, written by rule
+`samap_ptnull` (`workflow/rules/10c_samap_figures.smk`). The copy used for the 2026-10-29 and 2026_10_30b rebuilds is
+`/n/netscratch/eddy_lab/Everyone/nhilgert/2026_10_29_methods_numbers/artifact_inputs`.
+
+`submit.sh RUN_DIR DRAFT_TXT [EXTRA_INPUTS]` still runs the same four steps as plain sbatch jobs into a new folder; the
+hand-built folders `results/methods_numbers/2026_10_2*` and `2026_10_30*` were made that way.
 
 ## Columns
 
@@ -56,7 +68,7 @@ underflow; for those rows `value_raw` is the p-value in e-notation derived from 
 | `registry_core.py` | draft normalization, phrase matching, number formatting |
 | `build_pipeline_numbers.py` | evaluates every row and writes the CSV and the flag report |
 | `check_proteome_release.sh` | one-off check of the Ensembl release of the SAMap proteomes (login node; needs internet) |
-| `submit.sh` | the rebuild above |
+| `submit.sh` | the same steps as sbatch jobs outside Snakemake (superseded by the rule) |
 
 To add a number, add a `Row` in `registry_rows.py`. Its phrase must occur exactly once in the draft.
 
