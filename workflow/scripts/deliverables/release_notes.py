@@ -173,7 +173,7 @@ def main():
             lines += ["", f"### {name}", ""]
             fibdec_changes(new, previous, lines)
 
-    lines += ["", "## Post-cut checks (tools/check_annotations.py)", "", "| object | status | gates not passed |",
+    lines += ["", "## Post-cut checks (workflow/scripts/tools/check_annotations.py)", "", "| object | status | gates not passed |",
               "|---|---|---|"]
     for path in snk.input.checks:
         report = json.loads(Path(path).read_text())

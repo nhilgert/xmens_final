@@ -298,7 +298,7 @@ if not RELEASE_IS_CUT:
             "../scripts/deliverables/finalize_deliverables.py"
 
 
-# Post-cut check: every object of the release of record against the annotation vocabulary (tools/check_annotations.py;
+# Post-cut check: every object of the release of record against the annotation vocabulary (workflow/scripts/tools/check_annotations.py;
 # release roles allow the legacy label columns the releases keep). Runs after the cut, and on a cut release whose
 # check is missing; a failed schema check or count gate fails the job.
 RELEASE_OBJECT_SPECIES = {"Human": "human", "XMens": "mouse"}      # object tag -> species
@@ -314,7 +314,7 @@ rule check_release_object:
         manifest=RELEASE_MANIFEST,
         vocab=ancient("resources/annotation_vocabulary.yaml"),
         spec=ancient("resources/lineage_spec.yaml"),
-        script=ancient("tools/check_annotations.py"),
+        script=ancient("workflow/scripts/tools/check_annotations.py"),
     output:
         report=f"results/release_checks/{RELEASE}/{{name}}.json",
     params:
