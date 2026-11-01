@@ -20,6 +20,7 @@ def species_samples(w):
 
 # The release of record, the release map and the reader registry, used by every rule file below.
 include: "rules/00_release.smk"
+include: "rules/38_supp_tables.smk"
 
 # One rule file per step, in pipeline order.
 #   01-06  raw data to per-species objects (provenance; defined only with config flags)
@@ -35,7 +36,7 @@ STEPS = [
     "07_integrate", "08_annotate", "09_reintegrate_lineages", "10_annotate_lineages", "11_reembed", "12_spatial_qc",
     "13_reintegrate_round2", "14_annotate_round2", "15_release", "16_release_round2", "17_deposit",
     "17b_pseudotime_of_record",
-    "18_marker_de", "19_homology", "20_samap_transfer", "21_samap_raw", "22_mi_pseudotime", "23_spatial_gp",
+    "18_marker_de", "19_homology", "21_samap_raw", "22_mi_pseudotime", "23_spatial_gp",
     "24_scenic", "25_zone_modules",
     "26_review_clustree", "27_review_notebooks", "28_reports",
     "29_fig_samap", "30_fig_mouse_tissue", "31_fig_mouse_stroma", "32_fig_human_tissue", "33_fig_human_epithelium",

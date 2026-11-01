@@ -312,34 +312,14 @@ release_round2:
       tag: XMens
       fibdec_embedding: {X_scVI: X_scVI, X_umap_scVI: X_umap_scVI}
 samap:
-  # true defines the 10_samap rules (inputs, 12 fits of 128 GB, stains, transferred objects); like scvi.retrain.
-  # The fits of record predate the 2026_09_15 objects they name, so defining the rules re-runs all 35 jobs.
-  fit: false
+  # Shared SAMap settings: the homology maps (19_homology) and the raw all-by-all arm (21_samap_raw) read root,
+  # proteomes_root, saturn_python and phmmer. The per-timepoint-pair transfer arm (20_samap_transfer) was archived
+  # 2026-11-01 (tmp/2026_11_01_samap_transfer_archive); its keys fit, coords_root, python, pairs and pt_h5ad went with it.
   root: /n/lab_storage/eddy_lab/users/nhilgert/decidualization/revisions/samap_integrate
-  coords_root: /n/lab_storage/eddy_lab/users/nhilgert/decidualization/revisions/crossspecies_radial_gp
   proteomes_root: /n/lab_storage/eddy_lab/users/nhilgert/data/proteomes
-  python: /n/lab_storage/eddy_lab/users/nhilgert/xmens_final/envs/samap/.venv/bin/python
   saturn_python: /n/lab_storage/eddy_lab/users/nhilgert/.uv/envs/saturn_uv/bin/python
   phmmer: /n/lab_storage/eddy_lab/users/nhilgert/software/hmmer-3.4/src/phmmer
   n_iter: 3
-  # Run names (and pt_h5ad keys) name existing SAMap runs: their timepoint slugs are the
-  # pre-v5 names the runs were created with (1dpi_early = 1.5 dpi early, ..., 4dpi = 4.5 dpi bleeding).
-  pairs:
-  - menstrual_x_uninduced_hmmer
-  - menstrual_x_1dpi_early_hmmer
-  - menstrual_x_1dpi_late_hmmer
-  - menstrual_x_2dpi_hmmer
-  - menstrual_x_3dpi_hmmer
-  - menstrual_x_4dpi_hmmer
-  - secretory_x_uninduced_hmmer
-  - secretory_x_1dpi_early_hmmer
-  - secretory_x_1dpi_late_hmmer
-  - secretory_x_2dpi_hmmer
-  - secretory_x_3dpi_hmmer
-  - secretory_x_4dpi_hmmer
-  pt_h5ad:
-    menstrual_x_4dpi_hmmer: /n/lab_storage/eddy_lab/users/nhilgert/decidualization/revisions/adatas/pseudotime/adata_4dpi.h5ad
-    secretory_x_1dpi_late_hmmer: /n/lab_storage/eddy_lab/users/nhilgert/decidualization/revisions/adatas/pseudotime/adata_1dpi.h5ad
 mi_pseudotime:
   # MI(gene expression, harmonized pseudotime), rules in 11_mi_pseudotime.smk.
   # Every arm scores all of its nuclei (no estimator subsample) on genes detected in
@@ -548,6 +528,9 @@ samap_figures:
   ptnull_seed: 20261022
   ptnull_n_perm: 1000              # permutations per design
   main_panel_date: "20261027"      # date stem of the Fig. 6 spatial panel files
+  # The SAMap transferred object of record (24 Oct 2026). It has no producing rule and lives outside the
+  # repository, so the figures verify it by content, as they do the pseudotime of record.
+  joint_sha256: 62fb75d7c2ca3e739299be48695476b6c7a8ac48a05c9226c3c0cb47b8a3ad84
 
 # ---------------------------------------------------------------------------
 # zone_modules (stage 16, added 2026-10-24) -- decidual-zone AUCell modules,
@@ -604,3 +587,48 @@ zone_modules:
       args: "--figures heatmap --heatmap-scale p99 --heatmap-timepoint 3.5_dpi --modules PDZ,TDZ,SDZ,VSZ,MD,udStr --pool-fib"
     - name: heatmap_3dpi_6zones_fibpooled_p99_viridis
       args: "--figures heatmap --heatmap-scale p99 --heatmap-timepoint 3.5_dpi --modules PDZ,TDZ,SDZ,VSZ,MD,udStr --pool-fib --cmap viridis"
+# ---------------------------------------------------------------------------
+# Supplementary tables (rules in 38_supp_tables.smk). Each entry holds the numbers the Methods state, so the rule
+# can refuse to ship a table that no longer reproduces the paper.
+supp_tables:
+  s5:
+    # "Of 90,456 mouse and 97,470 human CellBender-called nuclei, the UMI floor removed 7,460 and 4,948, the
+    # mitochondrial filter 0 and 7, the count-depth MAD filter 2,211 and 5,474, the detected-gene MAD filter
+    # 1,219 and 1,731, and the doublet classifier 11,497 and 14,947, leaving 68,069 mouse and 70,363 human
+    # nuclei for integration" (Methods, Quality control).
+    methods_totals:
+      cellbender_called:        {mouse: 90456, human: 97470}
+      umi_floor_removed:        {mouse: 7460,  human: 4948}
+      mito_removed:             {mouse: 0,     human: 7}
+      total_counts_mad_removed: {mouse: 2211,  human: 5474}
+      n_genes_mad_removed:      {mouse: 1219,  human: 1731}
+      doublets_removed:         {mouse: 11497, human: 14947}
+      retained:                 {mouse: 68069, human: 70363}
+  s13:
+    # "Across both passes, 38 clusters (12,274 nuclei) were removed" (Methods, Dimensionality reduction,
+    # clustering and annotation). Columns are the supplement's selection from the ledger; edit freely.
+    expected: {n_clusters: 38, n_nuclei: 12274}
+    nuclei_column: n_nuclei
+    sort_by: [species, step, cluster]
+    columns:
+    - species
+    - step
+    - cluster
+    - n_nuclei
+    - median_genes
+    - median_umis
+    - mean_pct_mito
+    - median_doublet_score
+    - pct_doublet_score_above_5
+    - pct_two_lineages
+    - kept_median_genes
+    - kept_pct_doublet_score_above_5
+    - kept_clusters_median_pct_two_lineages
+    - final_reason
+    - evidence_summary
+    - approval_date
+    header_names:
+      n_nuclei: nuclei
+      pct_doublet_score_above_5: pct_nuclei_doublet_score_gt5
+      kept_pct_doublet_score_above_5: kept_clusters_pct_nuclei_doublet_score_gt5
+      pct_two_lineages: pct_nuclei_two_lineages
