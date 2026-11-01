@@ -37,6 +37,7 @@ if config["scvi"].get("retrain", False):
             h5ad="data/interim/latent_{species}_{lineage}.h5ad",
         params:
             counts_layer="counts",          # same raw-counts layer as 02_integrate
+            fit=SCVI_FIT_SETTINGS,
         log:
             "logs/04b_reintegrate_{species}_{lineage}.log",
         script:

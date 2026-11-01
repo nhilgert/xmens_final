@@ -186,7 +186,9 @@ def prune_uns(uns: dict, drop: list, rename: dict, removed_obsm: list, renamed_o
 
 def replace_pseudotime(adata: ad.AnnData, entry: dict):
     """Swap the release's pseudotime, its diffusion map and its uns record for those of a newer run, the pseudotime of
-    record. The run's table must hold exactly the object's nuclei and match its configured sha256."""
+    record. The run's table must hold exactly the object's nuclei and match its configured sha256. A release that
+    already carries the run (04g2 refresh_fibdec_round2 writes it, decision G) keeps its values, which must equal the
+    run's."""
     table_path, run_path, script_path = Path(entry["table"]), Path(entry["run_record"]), Path(entry["script"])
     table_sha256 = file_sha256(table_path)
     if table_sha256 != entry["table_sha256"]:
@@ -205,9 +207,19 @@ def replace_pseudotime(adata: ad.AnnData, entry: dict):
     n_dcs = adata.obsm["X_diffmap_pseudotime"].shape[1]
     release_pseudotime = adata.obs["pseudotime"].copy()
     release_record = dict(adata.uns["pseudotime"])
-    adata.obs["pseudotime"] = table["pt_rank"].to_numpy(dtype="float64")
-    adata.obsm["X_diffmap_pseudotime"] = table[[f"dc{i}" for i in range(n_dcs)]].to_numpy(dtype="float64")
-    adata.uns["pseudotime"] = {
+    run_pseudotime = table["pt_rank"].to_numpy(dtype="float64")
+    run_diffmap = table[[f"dc{i}" for i in range(n_dcs)]].to_numpy(dtype="float64")
+    carried = str(release_record.get("table_sha256", "")) == entry["table_sha256"]
+    if carried:
+        same_pseudotime = np.array_equal(release_pseudotime.to_numpy(dtype="float64"), run_pseudotime)
+        same_diffmap = np.array_equal(np.asarray(adata.obsm["X_diffmap_pseudotime"], dtype="float64"), run_diffmap)
+        if not (same_pseudotime and same_diffmap and str(release_record.get("root")) == str(run["root"])):
+            raise ValueError(f"the release records {table_path} as its pseudotime but its values differ from the run's")
+        LOG.info("pseudotime of record already in the release (%s); kept", table_path)
+    else:
+        adata.obs["pseudotime"] = run_pseudotime
+        adata.obsm["X_diffmap_pseudotime"] = run_diffmap
+    adata.uns["pseudotime"] = release_record if carried else {
         "description": f"{release_record['description']}. {entry['note']}",
         "n_cells": int(len(table)),
         "n_dcs": int(n_dcs),
@@ -231,7 +243,8 @@ def replace_pseudotime(adata: ad.AnnData, entry: dict):
         "root": run["root"],
         "release_root": str(release_record.get("root")),
         "spearman_with_release": float(release_pseudotime.corr(adata.obs["pseudotime"], method="spearman")),
-        "replaced": {"obs": ["pseudotime"], "obsm": ["X_diffmap_pseudotime"], "uns": ["pseudotime"]},
+        "carried_by_release": carried,
+        "replaced": {} if carried else {"obs": ["pseudotime"], "obsm": ["X_diffmap_pseudotime"], "uns": ["pseudotime"]},
     }
     expected = {"obs": adata.obs["pseudotime"].copy(), "obsm": adata.obsm["X_diffmap_pseudotime"].copy(),
                 "root": run["root"]}

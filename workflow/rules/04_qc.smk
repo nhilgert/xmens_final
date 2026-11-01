@@ -6,16 +6,20 @@
 # config['envs']['doubletdetection'] at it. If unset/missing, qc.py skips
 # doublet removal with a warning (so dry-runs and partial setups still work).
 
-rule qc:
-    input:
-        h5ad="data/interim/raw/{sample}.h5ad",
-    output:
-        h5ad="data/interim/qc/{sample}.h5ad",
-    params:
-        species=lambda w: samples.loc[w.sample, "species"],
-    conda:
-        config.get("envs", {}).get("doubletdetection", None)
-    log:
-        "logs/01_qc_{sample}.log",
-    script:
-        "../scripts/ingest_qc/qc.py"
+# Defined only when config ingest.rerun is true (default false), like scvi.retrain: the ingest and QC stages are the
+# provenance of the pipeline's inputs and are kept to document them; by default nothing rebuilds those inputs.
+if config.get("ingest", {}).get("rerun", False):
+
+    rule qc:
+        input:
+            h5ad="data/interim/raw/{sample}.h5ad",
+        output:
+            h5ad="data/interim/qc/{sample}.h5ad",
+        params:
+            species=lambda w: samples.loc[w.sample, "species"],
+        conda:
+            config.get("envs", {}).get("doubletdetection", None)
+        log:
+            "logs/01_qc_{sample}.log",
+        script:
+            "../scripts/ingest_qc/qc.py"

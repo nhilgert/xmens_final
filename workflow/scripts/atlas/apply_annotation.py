@@ -248,7 +248,7 @@ def write_fine(adata, out_h5ad):
 
 # ------------------------------------------------------------------ entries --
 def _run(level, species, lineage, res, in_h5ad, csv, spec_path, vocab_path,
-         repo, out_h5ad):
+         repo, out_h5ad, lineage_dir=None, ladder_dir=None):
     import scanpy as sc, yaml
     spec = yaml.safe_load(open(spec_path))
     vocab = yaml.safe_load(open(vocab_path))
@@ -262,9 +262,10 @@ def _run(level, species, lineage, res, in_h5ad, csv, spec_path, vocab_path,
     if level == "atlas":
         cfg = spec["atlas"][species]
         apply_map(adata, res, choices, rollup={}, output_mode="atlas")
+        # The rule's declared outputs name the directories; `repo` is only the CLI default.
         write_atlas(adata, out_h5ad,
-                    repo / "data/interim/lineages",
-                    repo / "results/tables/clusters" / species,
+                    lineage_dir or repo / "data/interim/lineages",
+                    ladder_dir or repo / "results/tables/clusters" / species,
                     slug=cfg["labels"], species=species)
     else:
         rollup = build_vocabulary_rollup(vocab)
@@ -278,13 +279,16 @@ def _run(level, species, lineage, res, in_h5ad, csv, spec_path, vocab_path,
 
 def _from_snakemake(sm):
     p = sm.params
+    is_atlas = p.level == "atlas"
     _run(level=p.level, species=p.species, lineage=getattr(p, "lineage", None),
          res=p.res, in_h5ad=sm.input.h5ad, csv=sm.input.csv,
          spec_path=getattr(sm.input, "spec", None)
                    or "resources/lineage_spec.yaml",
          vocab_path=getattr(sm.input, "vocab", None)
                     or "resources/annotation_vocabulary.yaml",
-         repo=p.repo, out_h5ad=sm.output.h5ad)
+         repo=p.repo, out_h5ad=sm.output.h5ad,
+         lineage_dir=Path(sm.output.subsets[0]).parent if is_atlas else None,
+         ladder_dir=Path(sm.output.ladder).parent if is_atlas else None)
 
 
 def _from_cli(argv):

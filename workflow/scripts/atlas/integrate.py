@@ -25,13 +25,13 @@ import torch
 inp = snakemake.input.h5ad            # noqa: F821
 out = snakemake.output.h5ad           # noqa: F821
 species = snakemake.wildcards.species # noqa: F821
-cfg = snakemake.config                # noqa: F821
 logfile = snakemake.log[0]            # noqa: F821
 counts_layer = snakemake.params.counts_layer  # noqa: F821  (this pipeline: 'counts')
+fit = dict(snakemake.params.fit)      # noqa: F821  (02_integrate.smk SCVI_FIT_SETTINGS: seed, scvi, leiden)
 
-SEED = cfg.get("seed", 0)
-scvi_cfg = cfg.get("scvi", {})
-leiden_cfg = cfg.get("leiden", {})
+SEED = fit["seed"]
+scvi_cfg = dict(fit["scvi"])
+leiden_cfg = dict(fit["leiden"])
 
 N_HVG = scvi_cfg.get("n_hvg", 3000)
 HVG_FLAVOR = scvi_cfg.get("hvg_flavor", "seurat_v3")

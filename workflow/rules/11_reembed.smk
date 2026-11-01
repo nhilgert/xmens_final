@@ -21,6 +21,7 @@ if config["scvi"].get("retrain", False):
             h5ad="data/interim/final_{species}.h5ad",
         params:
             counts_layer="counts",          # integrate.py reads snakemake.params.counts_layer
+            fit=SCVI_FIT_SETTINGS,
         log:
             "logs/04e_reembed_{species}.log",
         script:

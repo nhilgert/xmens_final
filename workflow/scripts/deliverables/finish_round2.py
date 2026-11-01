@@ -1,17 +1,21 @@
-"""Finish one species' re-embedded v9 all-cells object as a release 2026_10_30 source (vocabulary v9).
+"""Finish one species' rebuilt all-cells object as a source of the release being cut.
 
-04g2 finish_release_round2. reembed_release_round2 ran integrate.py (the stage-02 scVI fit and its settings) on
-rebuild_release_round2's output. This step
-  1. removes what integrate.py adds that the releases do not carry: the Leiden ladder and the neighbour-graph
-     matrices (the parameters in uns['neighbors_scVI_100'] are kept);
-  2. keeps the released .X of the nuclei that were in the base (integrate.py recomputes .X as log1p(CP10K) of the
-     counts; the recomputation must equal the released values within float32 rounding, X_TOLERANCE); nuclei new to
-     the release keep the recomputed values;
-  3. recomputes embedding_outlier on the new embedding over all nuclei with the species' release rule
-     (embedding_outliers.py) and writes the flagged nuclei, with their neighbour statistics, to a table;
-  4. checks the object: the rebuilt nuclei in order with their obs values (embedding_outlier recomputed), counts,
-     .X, X_spatial and genes; the base nuclei outside the round-2 lineages unchanged except embedding_outlier and the
-     spatial QC that rebuild_release_round2 reported; counts and labels as in the vocabulary.
+04g2 finish_release_round2. The whole-tissue embedding comes one of two ways (params.embedding, decided in 04g2):
+  refit  reembed_release_round2 ran integrate.py (the stage-02 scVI fit and its settings) on rebuild_release_round2's
+         output. This step removes what integrate.py adds that the releases do not carry (the Leiden ladder and the
+         neighbour-graph matrices; the parameters in uns['neighbors_scVI_100'] are kept), keeps the released .X of the
+         nuclei that were in the base (the recomputation must equal it within float32 rounding, X_TOLERANCE), and
+         recomputes embedding_outlier on the new embedding over all nuclei with the species' release rule
+         (embedding_outliers.py).
+  reuse  the nuclei are exactly those of the previous release (params.previous_release), so its whole-tissue
+         embedding (obsm X_scVI and X_umap_scVI, the HVG, neighbour, UMAP and scVI-fit records, the var columns
+         integrate.py adds) and its embedding_outlier flags are copied nucleus by nucleus onto the rebuilt object. The
+         step fails unless the rebuilt nuclei are the previous release's; the rule recomputed on the reused embedding
+         is written next to the copied flags.
+Either way the flagged nuclei, with their neighbour statistics, go to a table, and the object is checked: the rebuilt
+nuclei in order with their obs values (embedding_outlier set here), counts, .X, X_spatial and genes; the base nuclei
+outside the round-2 lineages unchanged except embedding_outlier and the spatial QC that rebuild_release_round2
+reported; counts and labels as in the vocabulary.
 """
 import os
 import sys
@@ -27,6 +31,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "atlas"))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from apply_annotation import validate_canonical_annotations  # noqa: E402
 from embedding_outliers import outlier_table  # noqa: E402
+from embedding_reuse import fit_settings_differ, reuse_embedding  # noqa: E402
 
 snk = snakemake  # noqa: F821 (injected by Snakemake)
 
@@ -90,23 +95,53 @@ def keep_released_x(adata, base):
 def main():
     species = str(snk.params.species)
     release = str(snk.params.release)
+    embedding = str(snk.params.embedding)
     vocab = yaml.safe_load(open(snk.input.vocab))
-    adata = ad.read_h5ad(snk.input.h5ad)
     rebuilt = ad.read_h5ad(snk.input.rebuilt)
     base = ad.read_h5ad(snk.input.base)
-    say(f"re-embedded {adata.n_obs:,} nuclei; rebuilt {rebuilt.n_obs:,}; base {base.n_obs:,}")
-    if not adata.obs_names.equals(rebuilt.obs_names):
-        raise ValueError("the re-embedded nuclei are not the rebuilt nuclei in order")
-    for column in rebuilt.obs.columns:
-        if not same_values(adata.obs[column], rebuilt.obs[column]).all():
-            raise ValueError(f"integrate.py changed obs {column}")
+    say(f"rebuilt {rebuilt.n_obs:,} nuclei; base {base.n_obs:,}; whole-tissue embedding: {embedding}")
 
-    # 1-2. Releases carry no clustering; base nuclei keep their released .X.
-    drop_clustering(adata)
-    keep_released_x(adata, base)
+    if embedding == "refit":
+        adata = ad.read_h5ad(snk.input.reembedded)
+        if not adata.obs_names.equals(rebuilt.obs_names):
+            raise ValueError("the re-embedded nuclei are not the rebuilt nuclei in order")
+        for column in rebuilt.obs.columns:
+            if not same_values(adata.obs[column], rebuilt.obs[column]).all():
+                raise ValueError(f"integrate.py changed obs {column}")
 
-    # 3. Outlier flags over all nuclei of the new embedding.
-    table = outlier_table(adata.obs, adata.obsm, species=species)
+        # 1-2. Releases carry no clustering; base nuclei keep their released .X.
+        drop_clustering(adata)
+        keep_released_x(adata, base)
+
+        # 3. Outlier flags over all nuclei of the new embedding.
+        table = outlier_table(adata.obs, adata.obsm, species=species)
+        source = (f"recomputed on the {release} embedding over all nuclei of this object by finish_release_round2 "
+                  "(workflow/scripts/deliverables/embedding_outliers.py)")
+    elif embedding == "reuse":
+        previous_release = str(snk.params.previous_release)
+        previous = ad.read_h5ad(snk.input.previous, backed="r")
+
+        # The reused fit must be the one the current settings would make (params.fit, 02_integrate.smk).
+        differ = fit_settings_differ(dict(previous.uns.get("scvi_fit", {})), dict(snk.params.fit))
+        if differ:
+            raise ValueError(f"embedding reuse: {previous_release} was fitted with other scVI settings (recorded, "
+                             f"current): {differ}; set config release_round2.embedding: refit")
+        adata, flags, copied = reuse_embedding(rebuilt, previous)
+        previous.file.close()
+        say(f"reused from {previous_release}: obsm {copied['obsm']}, uns {copied['uns']}, var {copied['var']}, "
+            f"embedding_outlier ({copied['n_flagged']} flagged)")
+
+        # The copied flags are the release's; the rule recomputed with the current cell types is reported beside them.
+        table = outlier_table(adata.obs, adata.obsm, species=species)
+        table["recomputed_flag"] = table["embedding_outlier"].to_numpy(bool)
+        table["embedding_outlier"] = flags
+        n_differ = int((table["recomputed_flag"] != table["embedding_outlier"]).sum())
+        say(f"embedding_outlier: {int(flags.sum())} flags of {previous_release} copied; the rule recomputed with the "
+            f"current cell types differs for {n_differ} nuclei (column recomputed_flag of {snk.output.outliers})")
+        source = (f"the flags of release {previous_release}, whose whole-tissue embedding this release reuses because "
+                  "its nuclei are the same (finish_release_round2)")
+    else:
+        raise ValueError(f"params.embedding is refit or reuse, not {embedding!r}")
     adata.obs["embedding_outlier"] = table["embedding_outlier"].to_numpy(bool)
     flagged = table[table.embedding_outlier].drop(columns="embedding_outlier")
     extra = adata.obs.loc[flagged.index, ["cell_subtype", "sample", "timepoint", "spatial_qc_reason"]].astype(str)
@@ -117,18 +152,16 @@ def main():
     flagged.index.name = "cell"
     Path(snk.output.outliers).parent.mkdir(parents=True, exist_ok=True)
     flagged.round(3).to_csv(snk.output.outliers)
-    previous = base.obs["embedding_outlier"].astype(bool)
-    still = int(previous.reindex(flagged.index).fillna(False).astype(bool).sum())
-    say(f"embedding outliers: {len(flagged)} ({still} of the base's {int(previous.sum())} still flagged); by class "
+    base_flags = base.obs["embedding_outlier"].astype(bool)
+    still = int(base_flags.reindex(flagged.index).fillna(False).astype(bool).sum())
+    say(f"embedding outliers: {len(flagged)} ({still} of the base's {int(base_flags.sum())} still flagged); by class "
         f"{flagged['class'].value_counts().to_dict()}; by cell type {flagged['cell_type'].value_counts().to_dict()}")
     rule = str(rebuilt.uns["embedding_outlier_rule"])
     if rule.count(RULE_RETENTION) != 1:
         raise ValueError("uns['embedding_outlier_rule'] does not have the expected wording")
     adata.uns["embedding_outlier_rule"] = (
-        f"{rule.split(RULE_RETENTION)[0]}{RULE_RETENTION} {len(flagged)} cells flagged in this object, recomputed on "
-        f"the {release} embedding over all nuclei of this object by finish_release_round2 "
-        f"(workflow/scripts/deliverables/embedding_outliers.py); flagged cells and their neighbour statistics: "
-        f"{snk.output.outliers}.")
+        f"{rule.split(RULE_RETENTION)[0]}{RULE_RETENTION} {len(flagged)} cells flagged in this object, {source}; "
+        f"flagged cells and their neighbour statistics: {snk.output.outliers}.")
     adata.obs = adata.obs[list(base.obs.columns)]
 
     # 4. Checks.
@@ -175,7 +208,8 @@ def main():
     hvg_after = set(adata.var_names[adata.var["highly_variable"].astype(bool)])
     say(f"checks passed: {adata.n_obs:,} nuclei; {len(outside):,} base nuclei outside the round-2 lineages unchanged "
         f"except outlier flags and spatial QC (<= {n_changed_qc} changed); HVGs {len(hvg_after):,} "
-        f"(2026_10_29b fit {len(hvg_before):,}; shared {len(hvg_after & hvg_before):,}); cell types {found}")
+        f"({snk.params.base_release} fit {len(hvg_before):,}; shared {len(hvg_after & hvg_before):,}); "
+        f"cell types {found}")
 
     path = Path(snk.output.primary)
     path.parent.mkdir(parents=True, exist_ok=True)

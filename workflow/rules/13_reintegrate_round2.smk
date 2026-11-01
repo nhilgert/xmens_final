@@ -61,6 +61,7 @@ if R2.get("fit", False):
             h5ad=f"{R2['outdir']}/latent_{{species}}_{{lineage}}.h5ad",
         params:
             counts_layer="counts",          # same raw-counts layer as 04b
+            fit=SCVI_FIT_SETTINGS,
             resolutions=_annotation_resolution,
         log:
             "logs/04b2_reintegrate_round2_{species}_{lineage}.log",

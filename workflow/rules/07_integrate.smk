@@ -12,6 +12,15 @@
 # GPU rule: workflow/profiles/slurm routes `integrate` to a GPU node (--gres=gpu:1).
 # Input is the per-species concatenated object from 06_concat.
 
+# The settings integrate.py and reintegrate.py fit with: config seed, scvi (without the retrain switch) and leiden.
+# Every rule that runs either script declares them as params, so a changed setting re-runs the fit (rerun trigger
+# params) instead of being read silently from the config.
+SCVI_FIT_SETTINGS = {
+    "seed": config["seed"],
+    "scvi": {key: value for key, value in config["scvi"].items() if key != "retrain"},
+    "leiden": config["leiden"],
+}
+
 # Defined only when config scvi.retrain is true. scVI fits are deterministic only
 # within one GPU class and the annotation tables refer to the July 2026 fits, so by
 # default data/interim/latent_{species}.h5ad is an input the pipeline reads,
@@ -25,6 +34,7 @@ if config["scvi"].get("retrain", False):
             h5ad="data/interim/latent_{species}.h5ad",
         params:
             counts_layer="counts",          # this pipeline's raw-counts layer (= notebook 'raw')
+            fit=SCVI_FIT_SETTINGS,
         log:
             "logs/02_integrate_{species}.log",
         script:

@@ -1,14 +1,14 @@
-"""Build one species' all-cells object for release 2026_10_30 (vocabulary v9): round 2 of the lineage split.
+"""Build one species' all-cells object of the release being cut: round 2 of the lineage split.
 
 04g2 rebuild_release_round2. Inputs (config release_round2 and annotation_round2):
-  base        the species' all-cells object of release 2026_10_29b (its primary nuclei)
+  base        the species' all-cells object of the base release (release_round2.from_version; its primary nuclei)
   atlas       data/interim/latent_{species}.h5ad, the July whole-tissue fit (pinned by sha256): raw counts, sample,
               barcode and raw coordinates of the nuclei new to the release
   latents     the round-2 lineage fits (pinned by sha256): every nucleus of the round-2 lineages
   lineages    their annotated objects (04c2 reannotate_lineage_round2): the kept nuclei with cell_type, cell_subtype
   spatial_qc  04c2 spatial_qc_round2: the spatial QC of every nucleus the round-2 atlas table keeps
-  legacy      resources/annotations/round2/legacy_names.csv: the legacy label columns of each v9 label
-  vocab       resources/annotation_vocabulary.yaml (v9)
+  legacy      resources/annotations/round2/legacy_names.csv: the legacy label columns of each round-2 label
+  vocab       resources/annotation_vocabulary.yaml
 
 This step
   1. replaces the base nuclei of the round-2 lineages by the kept nuclei of their round-2 annotation. Base nuclei
@@ -327,12 +327,13 @@ def main():
         "legacy_names": str(snk.input.legacy),
         "spatial_qc": {"source": str(snk.input.spatial_qc), "n_base_changed": int(len(changed_qc)),
                        **{k: str(v) for k, v in qc_uns.items()}},
-        "note": ("Round 2 of the lineage split (vocabulary v9): the nuclei of the round-2 lineages are those kept by "
-                 "their round-2 annotation; spatial QC re-run over the nuclei the round-2 atlas tables keep."),
+        "note": (f"Round 2 of the lineage split ({vocab['schema_version']}): the nuclei of the round-2 lineages are "
+                 "those kept by their round-2 annotation; spatial QC re-run over the nuclei the round-2 atlas tables "
+                 "keep."),
     }
     out = ad.AnnData(X=x, obs=obs, var=base.var.drop(columns=[c for c in HVG_VAR if c in base.var.columns]),
                      uns=uns, obsm={"X_spatial": xy}, layers={"counts": counts})
-    validate_canonical_annotations(out, vocab, context=f"rebuilt {species} all-cells (v9)")
+    validate_canonical_annotations(out, vocab, context=f"rebuilt {species} all-cells ({snk.params.release})")
 
     report = []
     for lin, entry in lineages.items():

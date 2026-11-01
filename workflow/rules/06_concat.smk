@@ -13,14 +13,18 @@ def species_samples(wildcards):
     sub = samples[samples["species"] == wildcards.species]
     return [f"data/interim/qc/{s}.h5ad" for s in sub.index]
 
-rule concat:
-    input:
-        species_samples,
-    output:
-        h5ad="data/interim/qc_passed_{species}.h5ad",
-    params:
-        species=lambda w: w.species,
-    log:
-        "logs/01c_concat_{species}.log",
-    script:
-        "../scripts/ingest_qc/concat.py"
+# Defined only when config ingest.rerun is true (default false), like scvi.retrain: the ingest and QC stages are the
+# provenance of the pipeline's inputs and are kept to document them; by default nothing rebuilds those inputs.
+if config.get("ingest", {}).get("rerun", False):
+
+    rule concat:
+        input:
+            species_samples,
+        output:
+            h5ad="data/interim/qc_passed_{species}.h5ad",
+        params:
+            species=lambda w: w.species,
+        log:
+            "logs/01c_concat_{species}.log",
+        script:
+            "../scripts/ingest_qc/concat.py"

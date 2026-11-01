@@ -43,6 +43,8 @@ doublet:
   voter_thresh: 0.5
   p_thresh: 1.0e-07
   n_top_var_genes: 3000
+ingest:
+  rerun: false               # true defines the ingest/QC provenance rules (00_cellbender, 00b_ingest, 01_qc, 01b, 01c)
 scvi:
   retrain: false             # true defines the scVI-fitting rules (02, 04b, 04e); see README
   n_hvg: 3000
@@ -123,11 +125,37 @@ annotation_round2:
     # human: exact duplicate coordinates only (no kNN floor, no far cut, no boxes; one section per sample).
     # These settings reproduce the human release QC of 2026-09-02 (user decision) for all 69,146 nuclei.
     human: {n_mads: .inf, floor_um: 0.0, exclusions: {human: []}, sections: {human: []}, rotations: {human: {}}}
+# Release map: version label -> release folder, data/deliverables/<folder>. Every rule reads release folders and
+# version labels from this map and deliverables.version / deliverables.release (workflow/rules/00_release.smk).
+releases:
+  v8: "2026_10_29b"
+  v9: "2026_10_30"
+  v10: "2026_11_02"
+# Pseudotime of record of the fibroblast/decidual objects where it is newer than the release's own (decision G):
+# the 30 Oct 2026 human refit. refresh_fibdec_round2 (04g2) writes it into the release object (obs pt_harmonized_rank
+# <- column, pt_harmonized <- raw_column, obsm X_diffmap_harmonized <- dc0..; uns pt_harmonized the run record), so
+# the deposit copies it unchanged. Same run as deposit_objects.pseudotime_of_record (95 checks that they agree).
+pseudotime_of_record:
+  human:
+    path: data/interim/human_pt_2026_10_30_run4_a40/cells.parquet
+    column: pt_rank
+    sha256: 956a07cdb97d9a99dd769088a66e717b60956b81b45cb3e3d625057dacb2f94f
+    raw_column: pt_raw
+    run_record: data/interim/human_pt_2026_10_30_run4_a40/provenance.json
+    script: data/interim/human_pt_2026_10_30_run4_a40/harmonized_pseudotime_fibdec.py
+    latent_copy: "/n/lab_storage/eddy_lab/users/nhilgert/tmp/2026_10_30_human_fibdec_latent/run4_a40/fibdec/\
+      latent_human_stromal_fibdec.h5ad"
+    latent_sha256: 80f3f7eac5fdff9c17ef2b0a5580f5087a9720639704ecd381e481608181b471
+    note: >-
+      Human stromal scVI latent refit on the 47,533 fibroblast and decidual nuclei only, with the mouse settings
+      (30 Oct 2026). The pseudotime was computed on that latent (latent_copy), not on obsm X_scVI, the stromal-lineage
+      latent of 04b_reintegrate that gives the UMAP. The script is harmonized_pseudotime.py with only the latent path
+      changed.
 deliverables:
-  # 04g finalize_deliverables: promote the canonical source objects into an
-  # immutable, sha256-manifested release dir. Cut a release deliberately:
-  # bump `release`, update `sources`, then
-  #   snakemake --rerun-triggers mtime finalize_deliverables
+  # 04g finalize_deliverables promotes the four release objects into an immutable, sha256-manifested folder,
+  # data/deliverables/<release>. The release of record is `version` and `release` (= releases[version]); to cut the
+  # next release, set both and run snakemake. Once its MANIFEST.json exists a release is cut and no rule rebuilds it.
+  # History of the releases:
   # 2026_09_15 canonicalizes the NETSCRATCH copies -- the versions SCENIC/LIANA
   # consumed. Fib/dec are supersets of the 2026_08_28 repo copies (add
   # rank-normalised DPT + diffmap; human also donor + a leiden ladder). NOTE:
@@ -159,14 +187,25 @@ deliverables:
   # round 2 (mouse immune, vascular, smc; human immune) replace their v8 nuclei, the spatial QC is re-run over the
   # nuclei the round-2 atlas tables keep, each species' whole-tissue embedding is re-fitted (A40) and the fib/dec
   # objects take the new embedding, outlier flags and spatial QC. No extended objects.
-  # Rename the date to the day the release is actually cut.
   release: "2026_10_30"   # quoted: a bare date parses as an integer in YAML
-  note: 2026_10_29b rebuilt to annotation vocabulary v9 (release_round2) - the four lineages re-annotated in round 2 (mouse immune, vascular, smc; human immune; resources/annotations/round2) replace their v8 nuclei; spatial QC re-run over the nuclei the round-2 atlas tables keep; whole-tissue embeddings re-fitted on all nuclei; fib/dec objects switched to the new embedding, outlier flags and spatial QC; see MANIFEST.json, results/tables/round2_release_cells_*_2026_10_30.tsv and results/tables/round2_embedding_outliers_*_2026_10_30.csv
-  sources:
-    Cevrim_Human_All_Cells: /n/netscratch/eddy_lab/Everyone/nhilgert/2026_10_30_release_v9/Cevrim_Human_All_Cells.h5ad
-    Cevrim_Human_Only_Fib_Dec_Cells: /n/netscratch/eddy_lab/Everyone/nhilgert/2026_10_30_release_v9/Cevrim_Human_Only_Fib_Dec_Cells.h5ad
-    Cevrim_XMens_All_Cells: /n/netscratch/eddy_lab/Everyone/nhilgert/2026_10_30_release_v9/Cevrim_XMens_All_Cells.h5ad
-    Cevrim_XMens_Only_Fib_Dec_Cells: /n/netscratch/eddy_lab/Everyone/nhilgert/2026_10_30_release_v9/Cevrim_XMens_Only_Fib_Dec_Cells.h5ad
+  version: v9
+  # The release objects; their sources are <release_round2 folder of the release>/<object>.h5ad (04g2).
+  objects: [Cevrim_Human_All_Cells, Cevrim_Human_Only_Fib_Dec_Cells, Cevrim_XMens_All_Cells,
+            Cevrim_XMens_Only_Fib_Dec_Cells]
+  # MANIFEST note of each release; `default` for a version without its own. {from_release}, {embedding} and
+  # {release} are filled in by 04g.
+  notes:
+    v9: >-
+      2026_10_29b rebuilt to annotation vocabulary v9 (release_round2) - the four lineages re-annotated in round 2
+      (mouse immune, vascular, smc; human immune; resources/annotations/round2) replace their v8 nuclei; spatial QC
+      re-run over the nuclei the round-2 atlas tables keep; whole-tissue embeddings re-fitted on all nuclei; fib/dec
+      objects switched to the new embedding, outlier flags and spatial QC; see MANIFEST.json,
+      results/tables/round2_release_cells_*_2026_10_30.tsv and results/tables/round2_embedding_outliers_*_2026_10_30.csv
+    default: >-
+      {from_release} rebuilt by release_round2 (04c2, 04g2) with the round-2 decision tables and the annotation
+      vocabulary in force at the cut; whole-tissue embedding: {embedding}; human fib/dec pseudotime: the pseudotime of
+      record (config pseudotime_of_record.human); counts and changes in results/release_notes/ and
+      results/tables/round2_release_cells_*_{release}.tsv
 vocab_migration:
   # Release relabeled by migrate_release_vocabulary (04g), and where the relabeled
   # objects are written before finalize_deliverables promotes them.
@@ -230,9 +269,13 @@ release_round2:
   # round-2 nuclei (annotation_round2), takes the round-2 spatial QC, is re-embedded on all of its nuclei
   # (integrate.py on an A40; see profiles/slurm) and finished; the fib/dec objects take the new embedding
   # (fibdec_embedding: fib/dec obsm <- all-cells obsm), outlier flags and spatial QC.
-  from_release: "2026_10_29b"
-  outdir: /n/netscratch/eddy_lab/Everyone/nhilgert/2026_10_30_release_v9
-  legacy_names: resources/annotations/round2/legacy_names.csv   # legacy label columns of each v9 label
+  from_version: v8      # the release every round-2 release rebuilds (config releases)
+  # Folder of a release's 04c2/04g2 intermediates, on lab_storage and named for the release ({release}). Releases cut
+  # before these folders keep the folder their MANIFEST records (outdir_of_version).
+  outdir: "data/interim/release_{release}"
+  outdir_of_version:
+    v9: /n/netscratch/eddy_lab/Everyone/nhilgert/2026_10_30_release_v9
+  legacy_names: resources/annotations/round2/legacy_names.csv   # legacy label columns of each round-2 label
   species:
     human:
       tag: Human

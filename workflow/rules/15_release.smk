@@ -32,16 +32,28 @@
 #         rebuild_release_cells reembed_release finish_rebuilt_release refresh_fibdec_release \
 #         finalize_deliverables
 
+import sys
+
 DELIV     = config["deliverables"]
-DELIV_REL = DELIV["release"]
-DELIV_DIR = f"data/deliverables/{DELIV_REL}"
-DELIV_SRC = dict(DELIV["sources"])            # name -> absolute source path
+DELIV_REL = RELEASE                           # the release of record (00_release.smk)
+DELIV_DIR = RELEASE_DIR
+# name -> source: the finished objects in the release's 04g2 folder
+DELIV_SRC = {name: f"{RELEASE_BUILD_DIR}/{name}.h5ad" for name in DELIV["objects"]}
 MIGRATE   = config["vocab_migration"]
 SPLITS    = MIGRATE.get("subtype_splits", {})
 REEMBED   = config.get("release_reembed")
 REBUILD   = config.get("release_rebuild")
 if REEMBED and REBUILD:
     raise ValueError("config: set release_reembed or release_rebuild, not both")
+
+
+def release_note() -> str:
+    """MANIFEST note of the release of record (config deliverables.notes) with its placeholders filled in."""
+    return DELIV["notes"].get(RELEASE_VERSION, DELIV["notes"]["default"]).format(
+        from_release=RR2_FROM_RELEASE,
+        embedding=release_embedding_summary(),
+        release=RELEASE,
+    )
 
 
 # Relabels the frozen source release to the current annotation vocabulary
@@ -115,6 +127,7 @@ if REEMBED:
             h5ad=f"{REEMBED_DIR}/reembedded_{{species}}.h5ad",
         params:
             counts_layer="counts",          # integrate.py reads snakemake.params.counts_layer
+            fit=SCVI_FIT_SETTINGS,
         log:
             f"logs/04g_reembed_release_{{species}}_{DELIV_REL}.log",
         resources:
@@ -195,6 +208,7 @@ if REBUILD:
             h5ad=f"{RB_DIR}/reembedded_{{species}}.h5ad",
         params:
             counts_layer="counts",          # integrate.py reads snakemake.params.counts_layer
+            fit=SCVI_FIT_SETTINGS,
         log:
             f"logs/04g_reembed_release_{{species}}_{DELIV_REL}.log",
         resources:
@@ -251,24 +265,112 @@ if REBUILD:
             "../scripts/deliverables/refresh_fibdec.py"
 
 
-rule finalize_deliverables:
+# The release objects and manifest of the release of record: built by finalize_deliverables while the release is not
+# cut, plain inputs of the DAG once it is (00_release.smk).
+RELEASE_FILES = [RELEASE_MANIFEST] + [f"{DELIV_DIR}/{name}.h5ad" for name in DELIV_SRC]
+
+# Everything rule all asks for the release of record (workflow/Snakefile); later stages of this file add theirs.
+RELEASE_TARGETS = list(RELEASE_FILES)
+
+if not RELEASE_IS_CUT:
+
+    rule finalize_deliverables:
+        input:
+            sources=[ancient(p) for p in DELIV_SRC.values()],
+            vocab="resources/annotation_vocabulary.yaml",
+            helpers=["workflow/scripts/atlas/apply_annotation.py"],     # imported by the script
+        output:
+            # protected(): Snakemake deletes a job's existing outputs before running it, so the sha256 guard in
+            # finalize_deliverables.py never sees an older release file. Write-protected outputs make Snakemake
+            # refuse the job instead (set deliverables.version and release to cut a new release).
+            manifest=protected(f"{DELIV_DIR}/MANIFEST.json"),
+            objects=[protected(f"{DELIV_DIR}/{name}.h5ad") for name in DELIV_SRC],
+        params:
+            sources=DELIV_SRC,
+            release=DELIV_REL,
+            note=lambda wildcards: release_note(),
+        resources:
+            mem_mb=32000,
+            runtime=120,
+        log:
+            f"logs/04g_finalize_deliverables_{DELIV_REL}.log",
+        script:
+            "../scripts/deliverables/finalize_deliverables.py"
+
+
+# Post-cut check: every object of the release of record against the annotation vocabulary (tools/check_annotations.py;
+# release roles allow the legacy label columns the releases keep). Runs after the cut, and on a cut release whose
+# check is missing; a failed schema check or count gate fails the job.
+RELEASE_OBJECT_SPECIES = {"Human": "human", "XMens": "mouse"}      # object tag -> species
+RELEASE_CHECKS = [f"results/release_checks/{RELEASE}/{name}.json" for name in DELIV["objects"]]
+RELEASE_TARGETS += RELEASE_CHECKS
+
+
+# The report records the check at the cut: a later vocabulary or checker edit (ancient inputs) does not re-check a
+# cut release against rules made for the next one.
+rule check_release_object:
     input:
-        sources=[ancient(p) for p in DELIV_SRC.values()],
-        vocab="resources/annotation_vocabulary.yaml",
+        h5ad=f"{DELIV_DIR}/{{name}}.h5ad",
+        manifest=RELEASE_MANIFEST,
+        vocab=ancient("resources/annotation_vocabulary.yaml"),
+        spec=ancient("resources/lineage_spec.yaml"),
+        script=ancient("tools/check_annotations.py"),
     output:
-        # protected(): Snakemake deletes a job's existing outputs before running it, so the sha256 guard in
-        # finalize_deliverables.py never sees an older release file. Write-protected outputs make Snakemake
-        # refuse the job instead (bump deliverables.release to cut a new release).
-        manifest=protected(f"{DELIV_DIR}/MANIFEST.json"),
-        objects=[protected(f"{DELIV_DIR}/{name}.h5ad") for name in DELIV_SRC],
+        report=f"results/release_checks/{RELEASE}/{{name}}.json",
     params:
-        sources=DELIV_SRC,
-        release=DELIV_REL,
-        note=DELIV.get("note", ""),
+        python=sys.executable,
+        species=lambda w: RELEASE_OBJECT_SPECIES[w.name.split("_")[1]],
+        role=lambda w: "fibdec_deposit" if w.name.endswith("_Only_Fib_Dec_Cells") else "all_deposit",
+    wildcard_constraints:
+        name="|".join(DELIV["objects"]),
+    log:
+        f"logs/04g_check_release_object_{RELEASE}_{{name}}.log",
+    resources:
+        mem_mb=16000,
+        runtime=30,
+    shell:
+        r"""
+        {params.python} {input.script} \
+            --repo . \
+            --species {params.species} \
+            --h5ad {input.h5ad} \
+            --role {params.role} \
+            --report {output.report} \
+            > {log} 2>&1
+        """
+
+
+# Release notes of the release of record, counted from its objects, its manifest, the previous release and the
+# post-cut checks (release_notes.py); they hold no typed count.
+RELEASE_NOTES = f"results/release_notes/RELEASE_NOTES_{RELEASE_VERSION}.md"
+RELEASE_TARGETS.append(RELEASE_NOTES)
+
+
+def previous_release_objects() -> list:
+    """The objects of the previous release (00_release.smk), or none for the first release."""
+    if not PREVIOUS_RELEASE:
+        return []
+    return [ancient(f"data/deliverables/{PREVIOUS_RELEASE}/{name}.h5ad") for name in DELIV["objects"]]
+
+
+rule release_notes:
+    input:
+        manifest=RELEASE_MANIFEST,
+        objects=[f"{DELIV_DIR}/{name}.h5ad" for name in DELIV["objects"]],
+        previous=previous_release_objects(),
+        checks=RELEASE_CHECKS,
+    output:
+        notes=RELEASE_NOTES,
+    params:
+        release=RELEASE,
+        version=RELEASE_VERSION,
+        previous_release=PREVIOUS_RELEASE or "",
+        round2_lineages=config["annotation_round2"]["lineages"],
+        species_of_tag=RELEASE_OBJECT_SPECIES,
+    log:
+        f"logs/04g_release_notes_{RELEASE}.log",
     resources:
         mem_mb=32000,
-        runtime=120,
-    log:
-        f"logs/04g_finalize_deliverables_{DELIV_REL}.log",
+        runtime=30,
     script:
-        "../scripts/deliverables/finalize_deliverables.py"
+        "../scripts/deliverables/release_notes.py"

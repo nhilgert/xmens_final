@@ -1,5 +1,14 @@
 #!/usr/bin/env python3
-"""Validate frozen decision records or a staged xmens.annotation.v1 object."""
+"""Validate the frozen decision tables, or one annotated object, against the annotation vocabulary.
+
+Decision-table mode (no --h5ad) checks every table's clusters and labels against its fit and the vocabulary. Object
+mode (--h5ad, --species, --role) checks one object: schema (canonical columns and values, subtype parents, the
+vocabulary's schema version and display names) and count gates taken from the vocabulary (expected_coarse_counts,
+coarse_subtype_fill, the epithelial splits, the endothelial content tasks and the round-2 lineage label counts).
+Roles all_deposit and fibdec_deposit are the release objects (data/deliverables/<release>) and their deposit copies;
+there the legacy label columns the releases keep (vocabulary changelog v8 -> v9, item 5) are allowed. Rule
+check_release_object (04g) runs it on every object of a cut release. Exit 0 pass, 1 schema failure, 2 count gate.
+"""
 from __future__ import annotations
 
 import argparse
@@ -15,8 +24,11 @@ LEGACY_OBS = {
     "coarse_refined", "fine_refined", "subtype", "annotation_level",
     "cell_type_annotations", "cell_subtype_annotations", "cell_type_subannotations",
 }
+# Legacy label columns the release objects keep for the earlier vocabularies; the deposit copies drop them.
+RELEASE_LEGACY_OBS = {"coarse_refined", "fine_refined", "subtype", "annotation_level"}
+RELEASE_ROLES = {"all_deposit", "fibdec_deposit"}
+ALL_CELLS_ROLES = {"refined", "final", "all_deposit"}
 FIBDEC = {"decidual_cell", "endometrial_fibroblast"}
-FIBDEC_N = {"human": 47533, "mouse": 43197}
 
 
 def canonical_sets(vocab):
@@ -120,11 +132,12 @@ def validate_h5ad(path: Path, species: str, role: str, vocab: dict):
     for col in ("cell_type", "cell_subtype"):
         if col not in obs:
             failures.append(f"missing required obs column {col}")
-    present_legacy = sorted(LEGACY_OBS & set(obs.columns))
-    if present_legacy:
-        failures.append(f"legacy annotation columns remain: {present_legacy}")
     if failures:
         return obj, failures, gates
+    allowed_legacy = RELEASE_LEGACY_OBS if role in RELEASE_ROLES else set()
+    present_legacy = sorted((LEGACY_OBS - allowed_legacy) & set(obs.columns))
+    if present_legacy:
+        failures.append(f"legacy annotation columns remain: {present_legacy}")
 
     types = obs.cell_type.astype(str)
     subtypes = obs.cell_subtype.astype(str)
@@ -158,17 +171,20 @@ def validate_h5ad(path: Path, species: str, role: str, vocab: dict):
     if invalid_pairs:
         failures.append(f"invalid subtype-parent pairs: {invalid_pairs}")
 
-    if role in {"refined", "final", "all_deposit"}:
-        actual_counts = types.value_counts()
-        for label, expected in vocab["expected_coarse_counts"][species].items():
+    coarse_expected = vocab["expected_coarse_counts"][species]
+    actual_counts = types.value_counts()
+    if role in ALL_CELLS_ROLES:
+        for label, expected in coarse_expected.items():
             gate(f"cell_type:{label}", int(expected), int(actual_counts.get(label, 0)))
         gate("total_cells", int(vocab["expected_coarse_counts"]["totals"][species]), obj.n_obs)
     if role in {"fibdec", "fibdec_deposit"}:
         if set(types) != FIBDEC:
             failures.append(f"fib/dec object has cell_type values {sorted(set(types))}")
-        gate("fibdec_total", FIBDEC_N[species], obj.n_obs)
+        for label in sorted(FIBDEC):
+            gate(f"cell_type:{label}", int(coarse_expected[label]), int(actual_counts.get(label, 0)))
+        gate("fibdec_total", sum(int(coarse_expected[label]) for label in FIBDEC), obj.n_obs)
 
-    if role in {"refined", "final", "all_deposit"}:
+    if role in ALL_CELLS_ROLES:
         gate("cell_subtype_empty", 0, empty_count)
 
         # Coarse fills and epithelial splits come from the vocabulary.
@@ -180,24 +196,67 @@ def validate_h5ad(path: Path, species: str, role: str, vocab: dict):
         for label, expected in vocab["content_tasks"][split_task]["expected_counts"].items():
             gate(label, int(expected), int((subtypes == label).sum()))
 
-    if species == "human" and role in {"refined", "final", "all_deposit"}:
-        gate("endothelial_blood", 828, int((subtypes == "endothelial_blood").sum()))
-        gate("endothelial_lymph", 506, int((subtypes == "endothelial_lymph").sum()))
-        gate("perivascular_cell_coarse_subtype", 471,
-             int(((types == "perivascular_cell") & (subtypes == "perivascular_cell")).sum()))
-    if species == "mouse" and role in {"refined", "final", "all_deposit"}:
-        gate("endothelial_blood", 3487, int((subtypes == "endothelial_blood").sum()))
-        gate("endothelial_lymph", 0, int((subtypes == "endothelial_lymph").sum()))
+        # Endothelial and perivascular content tasks of the vocabulary: endothelial_cell and perivascular_cell are
+        # cell types, the other labels subtypes. The human endothelial subtypes have no expected count (INFO).
+        task = {"human": "human_perivascular_split", "mouse": "mouse_endothelial_blood_only"}[species]
+        for label, expected in vocab["content_tasks"][task]["expected_counts"].items():
+            values = types if label in canonical_types else subtypes
+            gate(f"{task}:{label}", int(expected), int((values == label).sum()))
+        if species == "human":
+            for label in ("endothelial_blood", "endothelial_lymph"):
+                gate(label, None, int((subtypes == label).sum()), info=True)
+
+        # Round-2 lineages: the kept label counts of each approved table (EXCLUDE is not in the object).
+        if "origin_lineage" in obs:
+            lineage = obs["origin_lineage"].astype(str)
+            round2 = vocab["content_tasks"].get("round2_lineages", {}).get("expected_counts", {})
+            for key, counts in round2.items():
+                key_species, key_lineage = key.split("_", 1)
+                if key_species != species:
+                    continue
+                found = subtypes[lineage == key_lineage].value_counts()
+                for label, expected in counts.items():
+                    if label != "EXCLUDE":
+                        gate(f"round2 {key}:{label}", int(expected), int(found.get(label, 0)))
+                gate(f"round2 {key}:total", sum(int(n) for k, n in counts.items() if k != "EXCLUDE"),
+                     int((lineage == key_lineage).sum()))
 
     if role != "reannotated":
         if obj.uns.get("annotation_schema_version") != vocab["schema_version"]:
             failures.append("annotation_schema_version missing or wrong")
-        if obj.uns.get("display_names") != vocab["display_names"]:
-            failures.append("uns['display_names'] differs from locked vocabulary")
+        failures += display_name_failures(obj, vocab, role, gate)
         if "" in obj.uns.get("display_names", {}).get("cell_subtype", {}):
             failures.append("display_names contains forbidden empty-string key")
 
     return obj, failures, gates
+
+
+def display_name_failures(obj, vocab, role, gate):
+    """Compare uns['display_names'] with the vocabulary.
+
+    All-cells objects carry the whole vocabulary map. A fib/dec subset may lack entries for labels it does not contain
+    (the v9 fib/dec objects lack neutrophil, plasma_cell and rorc_positive_lymphocyte): every stored entry must match
+    the vocabulary and every label in the object that the vocabulary names must have one; the missing entries are
+    reported as INFO.
+    """
+    stored = obj.uns.get("display_names", {})
+    if role not in {"fibdec", "fibdec_deposit"}:
+        return [] if stored == vocab["display_names"] else ["uns['display_names'] differs from locked vocabulary"]
+    failures = []
+    for column, names in vocab["display_names"].items():
+        have = dict(stored.get(column, {}))
+        wrong = sorted(label for label in have if str(have[label]) != str(names.get(label)))
+        present = set(obj.obs[column].astype(str)) if column in obj.obs else set()
+        # Labels the vocabulary names in this column (a subtype column also holds cell-type fill values).
+        uncovered = sorted(label for label in present if label in names and label not in have)
+        if wrong or uncovered:
+            failures.append(f"uns['display_names'][{column}] differs from locked vocabulary: "
+                            f"wrong {wrong}, labels without a name {uncovered}")
+        absent = sorted(set(names) - set(have) - present)
+        if absent:
+            gate(f"display_names {column} entries for labels absent from the object: {', '.join(absent)}",
+                 None, len(absent), info=True)
+    return failures
 
 
 def main() -> int:

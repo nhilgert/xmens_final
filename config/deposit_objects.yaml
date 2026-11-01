@@ -1,26 +1,33 @@
 # ---------------------------------------------------------------------------
 # deposit_objects (added 2026-10-30) -- deposit copies of the release objects, with obs columns, uns entries and
 # obsm embeddings pruned and renamed as decided by the user on 2026-10-30. The release objects are read, never
-# modified. Rules: workflow/rules/95_deposit_objects.smk; target: deposit_objects_all (not in rule all).
-# Outputs: data/deposit/2026_10_30c/<set>/<object>.h5ad and <object>.provenance.json
-# (2026_10_30b added the rename of the pseudotime diffusion map; 2026_10_30c takes the human fibroblast/decidual
-# pseudotime from its 30 Oct refit, see pseudotime_of_record below. Each build supersedes the one before it; the earlier
-# builds, data/deposit/2026_10_30 and 2026_10_30b, are left in place because deposit copies are never overwritten.)
+# modified. Rules: workflow/rules/95_deposit_objects.smk; target: deposit_objects_all (in rule all).
+# Outputs: <out_dir>/<set>/<object>.h5ad and <object>.provenance.json, for the release of record
+# (config deliverables.version). The v9 deposit is data/deposit/2026_10_30c: 2026_10_30b added the rename of the
+# pseudotime diffusion map, 2026_10_30c takes the human fibroblast/decidual pseudotime from its 30 Oct refit (see
+# pseudotime_of_record below); the earlier builds, data/deposit/2026_10_30 and 2026_10_30b, are left in place because
+# deposit copies are never overwritten. A set whose files all exist is complete and is never rebuilt.
 # ---------------------------------------------------------------------------
 deposit_objects:
   python: /n/lab_storage/eddy_lab/users/nhilgert/.uv/envs/rsc_uv/bin/python
-  out_dir: data/deposit/2026_10_30c
+  # {release}: the release of record; {build}: the build letter of its deposit (builds), empty for a first build.
+  out_dir: "data/deposit/{release}{build}"
+  builds:
+    v9: c
 
-  # Two sets: with the v9 cell types (release 2026_10_30) and without them (release 2026_10_29b, vocabulary v8).
-  # zone_aucell: the zone-module AUCell run of record (Fig. S24) made on that release.
+  # Two sets: the release of record (with the new cell types; version `record`) and v8 (without them).
   sets:
     with_new_cell_types:
-      release: "2026_10_30"
-      zone_aucell: results/zone_aucell/table1_auc005_g1pct_seed0_3dpi/zone_aucell.csv
+      version: record
     without_new_cell_types:
-      release: "2026_10_29b"
-      # the v8 run of record, copied from the 2026_10_30 downstream backup on netscratch
-      zone_aucell: results/zone_aucell/table1_auc005_g1pct_seed0_3dpi__2026_10_29b/zone_aucell.csv
+      version: v8
+  # zone_aucell: the zone-module AUCell run of record (Fig. S24) made on the set's release, zone_aucell_run scored on
+  # that release ({run}__{release}). The v9 run predates release-stamped run names; the v8 run was copied from the
+  # 2026_10_30 downstream backup on netscratch.
+  zone_aucell_run: table1_auc005_g1pct_seed0_3dpi
+  zone_aucell: "results/zone_aucell/{run}__{release}/zone_aucell.csv"
+  zone_aucell_of_version:
+    v9: results/zone_aucell/table1_auc005_g1pct_seed0_3dpi/zone_aucell.csv
 
   objects: [Cevrim_XMens_All_Cells, Cevrim_XMens_Only_Fib_Dec_Cells,
             Cevrim_Human_All_Cells, Cevrim_Human_Only_Fib_Dec_Cells]
