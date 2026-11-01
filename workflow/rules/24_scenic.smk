@@ -62,6 +62,8 @@ SCENIC_PER_SEED = bool(config["scenic"].get("sketch_per_seed", True)) and SCENIC
 # the paper used 6). The folder name carries it so floors never overwrite each other.
 SCENIC_MIN_OCC = int(config["scenic"].get("min_occurrence", 6))
 # pySCENIC command-line entry point of the same environment, for the AUCell of record (rule scenic_aucell_cli)
+# Always invoked as "{SCENIC_PY} {SCENIC_CLI}": the console script's own shebang
+# points into the retired /n/eddy_lab mount and would fail with a bad interpreter.
 SCENIC_CLI    = SCENIC_PY.rsplit("/", 1)[0] + "/pyscenic"
 SCENIC_SKETCH_SEED = int(config["scenic"].get("sketch_seed", 0))   # only used when sketch_per_seed is false
 
@@ -265,9 +267,9 @@ if config["scenic"]["fit"]:
         shell:
             r"""
             {params.py} {input.script} --pkl {input.pkl} --yaml {output.yaml} > {log} 2>&1
-            {params.cli} aucell {input.loom} {output.yaml} --output {output.unweighted} \
+            {params.py} {params.cli} aucell {input.loom} {output.yaml} --output {output.unweighted} \
                 --num_workers {threads} --seed {params.seed} >> {log} 2>&1
-            {params.cli} aucell {input.loom} {output.yaml} --output {output.weighted} \
+            {params.py} {params.cli} aucell {input.loom} {output.yaml} --output {output.weighted} \
                 --num_workers {threads} --seed {params.seed} --weights >> {log} 2>&1
             """
 
