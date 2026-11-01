@@ -439,6 +439,11 @@ scenic:
   base_seed: 1000
   sketch: 15k   # switched from full 2026-09-08: full-object GRNBoost2 = 9-24 h/seed, 36/200 done after 16 h
   mode: weighted_soft
+  min_occurrence: 6   # 2026-10-15 (user): floor 6 is the primary consensus; a TF-target link is kept if it
+                      # recurs in >= 6 of the 100 runs ("more than five", Ni et al. 2025). The build of
+                      # record (14 Oct) is scenic_seeds/{species}/consensus_sketch15k_weighted_soft_occ6/.
+                      # Before this key the rule took the script default (2), a different consensus than
+                      # the one the paper reports.
   species:
   - mouse
   - human

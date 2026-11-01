@@ -58,6 +58,11 @@ SCENIC_SKETCH_N = 0 if SCENIC_SKETCH == "full" else int(float(SCENIC_SKETCH.rstr
 SCENIC_GRN_RUNTIME = 4320 if SCENIC_TAG == "full" else 720
 
 SCENIC_PER_SEED = bool(config["scenic"].get("sketch_per_seed", True)) and SCENIC_TAG != "full"
+# Consensus floor: a TF-target link must recur in >= this many of the n_seeds runs (config scenic.min_occurrence;
+# the paper used 6). The folder name carries it so floors never overwrite each other.
+SCENIC_MIN_OCC = int(config["scenic"].get("min_occurrence", 6))
+# pySCENIC command-line entry point of the same environment, for the AUCell of record (rule scenic_aucell_cli)
+SCENIC_CLI    = SCENIC_PY.rsplit("/", 1)[0] + "/pyscenic"
 SCENIC_SKETCH_SEED = int(config["scenic"].get("sketch_seed", 0))   # only used when sketch_per_seed is false
 
 def _sc_root(sp):   return f"{SCENIC_REV}/scenic_seeds/{sp}"
@@ -75,7 +80,8 @@ def _sc_sketch_manifest(sp, seed=None):
     return _sc_loom(sp, seed).replace(".loom", ".manifest.json")
 def _sc_adj_dir(sp): return f"{_sc_root(sp)}/adjacencies_{SCENIC_TAG}"
 def _sc_reg_dir(sp): return f"{_sc_root(sp)}/regulons_{SCENIC_TAG}"
-def _sc_cons_dir(sp): return f"{_sc_root(sp)}/consensus_{SCENIC_TAG}_{SCENIC_MODE}"
+def _sc_cons_dir(sp): return f"{_sc_root(sp)}/consensus_{SCENIC_TAG}_{SCENIC_MODE}_occ{SCENIC_MIN_OCC}"
+def _sc_cli_dir(sp):  return _sc_cons_dir(sp) + "_pyscenic_cli"
 def _sc_tfs(sp):
     return f"{SCENIC_REV}/databases/" + ("allTFs_mm.txt" if sp == "mouse" else "allTFs_hg38.txt")
 
@@ -209,12 +215,17 @@ if config["scenic"]["fit"]:
             h5ad   = _sc_pooled_h5ad("{sc_species}"),
             script = f"{SCENIC_REV}/scripts/build_consensus_aucell.py",
         output:
-            # build_consensus_aucell.py writes consensus_{lane_tag}_{mode}/ under {rev}/scenic_seeds/{sp};
-            # deliverables are the AUCell matrix and the pickled consensus regulons
-            auc  = _sc_cons_dir("{sc_species}") + "/auc_mtx.csv",
-            pkl  = _sc_cons_dir("{sc_species}") + "/consensus_regulons.pkl",
+            # Written by build_consensus_aucell.py into --out-dir (consensus_{tag}_{mode}_occ{floor}/). The regulons
+            # (pkl) and the recurrence report are the deliverables; auc_mtx.csv is the script's internal AUCell over
+            # ALL genes of the pooled h5ad, kept as a comparator. The activities of record come from scenic_aucell_cli.
+            pkl     = _sc_cons_dir("{sc_species}") + "/consensus_regulons.pkl",
+            report  = _sc_cons_dir("{sc_species}") + "/recurrence_report.tsv",
+            summary = _sc_cons_dir("{sc_species}") + "/recurrence_summary.txt",
+            auc     = _sc_cons_dir("{sc_species}") + "/auc_mtx.csv",
         params:
             py = SCENIC_PY, sketch = SCENIC_SKETCH, mode = SCENIC_MODE, rev = SCENIC_REV,
+            min_occ = SCENIC_MIN_OCC,
+            out_dir = _sc_cons_dir("{sc_species}"),
             tp = (f"--timepoint-col {SCENIC_TP_COL}" if SCENIC_TP_COL else ""),
         threads: 8
         resources:
@@ -226,9 +237,40 @@ if config["scenic"]["fit"]:
             {params.py} {input.script} \
                 --species {wildcards.sc_species} --sketch {params.sketch} \
                 --mode {params.mode} --rev {params.rev} --h5ad {input.h5ad} {params.tp} \
+                --min-occurrence {params.min_occ} --out-dir {params.out_dir} \
                 --n-cpu {threads} > {log} 2>&1
+            """
+
+    # ---- Stage 3b: AUCell of record ---------------------------------------------
+    # pySCENIC's command-line AUCell on the pooled LOOM (the network-inference gene set: genes detected in >= 1% of
+    # nuclei, 14,245 mouse / 15,011 human), weighted by target occurrence (--weights), auc_threshold 0.05 (default),
+    # ranking seed 0. This reproduces the 26 Oct 2026 run (cliauc_run.sh, README.md in the _pyscenic_cli folders)
+    # that Fig. 5E reads (35_fig_programs.smk). The regulons go to YAML first; the CLI cannot read the pickle.
+    rule scenic_aucell_cli:
+        input:
+            pkl    = _sc_cons_dir("{sc_species}") + "/consensus_regulons.pkl",
+            loom   = lambda wc: ancient(_sc_pooled_loom(wc.sc_species)),
+            script = "workflow/scripts/scenic/scenic_regulons_to_yaml.py",
+        output:
+            yaml       = _sc_cli_dir("{sc_species}") + "/consensus_regulons.yaml",
+            weighted   = _sc_cli_dir("{sc_species}") + "/auc_mtx_weighted.csv",
+            unweighted = _sc_cli_dir("{sc_species}") + "/auc_mtx_unweighted.csv",
+        params:
+            py = SCENIC_PY, cli = SCENIC_CLI, seed = 0,
+        threads: 8
+        resources:
+            mem_mb = 64000, runtime = 60,
+        log:
+            "logs/scenic/aucell_cli_{sc_species}.log",
+        shell:
+            r"""
+            {params.py} {input.script} --pkl {input.pkl} --yaml {output.yaml} > {log} 2>&1
+            {params.cli} aucell {input.loom} {output.yaml} --output {output.unweighted} \
+                --num_workers {threads} --seed {params.seed} >> {log} 2>&1
+            {params.cli} aucell {input.loom} {output.yaml} --output {output.weighted} \
+                --num_workers {threads} --seed {params.seed} --weights >> {log} 2>&1
             """
 
     rule scenic_all:
         input:
-            expand(_sc_cons_dir("{sp}") + "/auc_mtx.csv", sp=SCENIC_SPECIES),
+            expand(_sc_cli_dir("{sp}") + "/auc_mtx_weighted.csv", sp=SCENIC_SPECIES),
