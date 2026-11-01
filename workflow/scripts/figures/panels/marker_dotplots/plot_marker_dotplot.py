@@ -1,9 +1,9 @@
-"""Draw one final-label marker dot plot of release v9 on the Table M1 v9 genes.
+"""Draw one final-label marker dot plot of a release on the Table M1 v9 genes.
 
 Called by rule panels_marker_dotplots_panel (workflow/rules/91_panels_marker_dotplots.smk), once per species
 and plot (marker_panels.PLOTS). Reads <tables-dir>/<species>_marker_stats.csv, _table_m1_rule_check.csv and
-_extract_provenance.json, Table M1 and the annotation vocabulary. Writes <out-prefix>.svg, .png (300 dpi) and
-.provenance.json.
+_extract_provenance.json, Table M1, the annotation vocabulary and the immune display table (rows of the earlier
+immune plot, labels pending sign-off). Writes <out-prefix>.svg, .png (300 dpi) and .provenance.json.
 
 The plot is scanpy's DotPlot with the layout, legends and fonts of the earlier immune dot plots (scanpy
 defaults: 0.37 in per gene, 0.35 in per row, 1.5 in of legends, labels 'small' on a 10 pt base). Dot size is
@@ -60,6 +60,7 @@ def parse_arguments() -> argparse.Namespace:
     parser.add_argument("--tables-dir", required=True, type=Path)
     parser.add_argument("--table-m1", required=True, type=Path)
     parser.add_argument("--vocabulary", required=True, type=Path)
+    parser.add_argument("--immune-display", required=True, type=Path)
     parser.add_argument("--out-prefix", required=True, type=Path)
     return parser.parse_args()
 
@@ -144,11 +145,14 @@ def main() -> None:
     extract = json.loads((args.tables_dir / f"{args.species}_extract_provenance.json").read_text())
     table_m1 = panels.read_table_m1(args.table_m1)
     vocabulary = yaml.safe_load(args.vocabulary.read_text())
+    display = panels.read_immune_display(args.immune_display)
 
     # Rows are release labels; columns the Table M1 genes of those rows that the object has.
-    rows = definition["rows"]
+    labels = set(stats.label[stats.level == definition["level"]])
+    rows = panels.plot_rows(args.species, args.plot, labels, table_m1, vocabulary, display)
+    without_table_m1 = panels.labels_without_table_m1_row(args.species, rows, table_m1)
     names = panels.display_names(vocabulary)
-    columns = panels.plot_genes(args.species, args.plot, table_m1)
+    columns = panels.plot_genes(args.species, args.plot, table_m1, rows)
     missing = list(dict.fromkeys(g for g in columns.gene if g in extract["table_m1_genes_missing_from_var"]))
     columns = columns[~columns.gene.isin(missing)].reset_index(drop=True)
     genes = list(columns.gene)
@@ -159,8 +163,8 @@ def main() -> None:
         .set_index("label")["n_nuclei"]
         .loc[rows]
     )
-    logging.info("%s %s: %d rows x %d gene columns; missing from var: %s",
-                 args.species, args.plot, len(rows), len(genes), missing)
+    logging.info("%s %s: %d rows x %d gene columns; missing from var: %s; rows without a Table M1 row: %s",
+                 args.species, args.plot, len(rows), len(genes), missing, without_table_m1)
 
     # Figure ----
 
@@ -191,22 +195,23 @@ def main() -> None:
             "pct_detected_type": round(float(check["pct_detected_type"]), 2),
             "pct_detected_comparison": round(float(check["pct_detected_comparison"]), 2),
             "comparison_nuclei": check["comparison_nuclei"],
-            "meets_criterion_v9": bool(check["meets_criterion"]),
+            "meets_criterion": bool(check["meets_criterion"]),
         })
     provenance = {
         "plot": args.plot,
         "title": definition["title"],
         "species": args.species,
-        "version": "v9",
+        "version": extract["version"],
         "release": extract["release"],
         "object": extract["object"],
         "object_sha256": extract["object_sha256"],
         "vocabulary_schema": extract["vocabulary_schema"],
         "rows": [
             {"label": label, "shown_as": names[label], "level": definition["level"], "n_nuclei": int(n_nuclei[label]),
-             **({"pending": panels.PENDING_SIGN_OFF[label]} if label in panels.PENDING_SIGN_OFF else {})}
+             **({"pending": display["pending_sign_off"][label]} if label in display["pending_sign_off"] else {})}
             for label in rows
         ],
+        "rows_without_table_m1_row": without_table_m1,
         "genes": gene_records,
         "repeated_genes": sorted(set(columns.gene[columns.gene.duplicated()])),
         "genes_missing_from_var": missing,

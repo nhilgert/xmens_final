@@ -3,8 +3,9 @@
 Imported by the plot_*.py scripts in this directory, which rule panels_mouse_tissue_panel
 (workflow/rules/91_panels_mouse_tissue.smk) runs once per panel and release version. The XMens
 release objects carry no cell-type colours (uns holds timepoint_colors only, matplotlib's defaults),
-so every colour below is the manuscript's, read off the published figure images; colours of the
-classes added in vocabulary v9 are marked as new.
+so every class color below is the manuscript's, read off the published figure images. The immune
+subtypes are drawn as resources/figures/immune_display.yaml says (immune_display()), keyed by the
+labels of the annotation vocabulary, so an immune relabel needs no edit here.
 """
 
 import argparse
@@ -16,6 +17,7 @@ from pathlib import Path
 import matplotlib
 import numpy as np
 import pandas as pd
+import yaml
 from matplotlib import font_manager
 from scipy.sparse import coo_matrix
 from scipy.sparse.csgraph import connected_components
@@ -143,53 +145,61 @@ PERIVASCULAR_GENES_AFTER = "Pecam1"
 
 # Immune subtypes ----
 
-# Stacking order and colours of Fig. 3D, matched to the manuscript bars by their v8 fractions.
-# neutrophil and plasma_cell are v9 labels with new colours: neutrophils a dark red beside the
-# myeloid oranges, plasma cells a light green beside the B cells they derive from.
-IMMUNE_ORDER = [
-    "macrophage",
-    "cycling_macrophage",
-    "monocyte",
-    "dendritic_cell",
-    "neutrophil",
-    "t_cell",
-    "gamma_delta_t_cell",
-    "b_cell",
-    "plasma_cell",
-    "cytotoxic_unk_cell",
-    "unk_cell",
-    "cycling_unk_cell",
-]
-IMMUNE_LABELS = {
-    "macrophage": "Mφ",
-    "cycling_macrophage": "cycling Mφ",
-    "monocyte": "Mono",
-    "dendritic_cell": "DC",
-    "neutrophil": "Neu",
-    "t_cell": "T",
-    "gamma_delta_t_cell": "γδ T",
-    "b_cell": "B",
-    "plasma_cell": "plasma",
-    "cytotoxic_unk_cell": "cytotoxic uNK",
-    "unk_cell": "uNK",
-    "cycling_unk_cell": "cycling uNK",
-}
-IMMUNE_COLORS = {
-    "macrophage": "#d55e00",
-    "cycling_macrophage": "#f28e5c",
-    "monocyte": "#c9a227",
-    "dendritic_cell": "#8c5a2b",
-    "neutrophil": "#b2182b",
-    "t_cell": "#0072b2",
-    "gamma_delta_t_cell": "#56b4e9",
-    "b_cell": "#009e73",
-    "plasma_cell": "#a6d96a",
-    "cytotoxic_unk_cell": "#cc79a7",
-    "unk_cell": "#7b5ea7",
-    "cycling_unk_cell": "#b39ddb",
-}
-NEW_IN_V9 = ["perivascular_cell", "neutrophil", "plasma_cell"]
-PENDING_SIGN_OFF = {"neutrophil": "label approved 30 Oct 2026 for vocabulary v9; PI sign-off pending"}
+def immune_display(labels, vocabulary_path: Path, display_path: Path) -> dict:
+    """How to draw the immune subtypes present (labels), from the vocabulary and the display table.
+
+    Order: the display table's order, then any other present label in vocabulary order. Name: the table's
+    abbreviation, else the vocabulary display name. Color: the table's, else the next unused fallback color.
+    A present label the vocabulary does not allow is an error. Returns order, labels, colors, angles (by level),
+    pending_sign_off, introduced and display_defaults (labels drawn with a default name, color or direction).
+    """
+    vocabulary = yaml.safe_load(Path(vocabulary_path).read_text())
+    display = yaml.safe_load(Path(display_path).read_text())
+    mouse = display["mouse"]
+    allowed = vocabulary["allowed"]["immune_cell"]
+    present = set(labels)
+
+    outside = sorted(present - set(allowed))
+    if outside:
+        raise ValueError(f"immune cell_subtype values not in the vocabulary ({vocabulary_path}): {outside}")
+    order = [label for label in mouse["order"] if label in present]
+    order += [label for label in allowed if label in present and label not in order]
+
+    names = {
+        label: mouse["abbreviations"].get(label, vocabulary["display_names"]["cell_subtype"][label])
+        for label in order
+    }
+
+    # Fallback colors go to the unlisted labels in vocabulary order, skipping any color already in use.
+    colors = {label: mouse["colors"][label] for label in order if label in mouse["colors"]}
+    spare = [color for color in mouse["fallback_colors"] if color not in colors.values()]
+    unlisted = [label for label in order if label not in colors]
+    if len(unlisted) > len(spare):
+        raise ValueError(f"{display_path}: {len(unlisted)} labels without a color, {len(spare)} fallback colors")
+    colors.update(zip(unlisted, spare))
+
+    angles = {level: {k: v for k, v in table.items() if k in present} for level, table in mouse["label_angles"].items()}
+    defaults = {
+        "name": [label for label in order if label not in mouse["abbreviations"]],
+        "color": unlisted,
+        "position": [label for label in order if not any(label in table for table in angles.values())],
+        "order": [label for label in order if label not in mouse["order"]],
+    }
+    return {
+        "order": order,
+        "labels": names,
+        "colors": colors,
+        "angles": angles,
+        "pending_sign_off": {k: v for k, v in display["pending_sign_off"].items() if k in present},
+        "introduced": display["introduced"],
+        "display_defaults": {kind: labels for kind, labels in defaults.items() if labels},
+    }
+
+
+def introduced_labels(groups, display_path: Path) -> dict:
+    """label -> release that introduced it, for the drawn groups the display table lists."""
+    introduced = yaml.safe_load(Path(display_path).read_text())["introduced"]
+    return {group: release for group, release in introduced.items() if group in set(groups)}
 
 
 # Spatial grid (Fig. S13) ----
@@ -234,6 +244,8 @@ def apply_panel_style() -> None:
         "pdf.fonttype": 42,
         "ps.fonttype": 42,
         "svg.fonttype": "none",
+        # Fixed SVG element ids, so a re-render of the same tables is byte-identical.
+        "svg.hashsalt": "panels_mouse_tissue",
     })
 
 
@@ -247,8 +259,10 @@ def panel_arguments(description: str) -> argparse.ArgumentParser:
     """Arguments every panel script takes; scripts add their own on top."""
     parser = argparse.ArgumentParser(description=description)
     parser.add_argument("--tables-dir", required=True, type=Path, help="panels_mouse_tissue_extract output")
-    parser.add_argument("--version", required=True, choices=["v8", "v9"])
+    parser.add_argument("--version", required=True, help="release version tag of the rule (v9, v10, ...)")
     parser.add_argument("--seed", required=True, type=int, help="config seed; orders overplotted points")
+    parser.add_argument("--vocabulary", required=True, type=Path, help="resources/annotation_vocabulary.yaml")
+    parser.add_argument("--immune-display", required=True, type=Path, help="resources/figures/immune_display.yaml")
     parser.add_argument("--out-prefix", required=True, type=Path)
     return parser
 
@@ -282,14 +296,25 @@ def base_provenance(panel: str, args: argparse.Namespace, inputs: list, script: 
     }
 
 
+# No creation dates or software stamps in the files, so a re-render of the same tables is byte-identical
+# (with the fixed SVG ids of apply_panel_style).
+FILE_METADATA = {"pdf": {"CreationDate": None}, "svg": {"Date": None}, "png": {"Software": None}}
+
+
 def save_panel(fig, out_prefix: Path, provenance: dict, facecolor: str = "white") -> None:
     """Write <prefix>.pdf, .svg, .png (300 dpi) and <prefix>.provenance.json."""
     out_prefix.parent.mkdir(parents=True, exist_ok=True)
 
     # Scatter layers are rasterised inside the PDF and SVG at 600 dpi; text and axes stay vector.
-    fig.savefig(f"{out_prefix}.pdf", dpi=600, facecolor=facecolor, bbox_inches="tight", pad_inches=0.02)
-    fig.savefig(f"{out_prefix}.svg", dpi=600, facecolor=facecolor, bbox_inches="tight", pad_inches=0.02)
-    fig.savefig(f"{out_prefix}.png", dpi=300, facecolor=facecolor, bbox_inches="tight", pad_inches=0.02)
+    for ext, dpi in (("pdf", 600), ("svg", 600), ("png", 300)):
+        fig.savefig(
+            f"{out_prefix}.{ext}",
+            dpi=dpi,
+            facecolor=facecolor,
+            bbox_inches="tight",
+            pad_inches=0.02,
+            metadata=FILE_METADATA[ext],
+        )
 
     record = {
         **provenance,

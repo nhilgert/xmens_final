@@ -128,7 +128,7 @@ def main() -> None:
         "rows": classes,
         "row_labels": [style.DOTPLOT_CLASS_LABELS[c] for c in classes],
         "genes": genes,
-        "genes_added_for_v9": [g for g in genes if g in style.PERIVASCULAR_GENES],
+        "perivascular_genes_added": [g for g in genes if g in style.PERIVASCULAR_GENES],
         "size": "fraction of the class's nuclei with the gene detected (X > 0)",
         "color": "mean of X (log1p normalised) per class, min-max scaled per gene across the rows",
         "n_nuclei_per_row": stats.drop_duplicates("cell_type").set_index("cell_type")["n_nuclei"].reindex(classes).to_dict(),

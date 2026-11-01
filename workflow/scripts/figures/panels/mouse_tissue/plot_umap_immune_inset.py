@@ -1,11 +1,12 @@
 """Draw the mouse whole-tissue UMAP (Fig. 3A) with the immune-subtype UMAP (Fig. 3C) as an inset.
 
 Called by rule panels_mouse_tissue_panel (workflow/rules/91_panels_mouse_tissue.smk) for panel 3Ainset.
-Reads cells.csv.gz and extract_provenance.json from --tables-dir.
+Reads cells.csv.gz and extract_provenance.json from --tables-dir; the immune subtypes' order, names,
+colors and hand-set label directions from --vocabulary and --immune-display.
 Writes <out-prefix>.pdf, .svg, .png and .provenance.json.
 
-The atlas is drawn as in 3A and the inset as in 3C: the same embeddings, colours, label names,
-hand-set label directions and embedding-outlier rule (taken from plot_umap.py). A box around the
+The atlas is drawn as in 3A and the inset as in 3C: the same embeddings, colors, label names and
+embedding-outlier rule (taken from plot_umap.py), with the inset's own hand-set label directions. A box around the
 atlas's immune nuclei is joined to the inset's frame by two connector lines. The inset sits in a
 corner of the panel; each corner is tried, the atlas is drawn as large as it can be while leaving
 that corner empty, and the corner allowing the largest atlas is kept.
@@ -20,7 +21,7 @@ from matplotlib.patches import ConnectionPatch, Rectangle
 from matplotlib.transforms import Bbox
 
 import mouse_tissue_style as style
-from plot_umap import LABEL_ANGLE_OVERRIDES, LABEL_MARGIN, LEVELS
+from plot_umap import LABEL_MARGIN, with_display
 
 
 # Sizes in inches. The panel takes the width of panels 3A and 3C together in the manuscript layout
@@ -41,22 +42,8 @@ CORNERS = ("lower right", "lower left", "upper right", "upper left")
 # step below the atlas labels. Frame, island box and connectors share one thin grey line.
 INSET_POINT_SIZE = 1.0
 
-# Label directions set by hand for the inset (degrees counter-clockwise from east, multiples of
-# 22.5), chosen by eye on the rendered panel; versions not listed use 3C's (plot_umap.py). In v9 the
-# five uNK and T groups share one island near the inset's left edge, so their labels go above and
-# below it; plasma sits on the inset's floor, so its label goes above, and B's to its right.
-INSET_LABEL_ANGLE_OVERRIDES = {
-    "v9": {
-        "unk_cell": 90,
-        "cytotoxic_unk_cell": -112.5,
-        "cycling_unk_cell": 45,
-        "gamma_delta_t_cell": -90,
-        "t_cell": 0,
-        "plasma_cell": 90,
-        "b_cell": 0,
-        "neutrophil": 180,
-    },
-}
+# Label directions set by hand for the inset: display level "inset" of the display table, chosen by eye
+# on the rendered v9 panel; without that table the directions of 3C (level "immune") are used.
 LINE_COLOR = "#808080"
 LINE_WIDTH_PT = 0.5
 IMMUNE_BOX_PAD_PX = 3.0
@@ -125,16 +112,14 @@ def main() -> None:
     parser = style.panel_arguments(__doc__)
     args = parser.parse_args()
     style.apply_panel_style()
-    atlas, immune = LEVELS["class"], LEVELS["immune"]
 
     # Load ----
 
     cells = style.read_cells(args.tables_dir)
     immune_cells = cells[cells["cell_type"] == "immune_cell"]
-    for level, table in ((atlas, cells), (immune, immune_cells)):
-        unknown = set(table[level["group"]]) - set(level["order"])
-        if unknown:
-            raise ValueError(f"{level['group']} values without a colour: {sorted(unknown)}")
+    atlas = with_display("class", cells["cell_type"], args)
+    immune = with_display("immune", immune_cells["cell_subtype"], args)
+    inset_angles = immune["display"]["angles"].get("inset", immune["angles"])
     atlas_xy, atlas_groups, atlas_hidden = drawn_nuclei(cells, atlas, args.seed)
     immune_xy, immune_groups, immune_hidden = drawn_nuclei(immune_cells, immune, args.seed)
     logging.info("Atlas: %d nuclei drawn, %d outliers hidden; inset: %d drawn, %d hidden",
@@ -182,7 +167,7 @@ def main() -> None:
     inset_px = layout["inset_in"].transformed(fig.dpi_scale_trans)
     atlas_labels = style.place_direct_labels(
         ax, atlas_xy, atlas_groups, atlas["order"], atlas["labels"],
-        LABEL_ANGLE_OVERRIDES.get((args.version, "class"), {}),
+        atlas["angles"],
         n_orders=atlas["label_orders"], seed=args.seed,
         keep_out=[inset_px.padded(CLEARANCE_IN * fig.dpi), immune_box_px],
     )
@@ -207,7 +192,7 @@ def main() -> None:
         fig.canvas.draw()
         inset_labels = style.place_direct_labels(
             ax_inset, immune_xy, immune_groups, immune["order"], immune["labels"],
-            INSET_LABEL_ANGLE_OVERRIDES.get(args.version, LABEL_ANGLE_OVERRIDES.get((args.version, "immune"), {})),
+            inset_angles,
             n_orders=immune["label_orders"], seed=args.seed,
             bounds=ax_inset.bbox.padded(-2.0),
         )
@@ -238,9 +223,10 @@ def main() -> None:
             "inset_in": [round(float(v), 3) for v in inset.bounds],
             "island_to_inset_in": round(distance_in, 3),
         },
-        "colors_source": "as panels 3A and 3C (style module)",
-        "new_in_v9": [g for g in style.NEW_IN_V9 if g in set(atlas_groups) | set(immune_groups)],
-        "pending_sign_off": {g: v for g, v in style.PENDING_SIGN_OFF.items() if g in set(immune_groups)},
+        "colors_source": "as panels 3A and 3C (style module; immune subtypes: the --immune-display table)",
+        "immune_display": str(args.immune_display),
+        "introduced": style.introduced_labels(set(atlas_groups) | set(immune_groups), args.immune_display),
+        **immune["record"],
         "labels": {"atlas": atlas_labels, "inset": inset_labels},
     })
     style.save_panel(fig, args.out_prefix, provenance)

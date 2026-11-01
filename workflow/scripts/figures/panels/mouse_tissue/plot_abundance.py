@@ -1,7 +1,8 @@
 """Draw relative abundance per stage as stacked bars: cell classes (Fig. 3B) or immune subtypes (Fig. 3D).
 
 Called by rule panels_mouse_tissue_panel (workflow/rules/91_panels_mouse_tissue.smk) for 3B and 3D.
-Reads cells.csv.gz and extract_provenance.json from --tables-dir.
+Reads cells.csv.gz and extract_provenance.json from --tables-dir; the immune subtypes' order and colors
+from --vocabulary and --immune-display.
 Writes <out-prefix>.pdf, .svg, .png and .provenance.json.
 """
 
@@ -20,19 +21,17 @@ FIG_SIZE_IN = (2.1, 1.8)
 # Bar thickness as a fraction of the row pitch; the white gap separates stages as in the manuscript.
 BAR_HEIGHT = 0.78
 
+# The class palette is the style module's; the immune subtypes' order and colors come from the display
+# table (style.immune_display).
 LEVELS = {
     "class": {
         "panel": "3B",
         "group": "cell_type",
-        "order": style.CLASS_ORDER,
-        "colors": style.CLASS_COLORS,
         "title": "relative cell type abundance",
     },
     "immune": {
         "panel": "3D",
         "group": "cell_subtype",
-        "order": style.IMMUNE_ORDER,
-        "colors": style.IMMUNE_COLORS,
         "title": "relative immune cell abundance",
     },
 }
@@ -42,17 +41,23 @@ def main() -> None:
     parser = style.panel_arguments(__doc__)
     parser.add_argument("--level", required=True, choices=list(LEVELS))
     args = parser.parse_args()
-    level = LEVELS[args.level]
+    level = dict(LEVELS[args.level])
     style.apply_panel_style()
 
     # Load and reshape ----
 
     cells = style.read_cells(args.tables_dir)
+    record = {}
     if args.level == "immune":
         cells = cells[cells["cell_type"] == "immune_cell"]
-    unknown = set(cells[level["group"]]) - set(level["order"])
-    if unknown:
-        raise ValueError(f"{level['group']} values without a colour: {sorted(unknown)}")
+        display = style.immune_display(cells[level["group"]], args.vocabulary, args.immune_display)
+        level.update(order=display["order"], colors=display["colors"])
+        record = {"pending_sign_off": display["pending_sign_off"], "display_defaults": display["display_defaults"]}
+    else:
+        level.update(order=style.CLASS_ORDER, colors=style.CLASS_COLORS)
+        unknown = set(cells[level["group"]]) - set(level["order"])
+        if unknown:
+            raise ValueError(f"{level['group']} values without a color: {sorted(unknown)}")
 
     # One bar per stage: the share of all released nuclei of that stage (embedding outliers
     # included; the flag only governs embedding and spatial plots).
@@ -114,8 +119,9 @@ def main() -> None:
         "percent": {stage: percent.loc[stage].round(2).to_dict() for stage in style.STAGE_ORDER},
         "n_per_stage": counts.sum(axis=1).to_dict(),
         "colors": {g: level["colors"][g] for g in groups},
-        "new_in_v9": [g for g in style.NEW_IN_V9 if g in groups],
-        "pending_sign_off": {g: v for g, v in style.PENDING_SIGN_OFF.items() if g in groups},
+        "immune_display": str(args.immune_display),
+        "introduced": style.introduced_labels(groups, args.immune_display),
+        **record,
     })
     style.save_panel(fig, args.out_prefix, provenance)
     plt.close(fig)

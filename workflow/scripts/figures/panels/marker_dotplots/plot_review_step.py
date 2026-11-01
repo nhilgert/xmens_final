@@ -56,13 +56,14 @@ def render_columns(columns: pd.DataFrame) -> list:
     return list(zip(columns.block, columns.group, columns.gene))
 
 
-def row_order_and_names(species: str, step: str, labels: set, vocabulary: dict):
+def row_order_and_names(species: str, step: str, labels: set, vocabulary: dict, table_m1: pd.DataFrame):
     """Kept labels in the order of the matching marker plot's rows, and the name shown for each."""
     if step == "atlas":
         order = panels.ATLAS_LINEAGE_ORDER[species]
         names = ATLAS_DISPLAY
     else:
-        order = panels.PLOTS[species][panels.REVIEW_PLOT[species][step]]["rows"]
+        kept = labels - {"EXCLUDE"}
+        order = panels.plot_rows(species, panels.REVIEW_PLOT[species][step], kept, table_m1, vocabulary)
         names = panels.display_names(vocabulary)
     unknown = sorted(labels - set(order) - {"EXCLUDE"})
     if unknown:
@@ -88,12 +89,13 @@ def footnotes(step: str, extract: dict, is_round2: bool, sparse_genes: list, own
         if is_round2
         else "the cluster's label in the v8 table of this clustering"
     )
+    table_m1 = f"Table M1 {panels.table_m1_version(extract['table_m1'])}"
     if step == "atlas":
-        genes = (f"Genes: Table M1 v9 rows of the {extract['marker_plot'].replace('_', ' ')} marker dot plot, "
+        genes = (f"Genes: {table_m1} rows of the {extract['marker_plot'].replace('_', ' ')} marker dot plot, "
                  "each gene once; ")
     else:
         genes = (
-            f"Genes: Table M1 v9 (Methods). Own lineage ({', '.join(own_names)}): every Table M1 row of "
+            f"Genes: {table_m1} (Methods). Own lineage ({', '.join(own_names)}): every Table M1 row of "
             f"{'these classes' if len(own_names) > 1 else 'this class'} in Table M1 order, with each row's genes as "
             "listed (a gene listed under two rows is shown under both). Other lineages: the genes of the class-level "
             "Table M1 rows of every other class, each gene once and none repeating an own-lineage gene. "
@@ -134,6 +136,7 @@ def load_step(tables_dir: Path, species: str, step: str, table_m1: pd.DataFrame,
         "missing": missing,
         "is_round2": extract["fit"].startswith("round 2"),
         "inputs": [Path(f"{stem}_review_clusters.csv"), Path(f"{stem}_review_marker_stats.csv")],
+        "table_m1": table_m1,
     }
 
 
@@ -144,7 +147,7 @@ def draw_step(species: str, step: str, data: dict, vocabulary: dict):
     labels anchored.
     """
     clusters, extract, columns = data["clusters"], data["extract"], data["columns"]
-    order, names = row_order_and_names(species, step, set(clusters.label), vocabulary)
+    order, names = row_order_and_names(species, step, set(clusters.label), vocabulary, data["table_m1"])
     kept, removed = clusters[~clusters.excluded], clusters[clusters.excluded]
     panels.check_review_classes(species, step, set(kept.label), vocabulary)
 
@@ -155,7 +158,7 @@ def draw_step(species: str, step: str, data: dict, vocabulary: dict):
     title = (
         f"{species.capitalize()} {step_name} ({level}): {len(kept)} clusters kept ({kept.n_nuclei.sum():,} nuclei) "
         f"as {kept.label.nunique()} label{'s' if kept.label.nunique() != 1 else ''}; {len(removed)} removed "
-        f"({removed.n_nuclei.sum():,} nuclei); Table M1 v9 markers"
+        f"({removed.n_nuclei.sum():,} nuclei); Table M1 {panels.table_m1_version(extract['table_m1'])} markers"
     )
     own_names = []
     if step == "atlas":
@@ -164,8 +167,8 @@ def draw_step(species: str, step: str, data: dict, vocabulary: dict):
         own_names = [vocabulary["display_names"]["cell_type"][c] for c in panels.REVIEW_OWN_CLASSES[species][step]]
         genes_text = f"{extract['table_m1']} (own lineage: {', '.join(own_names)}; other lineages: class genes)"
     subtitle = (
-        f"Clusters: {extract['object']} ({extract['cluster_column']}); decisions (v9): {extract['decisions']}; "
-        f"genes: {genes_text}"
+        f"Clusters: {extract['object']} ({extract['cluster_column']}); "
+        f"decisions ({extract['version']}): {extract['decisions']}; genes: {genes_text}"
     )
     decisions = {row.cluster: decision_text(row) for row in clusters.itertuples()}
     reasons = {
@@ -222,7 +225,7 @@ def main() -> None:
     provenance = {
         "plot": f"review_{args.step}",
         "species": args.species,
-        "version": "v9",
+        "version": extract["version"],
         # The release whose labels these decisions set, as the step's extract records it.
         "release": extract["release"],
         "release_dir": extract["release_dir"],

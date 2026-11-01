@@ -3,20 +3,15 @@
 # Figs. S15 (Cxcl12), S16 (subtypes on the sections), S17 (subtype UMAP, abundance,
 # markers) and S22 (Notum on the sections). Rules: workflow/rules/91_panels_mouse_stroma.smk;
 # target: panels_mouse_stroma_all (not in rule all). Outputs:
-# results/figures/panels/mouse_stroma/panel_<panel>_<v8|v9|one>.{pdf,svg,png,provenance.json}.
-# S15 is drawn per release (v9 adds lymphatic endothelium to the vascular class and new
-# immune nuclei); S16, S17 and S22 once, from v9 ('one'). The v9 fib/dec object equals the
-# v8 one in X, counts, pseudotime, labels and its own UMAP; spatial QC (15 nuclei) and
-# embedding-outlier flags differ. S17Aatlas draws the S17A nuclei at their whole-tissue UMAP
-# coordinates (alltissue_umap table, matched by obs_names); it writes svg, png and provenance only.
+# results/figures/panels/mouse_stroma/panel_<panel>_<tag>.{pdf,svg,png,provenance.json}, tag = the release
+# version (config releases; tags drawn: config/panels.yaml). S15 is drawn for every drawn tag; S16, S17 and
+# S22 for the release of record only (deliverables.version). The files of release v9 drawn before version
+# tags were used here are panel_<panel>_one.* and stay as they are. S17Aatlas draws the S17A nuclei at their
+# whole-tissue UMAP coordinates (alltissue_umap table, matched by obs_names); it writes svg, png and provenance
+# only.
 # ---------------------------------------------------------------------------
 panels_mouse_stroma:
-  python: /n/lab_storage/eddy_lab/users/nhilgert/.uv/envs/rsc_uv/bin/python
-  cache_dir: /n/lab_storage/eddy_lab/users/nhilgert/.cache_scratch   # matplotlib cache (HOME is full)
-
-  releases:            # panel file suffix -> release directory under data/deliverables/
-    v9: "2026_10_30"
-    v8: "2026_10_29b"
+  # Interpreter and caches: config/panels.yaml (panels.python, panels.cache_dir).
 
   objects:             # per-nucleus plot tables written by panels_mouse_stroma_table
     alltissue:
@@ -44,21 +39,10 @@ panels_mouse_stroma:
 
   s15:
     gene: Cxcl12
-    releases: [v8, v9]
     classes: [epi, eFib, dec, imm, vsc]   # rows of the manuscript panel (S15 legend); smc, pv, pm not shown
     spatial_stages: ["1.5_dpi_early", "1.5_dpi_late"]
 
-  s16:
-    release: v9
-
-  s17:
-    release: v9
-
-  s17atlas:            # S17A nuclei on the whole-tissue UMAP (alltissue_umap table, matched by obs_names)
-    release: v9
-
   s22:
     gene: Notum
-    release: v9
     stages: [uninduced, "1.5_dpi_early", "1.5_dpi_late", "2.5_dpi", "3.5_dpi", "4.5_dpi_bleeding"]
     ncols: 3

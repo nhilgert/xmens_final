@@ -1,4 +1,4 @@
-"""Marker statistics of every v9 release label on the Table M1 v9 genes, and the Table M1 rule check on v9.
+"""Marker statistics of every release label on the Table M1 v9 genes, and the Table M1 rule check on the release.
 
 Called by rule panels_marker_dotplots_extract (workflow/rules/91_panels_marker_dotplots.smk), once per species.
 Reads the release's All_Cells object (obs, var and the counts layer; sha256 checked against the release
@@ -31,6 +31,7 @@ def parse_arguments() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--species", required=True, choices=list(panels.SPECIES_COLUMN))
     parser.add_argument("--release-dir", required=True, type=Path)
+    parser.add_argument("--version", required=True, help="version tag of the release (config releases)")
     parser.add_argument("--object-name", required=True, help="file name of the All_Cells object in the release")
     parser.add_argument("--table-m1", required=True, type=Path)
     parser.add_argument("--plots", required=True, nargs="+", help="the plot names the rule file renders")
@@ -238,6 +239,7 @@ def main() -> None:
     checks.to_csv(args.out_dir / f"{args.species}_table_m1_rule_check.csv", index=False)
     provenance = {
         "species": args.species,
+        "version": args.version,
         "release": manifest["release"],
         "vocabulary_schema": manifest["vocabulary_schema"],
         "object": str(object_path),

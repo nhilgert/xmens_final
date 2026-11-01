@@ -1,4 +1,4 @@
-"""Every Table M1 v9 gene missing from an object's var and every gene that fails its rule on release v9.
+"""Every Table M1 v9 gene missing from an object's var and every gene that fails its rule on the release drawn.
 
 Called by rule panels_marker_dotplots_checks (workflow/rules/91_panels_marker_dotplots.smk). Reads the release
 rule checks and extract provenance of both species (panels_marker_dotplots_extract) and the extract provenance
@@ -11,6 +11,8 @@ import json
 from pathlib import Path
 
 import pandas as pd
+
+import marker_panels as panels
 
 
 FINDING_COLUMNS = ["finding", "species", "object", "table_m1_row", "gene", "criterion", "detail"]
@@ -49,7 +51,7 @@ def rule_findings(path: Path, species: str, object_path: str) -> list:
 
 def main() -> None:
     args = parse_arguments()
-    findings, objects_checked = [], []
+    findings, objects_checked, releases, table_m1_versions = [], [], set(), set()
 
     # Each species' rule check is the file named after it (<species>_table_m1_rule_check.csv).
     check_of = {path.name.split("_", 1)[0]: path for path in args.rule_checks}
@@ -57,6 +59,8 @@ def main() -> None:
         provenance = json.loads(provenance_path.read_text())
         check_path = check_of[provenance["species"]]
         objects_checked.append(f"{provenance['species']} release {provenance['release']}: {provenance['object']}")
+        releases.add(f"{provenance['version']} ({provenance['release']})")
+        table_m1_versions.add(panels.table_m1_version(provenance["table_m1"]))
         findings += [["missing from var", provenance["species"], provenance["object"], "", gene, "", ""]
                      for gene in provenance["table_m1_genes_missing_from_var"]]
         findings += rule_findings(check_path, provenance["species"], provenance["object"])
@@ -72,7 +76,7 @@ def main() -> None:
     table = pd.DataFrame(findings, columns=FINDING_COLUMNS)
     table.to_csv(args.out_csv, index=False)
 
-    lines = ["# Table M1 v9 genes on release v9", "",
+    lines = [f"# Table M1 {', '.join(sorted(table_m1_versions))} genes on release {', '.join(sorted(releases))}", "",
              f"Objects checked ({len(objects_checked)}):", ""] + [f"- {o}" for o in objects_checked] + [""]
     for finding, rows in [("missing from var", table[table.finding == "missing from var"]),
                           ("failing their rule", table[table.finding != "missing from var"])]:

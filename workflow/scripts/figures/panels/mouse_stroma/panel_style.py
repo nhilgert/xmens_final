@@ -129,6 +129,7 @@ def apply_style(dark: bool) -> str:
         "legend.frameon": False,
         "svg.fonttype": "none",
         "pdf.fonttype": 42,
+        "svg.hashsalt": "panels_mouse_stroma",   # fixed SVG element ids: a re-render is byte-identical
         "figure.facecolor": background,
         "axes.facecolor": background,
         "savefig.facecolor": background,
@@ -295,6 +296,10 @@ def text_overlaps(fig) -> int:
     return n_overlaps
 
 
+# No creation dates or software stamps in the files, so a re-render of the same table is byte-identical.
+FILE_METADATA = {"pdf": {"CreationDate": None}, "svg": {"Date": None}, "png": {"Software": None}}
+
+
 def save_panel(fig, stem: Path, provenance: dict) -> None:
     """Write <stem>.pdf/.svg/.png (300 dpi) and <stem>.provenance.json with each file's sha256."""
     stem = Path(stem)
@@ -304,7 +309,7 @@ def save_panel(fig, stem: Path, provenance: dict) -> None:
     for ext in ("pdf", "svg", "png"):
         path = stem.parent / f"{stem.name}.{ext}"
         # Scatter layers are rasterized at the PNG resolution inside PDF/SVG; text and axes stay vector.
-        fig.savefig(path, dpi=PNG_DPI)
+        fig.savefig(path, dpi=PNG_DPI, metadata=FILE_METADATA[ext])
         files[path.name] = sha256_of(path)
     plt.close(fig)
     provenance["written"] = datetime.datetime.now().isoformat(timespec="seconds")

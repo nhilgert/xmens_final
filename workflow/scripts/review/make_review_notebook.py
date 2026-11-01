@@ -1,7 +1,7 @@
 """Write the papermill templates of the review notebooks, one per annotation step.
 
     python workflow/scripts/review/make_review_notebook.py --config config/config.yaml \
-        --spec resources/lineage_spec.yaml --out-dir notebooks/review
+        --panels-config config/panels.yaml --spec resources/lineage_spec.yaml --out-dir notebooks/review
 
 Steps: the whole-tissue atlas and every lineage of config `lineages`, per species. A lineage listed in config
 `annotation_round2.lineages` is reviewed on its round-2 fit and round-2 table; the others on their July fit and
@@ -17,10 +17,9 @@ import nbformat
 import yaml
 from nbformat.v4 import new_code_cell, new_markdown_cell, new_notebook
 
-V8_RELEASE_DIR = "data/deliverables/2026_10_29b"   # the v8 release, where the ledger's origin column looks
 V8_RELEASE_OBJECT = {"human": "Cevrim_Human_All_Cells_extended.h5ad", "mouse": "Cevrim_XMens_All_Cells_extended.h5ad"}
 
-INTRO = """# {Species} {step_title}: annotation decisions, v9
+INTRO = """# {Species} {step_title}: annotation decisions
 
 The decision table labels every cluster of `{cluster_col}` ({level}) in `{object_path}` ({fit});
 a removed cluster is labelled `EXCLUDE`. This notebook shows the evidence for each decision with the numbers of
@@ -54,9 +53,10 @@ OBJECT_PATH = {object_path}
 CLUSTER_COLUMN = {cluster_col}
 DECISIONS_PATH = {decisions}
 VOCABULARY_PATH = "resources/annotation_vocabulary.yaml"
-PANELS_PATH = "resources/review/panels_v9.json"
-REASONS_PATH = "resources/review/exclusion_reasons_v9.csv"
-STEPS_PATH = "resources/review/decision_steps_v9.csv"
+REVIEW_VERSION = None    # version tag of the decision set (config deliverables.version)
+PANELS_PATH = None       # resources/review/panels_<tag>.json, as the rule resolves it
+REASONS_PATH = None      # resources/review/exclusion_reasons_<tag>.csv
+STEPS_PATH = None        # resources/review/decision_steps_<tag>.csv
 V8_RELEASE_PATH = {v8_release}    # v8 extended all-cells object: where each nucleus was in v8
 V8_DECISIONS_PATH = {v8_decisions}    # v8 table of the same clustering (None for a round-2 re-fit)
 JULY_OBJECT_PATH = {july_object}    # July fit of a round-2 lineage (None otherwise)
@@ -75,6 +75,13 @@ repo = Path(REPO).resolve()
 sys.path.insert(0, str(repo / "workflow" / "scripts" / "review"))
 from review_ledger import NOT_RELEASED, counts_text, july_origin, read_obs, removed_cluster_rows, v8_status  # noqa: E402
 from review_step import ATLAS_ORDER, draw_decision_umap, label_order_and_display, read_decisions, review_step  # noqa: E402
+
+# The decision set's version and records have no defaults: the rule passes them (papermill -p), as must a run of
+# the template alone.
+unset = [name for name, value in {"REVIEW_VERSION": REVIEW_VERSION, "PANELS_PATH": PANELS_PATH,
+                                  "REASONS_PATH": REASONS_PATH, "STEPS_PATH": STEPS_PATH}.items() if value is None]
+if unset:
+    raise ValueError(f"parameters not set: {unset}")
 
 PENDING_MARK = "PI sign-off pending"   # how a decision table's note flags a label awaiting the PI
 PENDING_COLOUR = "#1F4E79"             # dark blue, apart from the red of EXCLUDE and the amber of the checks
@@ -152,7 +159,8 @@ result = review_step(
     in_repo(OUT_DIR),
     in_repo(VOCABULARY_PATH),
     in_repo(PANELS_PATH),
-    subtitle=f"Clusters: {OBJECT_PATH} ({CLUSTER_COLUMN}); decisions (v9): {DECISIONS_PATH}; reasons: {REASONS_PATH}",
+    subtitle=f"Clusters: {OBJECT_PATH} ({CLUSTER_COLUMN}); decisions ({REVIEW_VERSION}): {DECISIONS_PATH}; "
+             f"reasons: {REASONS_PATH}",
     notes=footnotes,
     reasons=reason_text,
     reasons_header="exclusion reason [source]",
@@ -232,12 +240,18 @@ def python_literal(value):
     return "None" if value is None else json.dumps(value)
 
 
-def review_steps(config, spec):
+def reference_release_dir(config, panels_config):
+    """data/deliverables/<folder> of the release the ledger's origin column looks in (panels.review_reference_version,
+    v8, the release before the round-2 re-annotation)."""
+    return f"data/deliverables/{config['releases'][panels_config['panels']['review_reference_version']]}"
+
+
+def review_steps(config, spec, v8_release_dir):
     """(species, step, defaults) for the atlas and every lineage, from config and lineage_spec."""
     round2 = config["annotation_round2"]
     steps = []
     for species, lineages in config["lineages"].items():
-        v8_release = f"{V8_RELEASE_DIR}/{V8_RELEASE_OBJECT[species]}"
+        v8_release = f"{v8_release_dir}/{V8_RELEASE_OBJECT[species]}"
         steps.append((species, "atlas", dict(
             object_path=f"data/interim/latent_{species}.h5ad", cluster_col=spec["atlas"][species]["res"],
             decisions=round2["atlas_decisions"][species], v8_release=v8_release,
@@ -297,14 +311,16 @@ def build(species, step, defaults):
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--config", type=Path, default=Path("config/config.yaml"))
+    parser.add_argument("--panels-config", type=Path, default=Path("config/panels.yaml"))
     parser.add_argument("--spec", type=Path, default=Path("resources/lineage_spec.yaml"))
     parser.add_argument("--out-dir", type=Path, default=Path("notebooks/review"))
     args = parser.parse_args()
     config = yaml.safe_load(args.config.read_text())
+    v8_release_dir = reference_release_dir(config, yaml.safe_load(args.panels_config.read_text()))
     spec = yaml.safe_load(args.spec.read_text())
 
     args.out_dir.mkdir(parents=True, exist_ok=True)
-    for species, step, defaults in review_steps(config, spec):
+    for species, step, defaults in review_steps(config, spec, v8_release_dir):
         path = args.out_dir / f"{species}_{step}_review.ipynb"
         nbformat.write(build(species, step, defaults), path)
         print(path)

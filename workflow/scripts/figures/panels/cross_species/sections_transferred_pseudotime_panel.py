@@ -6,8 +6,8 @@ Reads:  the joint SAMap table (transferred pseudotime of every nucleus; rule sam
         fibroblast/decidual table that rule samap_fig6e reads (QC'd positions, phase, embedding_outlier; a plot-table
         parquet or a release .h5ad).
 Writes: the panel as PDF, SVG and 300-dpi PNG on black, and a provenance JSON with the counts and median per section;
-        each section and the key also on their own (--parts-prefix P: P_secretory_one, P_menstrual_one, P_key_one,
-        each as PDF, SVG and PNG) at the scale of the panel, for assembling the figure by hand.
+        each section and the key also on their own (--parts-prefix P, --parts-tag T: P_secretory_T, P_menstrual_T,
+        P_key_T, each as PDF, SVG and PNG) at the scale of the panel, for assembling the figure by hand.
 
 Nuclei, values, color map, crop and key scale are those of rule samap_fig6e
 (notebooks/samap/fig6e_sections_transferred_pseudotime.ipynb). Orientation is that of the main text and of Fig. 6D:
@@ -16,7 +16,7 @@ mirrored left-right relative to the samap_fig6e panels. The key is labeled witho
 "early"/"late".
 
 usage: sections_transferred_pseudotime_panel.py --joint T --human-table T --pdf F --svg F --png F --provenance F
-                                                --parts-prefix P
+                                                --parts-prefix P --parts-tag T
 """
 import argparse
 import logging
@@ -242,6 +242,7 @@ def main() -> None:
     parser.add_argument("--png", required=True, type=Path)
     parser.add_argument("--provenance", required=True, type=Path)
     parser.add_argument("--parts-prefix", required=True, type=Path)
+    parser.add_argument("--parts-tag", required=True, help="release version tag closing each part's file name")
     args = parser.parse_args()
     logging.basicConfig(level=logging.INFO, format="%(message)s")
     logging.getLogger("matplotlib.font_manager").setLevel(logging.ERROR)
@@ -269,7 +270,7 @@ def main() -> None:
     part_paths = {}
     for part in [*sections, "key"]:
         part_fig = draw_key_alone() if part == "key" else draw_section_alone(sections[part][0])
-        part_paths[part] = {ext: Path(f"{args.parts_prefix}_{part}_one.{ext}") for ext in PART_FORMATS}
+        part_paths[part] = {ext: Path(f"{args.parts_prefix}_{part}_{args.parts_tag}.{ext}") for ext in PART_FORMATS}
         common.save_panel(part_fig, part_paths[part])
         plt.close(part_fig)
     LOG.info("Wrote the sections and the key alone: %s", list(part_paths))

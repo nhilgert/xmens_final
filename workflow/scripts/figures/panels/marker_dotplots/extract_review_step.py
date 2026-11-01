@@ -1,11 +1,11 @@
 """Cluster table and marker statistics of one annotation step, on every Table M1 gene of the species.
 
 Called by rule panels_marker_dotplots_review_extract (workflow/rules/91_panels_marker_dotplots.smk), once per
-species and step of the review bundle (99b_review_notebooks.smk: the step's clustering, Leiden column and v9
-decision table). Reads the clustering (obs, var and the counts layer), the decision table, the v8 table of the
-same clustering (atlas and July lineage fits) or the v8 release (round-2 re-fits), the recorded exclusion
-reasons and the decision provenance. Writes <out-dir>/<species>_<step>_review_clusters.csv (one row per
-cluster: decision, QC side columns), _review_marker_stats.csv (one row per cluster and gene) and
+species and step of the review bundle (99b_review_notebooks.smk: the step's clustering, Leiden column and
+decision table of the release of record). Reads the clustering (obs, var and the counts layer), the decision
+table, the v8 table of the same clustering (atlas and July lineage fits) or the v8 release (round-2 re-fits), the
+recorded exclusion reasons and the decision provenance. Writes <out-dir>/<species>_<step>_review_clusters.csv
+(one row per cluster: decision, QC side columns), _review_marker_stats.csv (one row per cluster and gene) and
 _review_extract_provenance.json, which also names the release whose labels the decisions set (folder, and the
 release and vocabulary schema of its MANIFEST.json).
 """
@@ -41,24 +41,28 @@ def parse_arguments() -> argparse.Namespace:
     parser.add_argument("--step", required=True)
     parser.add_argument("--object", required=True, type=Path, help="the step's clustering (h5ad)")
     parser.add_argument("--cluster-column", required=True)
-    parser.add_argument("--decisions", required=True, type=Path, help="v9 decision table (cluster, label[, note])")
+    parser.add_argument("--decisions", required=True, type=Path, help="decision table (cluster, label[, note])")
     parser.add_argument("--v8-decisions", required=True, help="v8 table of the same clustering, or None (round 2)")
     parser.add_argument("--v8-release", required=True, type=Path, help="v8 extended all-cells object")
     parser.add_argument("--reasons", required=True, type=Path)
     parser.add_argument("--steps", required=True, type=Path)
     parser.add_argument("--table-m1", required=True, type=Path)
-    parser.add_argument("--release-dir", required=True, type=Path, help="release folder of these decisions (v9)")
+    parser.add_argument("--release-dir", required=True, type=Path, help="release folder of these decisions")
+    parser.add_argument("--version", required=True, help="version tag of that release (config releases)")
     parser.add_argument("--out-dir", required=True, type=Path)
     return parser.parse_args()
 
 
 def read_clustering(path: Path) -> ad.AnnData:
-    """obs, genes and raw counts (as X) of a step's clustering; the normalised X and embeddings are not read."""
+    """obs, genes and raw counts (as X and layers['counts']) of a step's clustering; the normalized X and embeddings
+    are not read."""
     with h5py.File(path, "r") as handle:
         obs = ad.io.read_elem(handle["obs"])
         var = pd.DataFrame(index=ad.io.read_elem(handle["var"]).index.astype(str))
         counts = sp.csr_matrix(ad.io.read_elem(handle["layers/counts"]))
-    return ad.AnnData(X=counts, obs=obs, var=var)
+    adata = ad.AnnData(X=counts, obs=obs, var=var)
+    adata.layers["counts"] = adata.X   # the review kit reads raw counts from the counts layer only
+    return adata
 
 
 def read_decisions(path: Path, clusters: set) -> pd.DataFrame:
@@ -151,6 +155,9 @@ def main() -> None:
     reasons = pd.read_csv(args.reasons, dtype=str, keep_default_na=False)
     reasons = reasons[(reasons.species == args.species) & (reasons.step == args.step)].set_index("cluster")
     excluded = set(decisions.index[decisions.label == "EXCLUDE"])
+    repeated = sorted(set(reasons.index[reasons.index.duplicated()]))
+    if repeated:
+        raise ValueError(f"{args.reasons}: clusters with more than one recorded reason: {repeated}")
     if set(reasons.index) != excluded:
         raise ValueError(f"EXCLUDE clusters and recorded reasons differ: {sorted(excluded ^ set(reasons.index))}")
     steps = pd.read_csv(args.steps, dtype=str, keep_default_na=False)
@@ -196,6 +203,7 @@ def main() -> None:
     provenance = {
         "species": args.species,
         "step": args.step,
+        "version": args.version,
         "release": release["release"],
         "release_dir": str(args.release_dir),
         "vocabulary_schema": release["vocabulary_schema"],

@@ -4,11 +4,12 @@
     result = review_step(species="mouse", step="smc", object_path="data/interim/latent_mouse_smc.h5ad",
                          cluster_col="leiden_scVI_3.0", decisions="resources/annotations/mouse_smc.csv",
                          out_dir="results/annotation_review", vocab_path="resources/annotation_vocabulary.yaml",
-                         panels_path="resources/review/panels_v9.json")
+                         panels_path="resources/review/panels_<tag>.json")
 
 Writes {species}_{step}_clusters.csv (one row per cluster: QC, mixing, identity, flags, verdict),
 {species}_{step}_marker_stats.csv (every plotted value) and {species}_{step}_dotplot.{png,svg,pdf}.
-Panels come from resources/review/panels_v9.json; display names from the annotation vocabulary.
+Panels come from resources/review/panels_<tag>.json (the decision set's version); display names from the
+annotation vocabulary.
 Called by the review notebooks (notebooks/review/, rule render_review_notebook in 99b_review_notebooks.smk).
 """
 import json
@@ -96,11 +97,13 @@ def review_step(species, step, object_path, cluster_col, decisions, out_dir, voc
                       f"{len(removed)} removed ({removed.n_nuclei.sum():,} nuclei)")
     subtitle = subtitle or f"Clusters: {object_path} ({cluster_col}); decisions: {decisions if isinstance(decisions, (str, Path)) else 'draft table'}"
 
-    with mpl.rc_context(FIGURE_RC):
+    # Fixed SVG ids and no dates or software stamps in the files, so a re-render of the same inputs is byte-identical.
+    file_metadata = {"png": {"Software": None}, "svg": {"Date": None}, "pdf": {"CreationDate": None}}
+    with mpl.rc_context({**FIGURE_RC, "svg.hashsalt": "review_step"}):
         fig, plotted = render(table, stats, panels, order, display, title, subtitle, notes, text_columns)
         stem = out_dir / f"{species}_{step}_dotplot"
         for suffix in ("png", "svg", "pdf"):
-            fig.savefig(f"{stem}.{suffix}", dpi=300 if suffix == "png" else None)
+            fig.savefig(f"{stem}.{suffix}", dpi=300 if suffix == "png" else None, metadata=file_metadata[suffix])
     table.to_csv(out_dir / f"{species}_{step}_clusters.csv", index=False)
     plotted.to_csv(out_dir / f"{species}_{step}_marker_stats.csv", index=False)
     return dict(table=table, qc=qc, stats=plotted, missing_genes=missing, figure=fig,

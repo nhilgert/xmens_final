@@ -74,7 +74,7 @@ lines = [
     "## Kit verdicts",
     "",
     f"The fixed rules support {int(supported.sum())} of the {len(ledger)} removals. The other {len(beyond_rules)} "
-    "are decisions beyond the fixed rules (per-nucleus checks, off-target cells, a singleton); final reason shown:",
+    "are decisions beyond the fixed rules; the recorded final reason of each is shown:",
     "",
     markdown_table(beyond_rules) if len(beyond_rules) else "None.",
     "",

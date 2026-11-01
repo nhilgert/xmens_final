@@ -1,0 +1,19 @@
+# ---------------------------------------------------------------------------
+# panels -- settings shared by every figure-panel rule file (91_panels_*, 10c_samap_figures, 16_zone_modules,
+# 99b_review_notebooks), read by workflow/rules/91_panels_versions.smk. The release folders and the release of
+# record come from config/config.yaml (releases, deliverables.version, deliverables.release).
+# ---------------------------------------------------------------------------
+panels:
+  # Version tags the panel targets draw. Tags after deliverables.version are skipped until that release is cut;
+  # tags before it are frozen (only their missing files are drawn). v8 comparison panels are no longer drawn.
+  versions_drawn: [v9, v10]
+  python: /n/lab_storage/eddy_lab/users/nhilgert/.uv/envs/rsc_uv/bin/python   # scanpy 1.11.5, anndata 0.12.11
+  cache_dir: /n/lab_storage/eddy_lab/users/nhilgert/.cache_scratch           # matplotlib/numba caches (HOME is full)
+  # Table M1 of the Methods (marker genes per cell type), read by the marker dot plots and the review panels.
+  table_m1: resources/figures/table_m1_markers_v9.csv
+  # Release the review kit compares each decision with ("where was this nucleus in v8"): the release before the
+  # round-2 re-annotation.
+  review_reference_version: v8
+  # Display of the immune subtypes (order, names, colors, label directions) in the mouse whole-tissue panels and the
+  # marker dot plots, keyed by vocabulary label.
+  immune_display: resources/figures/immune_display.yaml

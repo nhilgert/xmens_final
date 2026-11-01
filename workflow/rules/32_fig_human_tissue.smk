@@ -1,5 +1,5 @@
 # workflow/rules/32_fig_human_tissue.smk
-# Human whole-tissue panels of the revision, drawn from release v8 (2026_10_29b) and v9 (2026_10_30):
+# Human whole-tissue panels of the revision, one set per release version tag (91_panels_versions.smk):
 #   Fig. 5B   spatial mapping of all cell classes, secretory and menstrual sections, on black
 #   Fig. 5C   UMAP of all nuclei by cell class, direct labels
 #   Fig. S25  A sample table, B class marker dot plot, C counts and D genes per nucleus (violins)
@@ -10,17 +10,16 @@
 #                                        layer is streamed in row blocks, the object is never rewritten
 #   panels_human_tissue_{5b,5c,s25,s26}  one rule per panel, reading only that plot table
 #
-# Outputs: results/figures/panels/human_tissue/panel_<panel>_<v8|v9>.{pdf,svg,png,provenance.json}.
-# Target: panels_human_tissue_all (not in rule all).
+# Outputs: results/figures/panels/human_tissue/panel_<panel>_<tag>.{pdf,svg,png,provenance.json}, tag = v9, v10, ...
+# (config releases names the release folder of each tag). Target: panels_human_tissue_all.
 #
 # The release objects and manifests are ancient(): a release is cut deliberately (04g), never re-cut
 # because an mtime moved. The panel scripts import panel_common.py from their own directory, which
-# PYTHONPATH names because Python's safe-path mode (PYTHONSAFEPATH) drops it from sys.path.
+# PYTHONPATH names because Python's safe-path mode (PYTHONSAFEPATH) drops it from sys.path. They run under the
+# panels interpreter (config panels.python) with caches off HOME (PANEL_ENV, 91_panels_versions.smk).
 
-PANELS_HT_RELEASES = {
-    "v8": "data/deliverables/2026_10_29b",
-    "v9": "data/deliverables/2026_10_30",
-}
+include: "91_panels_versions.smk"
+
 PANELS_HT_OUT = "results/figures/panels/human_tissue"
 PANELS_HT_SCRIPTS = "workflow/scripts/figures/panels/human_tissue"
 PANELS_HT_LOGS = "logs/panels_human_tissue"
@@ -38,12 +37,12 @@ PANELS_HT_EXTENSIONS = ["pdf", "svg", "png", "provenance.json"]
 
 
 wildcard_constraints:
-    ht_release="|".join(PANELS_HT_RELEASES),
+    ht_release="|".join(PANEL_TAGS),
 
 
 def panels_ht_release_file(name):
     """Input function: file `name` in the deliverables directory of release {ht_release}."""
-    return lambda wildcards: f"{PANELS_HT_RELEASES[wildcards.ht_release]}/{name}"
+    return lambda wildcards: f"{panel_release_dir(wildcards.ht_release)}/{name}"
 
 
 def panels_ht_files(panel):
@@ -51,13 +50,12 @@ def panels_ht_files(panel):
     return [f"{PANELS_HT_OUT}/panel_{panel}_{{ht_release}}.{ext}" for ext in PANELS_HT_EXTENSIONS]
 
 
-# Every panel of this track, both releases.
+# Every panel of this track for every drawn version (frozen versions: missing files only).
 rule panels_human_tissue_all:
     input:
-        expand(
-            f"{PANELS_HT_OUT}/panel_{{panel}}_{{release}}.{{ext}}",
+        panel_targets(
+            f"{PANELS_HT_OUT}/panel_{{panel}}_{{tag}}.{{ext}}",
             panel=PANELS_HT_PANELS,
-            release=list(PANELS_HT_RELEASES),
             ext=PANELS_HT_EXTENSIONS,
         ),
 
@@ -73,6 +71,8 @@ rule panels_human_tissue_extract:
         uns=f"{PANELS_HT_TABLE}/uns.json",
         provenance=f"{PANELS_HT_TABLE}/provenance.json",
     params:
+        py=PANEL_PY,
+        env=PANEL_ENV,
         genes=",".join(PANELS_HT_MARKERS),
     log:
         f"{PANELS_HT_LOGS}/extract_{{ht_release}}.log",
@@ -82,7 +82,8 @@ rule panels_human_tissue_extract:
         runtime=30,
     shell:
         """
-        python -u {input.script} \
+        {params.env}
+        {params.py} -u {input.script} \
             --h5ad {input.h5ad} \
             --manifest {input.manifest} \
             --release {wildcards.ht_release} \
@@ -106,6 +107,8 @@ rule panels_human_tissue_5b:
     params:
         stem=lambda wildcards: f"{PANELS_HT_OUT}/panel_5B_{wildcards.ht_release}",
         module_dir=PANELS_HT_SCRIPTS,
+        py=PANEL_PY,
+        env=PANEL_ENV,
     log:
         f"{PANELS_HT_LOGS}/5b_{{ht_release}}.log",
     threads: 1
@@ -114,7 +117,8 @@ rule panels_human_tissue_5b:
         runtime=15,
     shell:
         """
-        PYTHONPATH={params.module_dir} python -u {input.script} \
+        {params.env}
+        PYTHONPATH={params.module_dir} {params.py} -u {input.script} \
             --cells {input.cells} \
             --extract-provenance {input.extract} \
             --release {wildcards.ht_release} \
@@ -135,6 +139,8 @@ rule panels_human_tissue_5c:
     params:
         stem=lambda wildcards: f"{PANELS_HT_OUT}/panel_5C_{wildcards.ht_release}",
         module_dir=PANELS_HT_SCRIPTS,
+        py=PANEL_PY,
+        env=PANEL_ENV,
     log:
         f"{PANELS_HT_LOGS}/5c_{{ht_release}}.log",
     threads: 1
@@ -143,7 +149,8 @@ rule panels_human_tissue_5c:
         runtime=15,
     shell:
         """
-        PYTHONPATH={params.module_dir} python -u {input.script} \
+        {params.env}
+        PYTHONPATH={params.module_dir} {params.py} -u {input.script} \
             --cells {input.cells} \
             --extract-provenance {input.extract} \
             --release {wildcards.ht_release} \
@@ -169,6 +176,8 @@ rule panels_human_tissue_s25:
         genes=",".join(PANELS_HT_MARKERS),
         out_dir=PANELS_HT_OUT,
         module_dir=PANELS_HT_SCRIPTS,
+        py=PANEL_PY,
+        env=PANEL_ENV,
     log:
         f"{PANELS_HT_LOGS}/s25_{{ht_release}}.log",
     threads: 1
@@ -177,7 +186,8 @@ rule panels_human_tissue_s25:
         runtime=15,
     shell:
         """
-        PYTHONPATH={params.module_dir} python -u {input.script} \
+        {params.env}
+        PYTHONPATH={params.module_dir} {params.py} -u {input.script} \
             --cells {input.cells} \
             --extract-provenance {input.extract} \
             --samples {input.samples} \
@@ -200,6 +210,8 @@ rule panels_human_tissue_s26:
     params:
         stem=lambda wildcards: f"{PANELS_HT_OUT}/panel_S26_{wildcards.ht_release}",
         module_dir=PANELS_HT_SCRIPTS,
+        py=PANEL_PY,
+        env=PANEL_ENV,
     log:
         f"{PANELS_HT_LOGS}/s26_{{ht_release}}.log",
     threads: 1
@@ -208,7 +220,8 @@ rule panels_human_tissue_s26:
         runtime=15,
     shell:
         """
-        PYTHONPATH={params.module_dir} python -u {input.script} \
+        {params.env}
+        PYTHONPATH={params.module_dir} {params.py} -u {input.script} \
             --cells {input.cells} \
             --extract-provenance {input.extract} \
             --release {wildcards.ht_release} \

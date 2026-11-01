@@ -61,8 +61,10 @@ def cluster_order(names):
 
 
 def counts_of(adata):
-    matrix = adata.layers["counts"] if "counts" in adata.layers else adata.X
-    return sp.csr_matrix(matrix).astype(np.float32)
+    """Raw counts of the counts layer. X is log-normalized in the lineage objects, so it is never used instead."""
+    if "counts" not in adata.layers:
+        raise KeyError("object has no layers['counts']; detection, UMIs and CP10k need raw counts")
+    return sp.csr_matrix(adata.layers["counts"]).astype(np.float32)
 
 
 def nucleus_qc(adata, species):

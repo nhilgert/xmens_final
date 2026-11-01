@@ -1,0 +1,100 @@
+# How the figure panels draw the immune subtypes, keyed by the labels of resources/annotation_vocabulary.yaml
+# (allowed.immune_cell). The vocabulary decides which labels exist and what they are called; this file only says how
+# the panels show them, so an immune relabel needs the decision tables and the vocabulary, and nothing here.
+#
+# A label the vocabulary allows but this file does not list is still drawn: after the listed labels (vocabulary
+# order), named by its vocabulary display name, in the next unused color of fallback_colors, with an automatically
+# placed label. Panel provenance lists such labels under "display_defaults"; add them here to fix their look.
+#
+# Read by the mouse whole-tissue panels (Fig. 3C, 3D, 3Ainset, 3Catlas: mouse_tissue_style.immune_display) and the
+# marker dot plots (marker_panels: earlier_plot_rows, pending_sign_off).
+
+mouse:
+  # Stacking order of Fig. 3D, matched to the manuscript bars by their v8 fractions; also the order labels are
+  # placed in on Fig. 3C.
+  order: [macrophage, cycling_macrophage, monocyte, dendritic_cell, neutrophil, t_cell, gamma_delta_t_cell, b_cell,
+          plasma_cell, cytotoxic_unk_cell, unk_cell, cycling_unk_cell]
+
+  # Direct labels of Fig. 3C and 3Ainset, as in the manuscript.
+  abbreviations:
+    macrophage: "Mφ"
+    cycling_macrophage: "cycling Mφ"
+    monocyte: "Mono"
+    dendritic_cell: "DC"
+    neutrophil: "Neu"
+    t_cell: "T"
+    gamma_delta_t_cell: "γδ T"
+    b_cell: "B"
+    plasma_cell: "plasma"
+    cytotoxic_unk_cell: "cytotoxic uNK"
+    unk_cell: "uNK"
+    cycling_unk_cell: "cycling uNK"
+
+  # The manuscript's colors, read off the published Fig. 3. neutrophil and plasma_cell (labels of v9) have new ones:
+  # neutrophils a dark red beside the myeloid oranges, plasma cells a light green beside the B cells they derive from.
+  colors:
+    macrophage: "#d55e00"
+    cycling_macrophage: "#f28e5c"
+    monocyte: "#c9a227"
+    dendritic_cell: "#8c5a2b"
+    neutrophil: "#b2182b"
+    t_cell: "#0072b2"
+    gamma_delta_t_cell: "#56b4e9"
+    b_cell: "#009e73"
+    plasma_cell: "#a6d96a"
+    cytotoxic_unk_cell: "#cc79a7"
+    unk_cell: "#7b5ea7"
+    cycling_unk_cell: "#b39ddb"
+
+  # Colors for labels without one above, used in vocabulary order; none is close to a color above.
+  fallback_colors: ["#e7298a", "#17becf", "#bcbd22", "#393b79", "#e6ab02", "#7f7f7f"]
+
+  # Label directions set by hand (degrees counter-clockwise from east, multiples of 22.5) where the automatic
+  # layout reads ambiguously, chosen by eye on the release v9 panels. Fig. 3C: the immune embedding packs five uNK
+  # and T islands against each other, so its whole layout is given (lymphoid labels around the left cluster,
+  # myeloid labels around the right one). Fig. 3Ainset: the five uNK and T groups share one island near the inset's
+  # left edge, so their labels go above and below it; plasma sits on the inset's floor, so its label goes above,
+  # and B's to its right. Labels not listed are placed automatically.
+  label_angles:
+    immune:
+      cytotoxic_unk_cell: 112.5
+      unk_cell: 67.5
+      t_cell: 0
+      gamma_delta_t_cell: -90
+      cycling_unk_cell: -112.5
+      plasma_cell: -90
+      b_cell: 67.5
+      neutrophil: 112.5
+      cycling_macrophage: 90
+      macrophage: 0
+      monocyte: -45
+      dendritic_cell: -90
+    inset:
+      unk_cell: 90
+      cytotoxic_unk_cell: -112.5
+      cycling_unk_cell: 45
+      gamma_delta_t_cell: -90
+      t_cell: 0
+      plasma_cell: 90
+      b_cell: 0
+      neutrophil: 180
+
+  # Rows of the earlier (published) mouse immune dot plot, marker plot immune_as_before; rows absent from a release
+  # are left out.
+  earlier_plot_rows: [macrophage, cycling_macrophage, monocyte, dendritic_cell, t_cell, gamma_delta_t_cell, b_cell,
+                      unk_cell, cytotoxic_unk_cell, cycling_unk_cell]
+
+human:
+  # Rows of the earlier human immune dot plot; its gamma-delta T row is the v9 label rorc_positive_lymphocyte.
+  earlier_plot_rows: [macrophage, cd4_t_cell, cd8_t_cell, treg_cell, rorc_positive_lymphocyte, mast_cell, unk_cell,
+                      cytotoxic_unk_cell]
+
+# Labels shown with a pending sign-off note in the panel provenance (approval record: resources/review/).
+pending_sign_off:
+  neutrophil: "label approved 30 Oct 2026 for vocabulary v9; PI sign-off pending"
+
+# Release that introduced a label, recorded in the panel provenance (classes as well as immune subtypes).
+introduced:
+  perivascular_cell: v9
+  neutrophil: v9
+  plasma_cell: v9

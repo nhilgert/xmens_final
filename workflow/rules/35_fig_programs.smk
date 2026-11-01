@@ -5,15 +5,30 @@
 #                        X-Mens (y), one point per TF with a regulon in both species, drawn in the style of
 #                        the manuscript panel (quadrant labels, dotted lines at |rho| = 0.2, named regulons)
 #
-# Input: the regulon table of record (regulon_quadrants_input.csv, written by scenic_quadrant_rho.py from the
-# floor-6 consensus regulons and pt_harmonized_rank), staged in resources/figures/panels_programs/ with its
-# upstream provenance; its sha256 is pinned in config/panels_programs.yaml and checked by the plot script.
+# Input: the regulon table of record (regulon_quadrants_input_fibdec_latent.csv, written by
+# scenic_quadrant_rho_fibdec_latent.py from the floor-6 consensus regulons, the mouse pt_harmonized_rank and the
+# human pseudotime of record), staged in resources/figures/panels_programs/ with its upstream provenance; its sha256
+# is pinned in config/panels_programs.yaml and checked by the plot script. The human pseudotime its provenance names
+# must be config pseudotime_of_record.human (sha256), checked when the workflow is read.
 # Outputs: results/figures/panels/programs/panel_5E_one.{svg,png,provenance.json}; SVG and PNG are
 # byte-reproducible (fixed SVG ids, no dates). Target: panels_programs_all (not in rule all).
+
+import json
+
+include: "91_panels_versions.smk"
 
 configfile: "config/panels_programs.yaml"
 
 PPG = config["panels_programs"]
+
+# Decision G: Fig. 5E's human rho must be computed on the human pseudotime of record.
+with open(PPG["regulon_table"]["upstream_provenance"]) as _ppg_handle:
+    _PPG_HUMAN_PT_SHA256 = json.load(_ppg_handle)["human_pt_side_table"]["sha256"]
+if _PPG_HUMAN_PT_SHA256 != config["pseudotime_of_record"]["human"]["sha256"]:
+    raise ValueError(
+        f"{PPG['regulon_table']['upstream_provenance']}: human pseudotime sha256 {_PPG_HUMAN_PT_SHA256} is not "
+        f"config pseudotime_of_record.human ({config['pseudotime_of_record']['human']['sha256']})"
+    )
 PPG_OUT = "results/figures/panels/programs"
 PPG_SCRIPTS = "workflow/scripts/figures/panels/programs"
 PPG_EXTS = [".svg", ".png", ".provenance.json"]
@@ -22,7 +37,7 @@ PPG_EXTS = [".svg", ".png", ".provenance.json"]
 PPG_ENV = (
     "export XDG_CACHE_HOME={cache} MPLCONFIGDIR={cache}/mpl PYTHONDONTWRITEBYTECODE=1; "
     "mkdir -p {cache}/mpl"
-).format(cache=PPG["cache_dir"])
+).format(cache=PANEL_CACHE)
 
 
 # Every panel of this rule file.
@@ -40,7 +55,7 @@ rule panels_programs_5e:
     output:
         multiext(f"{PPG_OUT}/panel_5E_one", *PPG_EXTS),
     params:
-        py = PPG["python"],
+        py = PANEL_PY,
         env = PPG_ENV,
         sha256 = PPG["regulon_table"]["sha256"],
         source = PPG["regulon_table"]["source_of_record"],

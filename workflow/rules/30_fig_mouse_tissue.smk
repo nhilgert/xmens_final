@@ -1,6 +1,6 @@
 # workflow/rules/30_fig_mouse_tissue.smk
-# Mouse whole-tissue panels of the manuscript, drawn from pinned releases, one set per annotation
-# vocabulary (scripts in workflow/scripts/figures/panels/mouse_tissue/):
+# Mouse whole-tissue panels of the manuscript, one set per release version tag (config panels.versions_drawn,
+# 91_panels_versions.smk) (scripts in workflow/scripts/figures/panels/mouse_tissue/):
 #   Fig. 3A   UMAP of the major cell classes      Fig. 3B   class abundance per stage
 #   Fig. 3C   UMAP of the immune subtypes         Fig. 3D   immune subtype abundance per stage
 #   Fig. S12A Slide-tags sample table             Fig. S12B class marker dot plot
@@ -15,38 +15,27 @@
 #                                lanes, from the release object (sha256 checked against its
 #                                MANIFEST), the immune lineage fit and config/samples.tsv
 #   panels_mouse_tissue_panel    per panel and version: PDF, SVG, PNG (300 dpi) and a provenance
-#                                JSON, drawn from the extract alone
+#                                JSON, drawn from the extract; the immune subtypes' names, colors and
+#                                order come from the vocabulary and resources/figures/immune_display.yaml
 #
-# v8 = release 2026_10_29b (vocabulary v8) with the July immune fit; v9 = release 2026_10_30
-# (vocabulary v9: perivascular cells, lymphatic endothelium, neutrophils, plasma cells) with the
-# round-2 immune fit. Target: panels_mouse_tissue_all (not in rule all). The release objects and
-# fits are ancient(): a figure never rebuilds a release or refits a lineage because an mtime moved.
+# Each tag is drawn from its release folder (config releases) and the round-2 immune lineage fit of
+# config annotation_round2, the fit of every release since v9. Outputs carry the tag in folder and file
+# name, so a new release adds files and an earlier tag's panels stay as drawn. Target:
+# panels_mouse_tissue_all. The release objects and fits are ancient(): a figure never rebuilds a
+# release or refits a lineage because an mtime moved.
 
-PMT         = config.get("panels_mouse_tissue", {})
-PMT_PY      = PMT.get("python", "/n/lab_storage/eddy_lab/users/nhilgert/.uv/envs/rsc_uv/bin/python")
-PMT_CACHE   = PMT.get("cache_dir", "/n/lab_storage/eddy_lab/users/nhilgert/.cache_scratch")
+include: "91_panels_versions.smk"
+
+PMT_PY      = PANEL_PY
 PMT_SCRIPTS = "workflow/scripts/figures/panels/mouse_tissue"
 PMT_TABLES  = "results/panels/mouse_tissue/{pmt_version}"
 PMT_FIGURES = "results/figures/panels/mouse_tissue/{pmt_version}"
 
-# Matplotlib and numba caches default to HOME, which is full; HDF5 locking fails on lab_storage reads.
-PMT_ENV = ("export XDG_CACHE_HOME={c} MPLCONFIGDIR={c}/mpl NUMBA_CACHE_DIR={c}/numba HDF5_USE_FILE_LOCKING=FALSE; "
-           "mkdir -p {c}/mpl {c}/numba").format(c=PMT_CACHE)
+PMT_ENV = PANEL_ENV
 
-# The release and immune fit behind each version. The July fit has no checksum pinned in config;
-# its sha256 is recorded in the extract provenance instead.
-PMT_VERSIONS = {
-    "v8": {
-        "release": "data/deliverables/2026_10_29b",
-        "immune_fit": "data/interim/latent_mouse_immune.h5ad",
-        "immune_fit_sha256": "",
-    },
-    "v9": {
-        "release": "data/deliverables/2026_10_30",
-        "immune_fit": "data/interim/round2_2026_10_29/latent_mouse_immune.h5ad",
-        "immune_fit_sha256": config["annotation_round2"]["latent_sha256"]["mouse_immune"],
-    },
-}
+# Immune lineage fit whose UMAP Fig. 3C draws, with the sha256 config pins for it.
+PMT_IMMUNE_FIT = f"{config['annotation_round2']['outdir']}/latent_mouse_immune.h5ad"
+PMT_IMMUNE_FIT_SHA256 = config["annotation_round2"]["latent_sha256"]["mouse_immune"]
 
 # Display rotation of the mouse sections: one table read by every mouse spatial panel, and its reader.
 # Spatial panels list both as inputs, so a changed angle redraws them.
@@ -75,7 +64,7 @@ PMT_HELPERS = {"3Ainset": ["plot_umap.py"]}
 
 def pmt_release_file(name):
     """Input function: a file of the version's release directory, ancient()."""
-    return lambda wc: ancient(f"{PMT_VERSIONS[wc.pmt_version]['release']}/{name}")
+    return lambda wc: ancient(f"{panel_release_dir(wc.pmt_version)}/{name}")
 
 
 # Plot tables of one version: every number the panels draw comes from these four files.
@@ -83,7 +72,7 @@ rule panels_mouse_tissue_extract:
     input:
         h5ad     = pmt_release_file("Cevrim_XMens_All_Cells.h5ad"),
         manifest = pmt_release_file("MANIFEST.json"),
-        fit      = lambda wc: ancient(PMT_VERSIONS[wc.pmt_version]["immune_fit"]),
+        fit      = ancient(PMT_IMMUNE_FIT),
         samples  = "config/samples.tsv",
         script   = f"{PMT_SCRIPTS}/extract_mouse_tissue_tables.py",
         style    = f"{PMT_SCRIPTS}/mouse_tissue_style.py",
@@ -93,13 +82,13 @@ rule panels_mouse_tissue_extract:
         lanes   = f"{PMT_TABLES}/lanes.csv",
         prov    = f"{PMT_TABLES}/extract_provenance.json",
     wildcard_constraints:
-        pmt_version = "|".join(PMT_VERSIONS),
+        pmt_version = "|".join(PANEL_TAGS),
     params:
         py      = PMT_PY,
         env     = PMT_ENV,
         scripts = PMT_SCRIPTS,
-        release = lambda wc: PMT_VERSIONS[wc.pmt_version]["release"],
-        fit_sha = lambda wc: PMT_VERSIONS[wc.pmt_version]["immune_fit_sha256"],
+        release = lambda wc: panel_release_dir(wc.pmt_version),
+        fit_sha = PMT_IMMUNE_FIT_SHA256,
         outdir  = PMT_TABLES,
     log:
         "logs/panels_mouse_tissue/extract_{pmt_version}.log",
@@ -131,6 +120,8 @@ rule panels_mouse_tissue_panel:
         helpers = lambda wc: [f"{PMT_SCRIPTS}/{h}" for h in PMT_HELPERS.get(wc.pmt_panel, [])],
         rotation = lambda wc: [PMT_ROTATION_TABLE, PMT_ROTATION_READER] if wc.pmt_panel in PMT_ROTATED_PANELS else [],
         style   = f"{PMT_SCRIPTS}/mouse_tissue_style.py",
+        vocabulary = "resources/annotation_vocabulary.yaml",
+        display = config["panels"]["immune_display"],
     output:
         multiext(
             f"{PMT_FIGURES}/panel_{{pmt_panel}}_{{pmt_version}}",
@@ -140,7 +131,7 @@ rule panels_mouse_tissue_panel:
             ".provenance.json",
         ),
     wildcard_constraints:
-        pmt_version = "|".join(PMT_VERSIONS),
+        pmt_version = "|".join(PANEL_TAGS),
         pmt_panel   = "|".join(PMT_PANELS),
     params:
         py      = PMT_PY,
@@ -162,16 +153,17 @@ rule panels_mouse_tissue_panel:
             --tables-dir {params.tables} \
             --version {wildcards.pmt_version} \
             --seed {params.seed} \
+            --vocabulary {input.vocabulary} \
+            --immune-display {input.display} \
             {params.args} \
             --out-prefix {params.prefix} > {log} 2>&1
         """
 
 
-# Every mouse whole-tissue panel in both versions.
+# Every mouse whole-tissue panel of every drawn version (frozen versions: missing files only).
 rule panels_mouse_tissue_all:
     input:
-        expand(
-            "results/figures/panels/mouse_tissue/{v}/panel_{p}_{v}.provenance.json",
-            v=PMT_VERSIONS,
-            p=PMT_PANELS,
+        panel_targets(
+            "results/figures/panels/mouse_tissue/{tag}/panel_{p}_{tag}.provenance.json",
+            p=list(PMT_PANELS),
         ),

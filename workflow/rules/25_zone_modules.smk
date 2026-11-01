@@ -13,8 +13,8 @@
 #                    keep_geneset_genes, the gene-set genes below it that are
 #                    still detected (added 2026-10-26).
 #   zone_plot_table  one per-nucleus CSV with everything the figures need:
-#                    obs (sample, timepoint, cell_type, cell_subtype, x/y),
-#                    embedding_outlier (config[zone_modules][embedding_outliers])
+#                    obs (sample, timepoint, cell_type, cell_subtype, x/y,
+#                    embedding_outlier as the release object stores it)
 #                    and the 11 scores. Added 2026-10-24 so the figures can be
 #                    redrawn from this CSV alone.
 #   zone_figures     render config[zone_modules][figures] from the plot table
@@ -24,23 +24,35 @@
 #                    mouse spatial panel reads (added 2026-10-30; was --rotate 135
 #                    in the figure arguments).
 #
-# One directory per run under results/zone_aucell/<run>/ and
-# results/figures/zone_modules/<run>/. Add a run instead of editing one.
-# Target: zone_modules_all (not in rule all).
+# The release scored is the release of record (config deliverables.version and
+# releases, 91_panels_versions.smk): one directory per release tag and run under
+# results/zone_aucell/<tag>/<run>/ and results/figures/zone_modules/<tag>/<run>/,
+# so a release cut adds a scoring beside the earlier ones. The v9 runs written
+# before version tags were used here are results/zone_aucell/<run>/ (read by the
+# v9 deposit) and stay as they are. Add a run instead of editing one.
+# Target: zone_modules_all.
 #
 # The release object and its MANIFEST are ancient(): a new release is cut
 # deliberately (04g), never re-cut because an mtime moved.
 # =============================================================================
 import json
 
+include: "91_panels_versions.smk"
+
 ZM      = config["zone_modules"]
 ZM_RUNS = ZM["runs"]
+# Release of record: its whole-tissue object and MANIFEST, and the folders of its scores and figures.
+ZM_TAG      = PANEL_LIVE_TAG
+ZM_H5AD     = f"{panel_release_dir(ZM_TAG)}/{ZM['object_name']}.h5ad"
+ZM_MANIFEST = f"{panel_release_dir(ZM_TAG)}/MANIFEST.json"
+ZM_SCORES   = f"results/zone_aucell/{ZM_TAG}/{{zone_run}}"
+ZM_FIGURES  = f"results/figures/zone_modules/{ZM_TAG}/{{zone_run}}"
 # Display rotation of the mouse sections: one table read by every mouse spatial panel, and its reader.
 ZM_ROTATION_TABLE  = "resources/figures/mouse_section_rotation.yaml"
 ZM_ROTATION_READER = "workflow/scripts/figures/section_rotation.py"
 # numba (pyscenic) and matplotlib caches must not land in the full HOME
 ZM_ENV  = ("export XDG_CACHE_HOME={c} NUMBA_CACHE_DIR={c}/numba MPLCONFIGDIR={c}/mpl; "
-           "mkdir -p {c}/numba {c}/mpl").format(c=ZM["cache_dir"])
+           "mkdir -p {c}/numba {c}/mpl").format(c=PANEL_CACHE)
 
 
 def zm_gene_args(run):
@@ -60,30 +72,30 @@ wildcard_constraints:
 
 rule zone_aucell:
     input:
-        h5ad     = ancient(ZM["h5ad"]),
-        manifest = ancient(ZM["release_manifest"]),
+        h5ad     = ancient(ZM_H5AD),
+        manifest = ancient(ZM_MANIFEST),
         genesets = lambda wc: ZM_RUNS[wc.zone_run]["genesets"],
         script   = "workflow/scripts/zone_modules/score_zone_aucell.py",
     output:
-        scores = "results/zone_aucell/{zone_run}/zone_aucell.csv",
-        means  = "results/zone_aucell/{zone_run}/subtype_means.csv",
-        genes  = "results/zone_aucell/{zone_run}/genes_ranked.txt",
-        prov   = "results/zone_aucell/{zone_run}/provenance.json",
+        scores = f"{ZM_SCORES}/zone_aucell.csv",
+        means  = f"{ZM_SCORES}/subtype_means.csv",
+        genes  = f"{ZM_SCORES}/genes_ranked.txt",
+        prov   = f"{ZM_SCORES}/provenance.json",
     params:
-        py         = ZM["python"],
+        py         = PANEL_PY,
         obj_name   = ZM["object_name"],
         thr        = lambda wc: ZM_RUNS[wc.zone_run]["auc_threshold"],
         seed       = lambda wc: ZM_RUNS[wc.zone_run]["seed"],
         norm       = lambda wc: ZM_RUNS[wc.zone_run].get("normalization", "none"),
         timepoints = lambda wc: ",".join(ZM_RUNS[wc.zone_run].get("timepoints") or []),
         genes      = lambda wc: zm_gene_args(ZM_RUNS[wc.zone_run]),
-        outdir     = lambda wc: f"results/zone_aucell/{wc.zone_run}",
+        outdir     = lambda wc: ZM_SCORES.format(zone_run=wc.zone_run),
         env        = ZM_ENV,
     threads: 8
     resources:
         mem_mb = 32000, runtime = 60, cpus_per_task = 8,
     log:
-        "logs/zone_modules/zone_aucell_{zone_run}.log",
+        f"logs/zone_modules/zone_aucell_{ZM_TAG}_{{zone_run}}.log",
     shell:
         r"""
         {params.env}
@@ -97,49 +109,48 @@ rule zone_aucell:
 
 rule zone_plot_table:
     input:
-        h5ad   = ancient(ZM["h5ad"]),
-        scores = "results/zone_aucell/{zone_run}/zone_aucell.csv",
-        prov   = "results/zone_aucell/{zone_run}/provenance.json",
-        flags  = ZM["embedding_outliers"],
+        h5ad   = ancient(ZM_H5AD),
+        scores = f"{ZM_SCORES}/zone_aucell.csv",
+        prov   = f"{ZM_SCORES}/provenance.json",
         script = "workflow/scripts/zone_modules/make_zone_plot_table.py",
     output:
-        table = "results/zone_aucell/{zone_run}/zone_plot_table.csv",
-        side  = "results/zone_aucell/{zone_run}/zone_plot_table.provenance.json",
+        table = f"{ZM_SCORES}/zone_plot_table.csv",
+        side  = f"{ZM_SCORES}/zone_plot_table.provenance.json",
     params:
-        py  = ZM["python"],
+        py  = PANEL_PY,
         env = ZM_ENV,
     threads: 1
     resources:
         mem_mb = 8000, runtime = 30,
     log:
-        "logs/zone_modules/zone_plot_table_{zone_run}.log",
+        f"logs/zone_modules/zone_plot_table_{ZM_TAG}_{{zone_run}}.log",
     shell:
         r"""
         {params.env}
         {params.py} -u {input.script} --obj {input.h5ad} --scores {input.scores} \
-            --scores-provenance {input.prov} --flag-barcodes {input.flags} --out {output.table} > {log} 2>&1
+            --scores-provenance {input.prov} --out {output.table} > {log} 2>&1
         """
 
 
 rule zone_figures:
     input:
-        table  = "results/zone_aucell/{zone_run}/zone_plot_table.csv",
-        side   = "results/zone_aucell/{zone_run}/zone_plot_table.provenance.json",
+        table  = f"{ZM_SCORES}/zone_plot_table.csv",
+        side   = f"{ZM_SCORES}/zone_plot_table.provenance.json",
         script = "workflow/scripts/zone_modules/fig_zone_modules.py",
         driver = "workflow/scripts/zone_modules/render_zone_figures.py",
         rotation = ZM_ROTATION_TABLE,
         rotation_reader = ZM_ROTATION_READER,
     output:
-        directory("results/figures/zone_modules/{zone_run}"),
+        directory(ZM_FIGURES),
     params:
-        py   = ZM["python"],
+        py   = PANEL_PY,
         jobs = json.dumps(ZM["figures"]),
         env  = ZM_ENV,
     threads: 1
     resources:
         mem_mb = 16000, runtime = 60,
     log:
-        "logs/zone_modules/zone_figures_{zone_run}.log",
+        f"logs/zone_modules/zone_figures_{ZM_TAG}_{{zone_run}}.log",
     shell:
         r"""
         {params.env}
@@ -149,8 +160,9 @@ rule zone_figures:
         """
 
 
+# Every run on the release of record: scores, plot table and figures.
 rule zone_modules_all:
     input:
-        expand("results/zone_aucell/{zone_run}/zone_aucell.csv", zone_run=ZM_RUNS),
-        expand("results/zone_aucell/{zone_run}/zone_plot_table.csv", zone_run=ZM_RUNS),
-        expand("results/figures/zone_modules/{zone_run}", zone_run=ZM_RUNS),
+        expand(f"{ZM_SCORES}/zone_aucell.csv", zone_run=ZM_RUNS),
+        expand(f"{ZM_SCORES}/zone_plot_table.csv", zone_run=ZM_RUNS),
+        expand(ZM_FIGURES, zone_run=ZM_RUNS),

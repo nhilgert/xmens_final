@@ -14,17 +14,23 @@ import yaml as _review_yaml
 # Templates: notebooks/review/{species}_{step}_review.ipynb (workflow/scripts/review/make_review_notebook.py).
 # Code: workflow/scripts/review/. Recorded reasons and decision provenance: resources/review/.
 # Needs papermill and pdfunite (poppler-utils) on PATH.
+#
+# The decision set reviewed is that of the release of record (config deliverables.version, 91_panels_versions.smk);
+# its outputs go to results/annotation_review/<tag>/ and results/notebooks/review/<tag>/, so reviewing a new
+# release adds files and the review of an earlier one stays as rendered.
 
-REVIEW_VERSION = "v9"                         # the decision set reviewed (vocabulary and tables v9)
-REVIEW_DIR = "results/annotation_review"
-REVIEW_NOTEBOOK_DIR = "results/notebooks/review"
+include: "91_panels_versions.smk"
+
+REVIEW_VERSION = PANEL_LIVE_TAG
+REVIEW_DIR = f"results/annotation_review/{REVIEW_VERSION}"
+REVIEW_NOTEBOOK_DIR = f"results/notebooks/review/{REVIEW_VERSION}"
 REVIEW_KIT = ["annotation_review", "review_dotplot", "review_step", "review_ledger"]
 
-# The v8 release: the ledger's origin column says where each removed nucleus was in v8. Pinned on purpose
-# (config deliverables.release moves on with every release cut) and passed as a parameter, not an input: the
-# release is immutable, and as an input it would tie this target to the 04g release rules, which re-run
-# whenever the vocabulary is newer than the release.
-V8_RELEASE_DIR = "data/deliverables/2026_10_29b"
+# The reference release (config panels.review_reference_version, v8): the ledger's origin column says where each
+# removed nucleus was in it. Fixed on purpose (the release of record moves on with every release cut) and passed as
+# a parameter, not an input: the release is immutable, and as an input it would tie this target to the 04g release
+# rules, which re-run whenever the vocabulary is newer than the release.
+V8_RELEASE_DIR = panel_release_dir(config["panels"]["review_reference_version"])
 V8_RELEASE_OBJECT = {"human": "Cevrim_Human_All_Cells_extended.h5ad", "mouse": "Cevrim_XMens_All_Cells_extended.h5ad"}
 
 # Page order of the all-steps dot plots: atlas first, then the lineages as in the v8 plots.
@@ -83,13 +89,28 @@ def review_cluster_column(wildcards):
     return lineage.get("res", _REVIEW_SPEC["defaults"]["res"])
 
 
+def review_resource(name, extension):
+    """resources/review/<name>_<tag>.<extension> of the newest release tag up to the release of record that has one.
+
+    The recorded reasons, decision provenance and review panels of a decision set carry its tag; a release cut
+    whose decisions need no new record (a rename that keeps every EXCLUDE) reads the latest earlier record. The
+    review extracts fail when the reasons no longer match the EXCLUDE clusters, so a stale record cannot pass.
+    """
+    for tag in reversed(panel_tags_up_to_live()):
+        path = f"resources/review/{name}_{tag}.{extension}"
+        if os.path.exists(path):
+            return path
+    raise FileNotFoundError(f"no resources/review/{name}_<tag>.{extension} for any tag up to {REVIEW_VERSION}")
+
+
 def review_outputs(pattern):
     """pattern expanded over every species and step."""
     return [pattern.format(species=sp, step=step) for sp in config["lineages"] for step in review_steps(sp)]
 
 
 # Renders one step's review notebook with papermill; the notebook writes the step's dot plot, cluster table,
-# marker statistics and removed-cluster rows. Paths reach the notebook relative to the working directory.
+# marker statistics and removed-cluster rows. Paths reach the notebook relative to the working directory, which the
+# shell passes ("$PWD"), so a copy of the repository renders against itself and no recorded parameter names it.
 rule render_review_notebook:
     input:
         notebook="notebooks/review/{species}_{step}_review.ipynb",
@@ -98,9 +119,9 @@ rule render_review_notebook:
         v8_decisions=review_v8_decisions,
         july_object=review_july_object,
         vocabulary="resources/annotation_vocabulary.yaml",
-        panels="resources/review/panels_v9.json",
-        reasons="resources/review/exclusion_reasons_v9.csv",
-        steps="resources/review/decision_steps_v9.csv",
+        panels=review_resource("panels", "json"),
+        reasons=review_resource("exclusion_reasons", "csv"),
+        steps=review_resource("decision_steps", "csv"),
         kit=[f"workflow/scripts/review/{module}.py" for module in REVIEW_KIT],
     output:
         notebook=f"{REVIEW_NOTEBOOK_DIR}/{{species}}_{{step}}_review.ipynb",
@@ -111,12 +132,12 @@ rule render_review_notebook:
         marker_stats=f"{REVIEW_DIR}/{{species}}_{{step}}_marker_stats.csv",
         removed=f"{REVIEW_DIR}/{{species}}_{{step}}_removed_clusters.csv",
     params:
-        repo=os.getcwd(),   # the working directory, so a copy of the repository renders against itself
         cluster_column=review_cluster_column,
         v8_decisions=lambda wildcards: review_v8_decisions(wildcards) or "None",
         july_object=lambda wildcards: review_july_object(wildcards) or "None",
         v8_release=lambda wildcards: f"{V8_RELEASE_DIR}/{V8_RELEASE_OBJECT[wildcards.species]}",
         out_dir=REVIEW_DIR,
+        version=REVIEW_VERSION,
     log:
         "logs/99b_review_{species}_{step}.log",
     wildcard_constraints:
@@ -127,13 +148,14 @@ rule render_review_notebook:
     shell:
         """
         papermill {input.notebook} {output.notebook} \
-            -p REPO {params.repo} \
+            -p REPO "$PWD" \
             -p SPECIES {wildcards.species} \
             -p STEP {wildcards.step} \
             -p OBJECT_PATH {input.adata} \
             -p CLUSTER_COLUMN {params.cluster_column} \
             -p DECISIONS_PATH {input.decisions} \
             -p VOCABULARY_PATH {input.vocabulary} \
+            -p REVIEW_VERSION {params.version} \
             -p PANELS_PATH {input.panels} \
             -p REASONS_PATH {input.reasons} \
             -p STEPS_PATH {input.steps} \
@@ -141,7 +163,7 @@ rule render_review_notebook:
             -p V8_DECISIONS_PATH {params.v8_decisions} \
             -p JULY_OBJECT_PATH {params.july_object} \
             -p OUT_DIR {params.out_dir} \
-            --cwd {params.repo} \
+            --cwd "$PWD" \
             --log-output \
             > {log} 2>&1
         """

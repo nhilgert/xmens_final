@@ -1,4 +1,4 @@
-"""Table M1 v9 marker genes and the definitions of the marker dot plots of release v9.
+"""Table M1 v9 marker genes and the definitions of the marker dot plots of a release.
 
 Imported by the scripts of rules panels_marker_dotplots_* (workflow/rules/91_panels_marker_dotplots.smk).
 Table M1 (resources/figures/table_m1_markers_v9.csv; columns Class, Cell type, Mouse, Human) lists the marker
@@ -9,11 +9,18 @@ gene the Methods list under two rows of a plot is shown under both; the row Stro
 classes (CLASS_GROUPS), so the major-class plots show its genes before the decidual genes. Each Leiden review
 dot plot of a lineage shows the Table M1 rows of its own classes first and then the class-level genes of every
 other class (review_columns); the atlas review dot plot shows the class-level genes of every class.
+
+The immune plots take their rows from the labels present (plot_rows): every immune label in Table M1 order, then
+any immune label without a Table M1 row (vocabulary order; drawn without genes of its own and listed in the
+provenance), so an immune relabel needs no edit here. The earlier immune plot's rows and the labels pending
+sign-off come from resources/figures/immune_display.yaml.
 """
 
+import re
 from pathlib import Path
 
 import pandas as pd
+import yaml
 
 
 # Table M1 ----
@@ -91,13 +98,27 @@ SPARSE_RULE_GENES = {
 # against smooth muscle cells alone.
 SIBLING_CHECKS = {"perivascular_cell": "smooth_muscle_cell"}
 
-# Label shown pending the PI's sign-off (vocabulary v9, approved 30 Oct 2026).
-PENDING_SIGN_OFF = {"neutrophil": "label approved 30 Oct 2026 for vocabulary v9; PI sign-off pending"}
+# Row lists derived from the labels present (plot_rows), in place of a fixed list.
+ROWS_IN_TABLE_M1_ORDER = "every label of the covered classes present, in Table M1 order"
+ROWS_OF_EARLIER_PLOT = "earlier_plot_rows of the immune display table, those present"
+
+
+def read_immune_display(path: Path) -> dict:
+    """The immune display table (resources/figures/immune_display.yaml)."""
+    return yaml.safe_load(Path(path).read_text())
 
 
 def clean_cell_type(name: str) -> str:
     """Table M1 cell-type name without its footnote marks."""
     return name.rstrip(" " + FOOTNOTE_MARKS).strip()
+
+
+def table_m1_version(path) -> str:
+    """Version tag of Table M1 from its file name (resources/figures/table_m1_markers_<tag>.csv), e.g. "v9"."""
+    match = re.search(r"_(v\d+)\.csv$", str(path))
+    if match is None:
+        raise ValueError(f"{path}: the Table M1 file name carries no version tag (table_m1_markers_<tag>.csv)")
+    return match.group(1)
 
 
 def read_table_m1(path: Path) -> pd.DataFrame:
@@ -173,42 +194,18 @@ PLOTS = {
             "rows": ["perivascular_cell", "smooth_muscle_cell"],
             "covers": ["perivascular_cell", "smooth_muscle_cell"],
         },
-        "immune_v9": {
-            "title": "immune subtypes of release v9",
+        "immune": {
+            "title": "immune subtypes of the release",
             "level": "cell_subtype",
-            "rows": [
-                "macrophage",
-                "cycling_macrophage",
-                "monocyte",
-                "neutrophil",
-                "dendritic_cell",
-                "t_cell",
-                "gamma_delta_t_cell",
-                "b_cell",
-                "plasma_cell",
-                "unk_cell",
-                "cytotoxic_unk_cell",
-                "cycling_unk_cell",
-            ],
+            "rows": ROWS_IN_TABLE_M1_ORDER,
             "covers": ["immune_cell"],
         },
-        # The cell types of the earlier mouse immune dot plot, without the subtypes new in v9 (neutrophils,
-        # plasma cells), with the Methods' genes in Table M1 order like every other plot.
+        # The cell types of the earlier mouse immune dot plot (without neutrophils and plasma cells), with the
+        # Methods' genes in Table M1 order like every other plot.
         "immune_as_before": {
-            "title": "immune subtypes of the earlier plot (no v9-only subtypes)",
+            "title": "immune subtypes of the earlier plot",
             "level": "cell_subtype",
-            "rows": [
-                "macrophage",
-                "cycling_macrophage",
-                "monocyte",
-                "dendritic_cell",
-                "t_cell",
-                "gamma_delta_t_cell",
-                "b_cell",
-                "unk_cell",
-                "cytotoxic_unk_cell",
-                "cycling_unk_cell",
-            ],
+            "rows": ROWS_OF_EARLIER_PLOT,
             "covers": None,
         },
     },
@@ -245,38 +242,18 @@ PLOTS = {
             "rows": ["perivascular_cell", "smooth_muscle_cell"],
             "covers": ["perivascular_cell", "smooth_muscle_cell"],
         },
-        "immune_v9": {
-            "title": "immune subtypes of release v9",
+        "immune": {
+            "title": "immune subtypes of the release",
             "level": "cell_subtype",
-            "rows": [
-                "macrophage",
-                "cd4_t_cell",
-                "cd8_t_cell",
-                "treg_cell",
-                "rorc_positive_lymphocyte",
-                "b_cell",
-                "mast_cell",
-                "unk_cell",
-                "cytotoxic_unk_cell",
-            ],
+            "rows": ROWS_IN_TABLE_M1_ORDER,
             "covers": ["immune_cell"],
         },
-        # The cell types of the earlier human immune dot plot, without the subtype new in v9 (B cells), with the
-        # Methods' genes in Table M1 order like every other plot. Its gamma-delta T row is the v9 label
-        # rorc_positive_lymphocyte.
+        # The cell types of the earlier human immune dot plot (without B cells), with the Methods' genes in Table M1
+        # order like every other plot.
         "immune_as_before": {
-            "title": "immune subtypes of the earlier plot (no v9-only subtypes)",
+            "title": "immune subtypes of the earlier plot",
             "level": "cell_subtype",
-            "rows": [
-                "macrophage",
-                "cd4_t_cell",
-                "cd8_t_cell",
-                "treg_cell",
-                "rorc_positive_lymphocyte",
-                "mast_cell",
-                "unk_cell",
-                "cytotoxic_unk_cell",
-            ],
+            "rows": ROWS_OF_EARLIER_PLOT,
             "covers": None,
         },
     },
@@ -292,7 +269,7 @@ REVIEW_PLOT = {
         "vascular": "endothelial",
         "perimetrium": "major_classes",
         "smc": "smooth_muscle_perivascular",
-        "immune": "immune_v9",
+        "immune": "immune",
     },
     "human": {
         "atlas": "major_classes",
@@ -300,7 +277,7 @@ REVIEW_PLOT = {
         "epithelial": "epithelial",
         "perivascular": "endothelial",
         "smc": "smooth_muscle_perivascular",
-        "immune": "immune_v9",
+        "immune": "immune",
     },
 }
 
@@ -349,13 +326,12 @@ def table_m1_rows_of(label: str, species: str, table_m1: pd.DataFrame) -> pd.Dat
     return rows.sort_values("m1_order")
 
 
-def groups_before(label: str, definition: dict) -> list:
+def groups_before(label: str, definition: dict, rows: list) -> list:
     """Class groups (CLASS_GROUPS) whose genes a class-level plot shows just before the genes of this row.
 
     A group comes before the first of its classes, and only in a plot that has every one of its classes as a row:
     the major-class plot shows the Stromal cells (all) genes before the decidual and fibroblast genes.
     """
-    rows = definition["rows"]
     if definition["level"] != "cell_type":
         return []
     return [
@@ -364,21 +340,71 @@ def groups_before(label: str, definition: dict) -> list:
     ]
 
 
-def plot_genes(species: str, plot: str, table_m1: pd.DataFrame) -> pd.DataFrame:
+def plot_genes(species: str, plot: str, table_m1: pd.DataFrame, rows: list = None) -> pd.DataFrame:
     """Gene columns of an A plot: gene, Table M1 row and class, row by row as the Methods list them.
 
     Each row contributes all of its Table M1 genes in Table M1 order, so a gene listed under two rows of the plot
     (mouse Top2a under dec2 and eFibP) is a column under each. A class group's row (Stromal cells (all)) comes
-    before its first class (groups_before).
+    before its first class (groups_before). rows: the plot's rows (plot_rows); a fixed list by default. In a plot
+    whose rows are derived from the labels present, a label without a Table M1 row adds no columns.
     """
     definition = PLOTS[species][plot]
+    if rows is None:
+        rows = fixed_rows(species, plot)
+    unlisted = set(labels_without_table_m1_row(species, rows, table_m1)) if is_derived(definition) else set()
     columns = []
-    for label in definition["rows"]:
-        for source in groups_before(label, definition) + [label]:
+    for label in rows:
+        if label in unlisted:
+            continue
+        for source in groups_before(label, definition, rows) + [label]:
             for row in table_m1_rows_of(source, species, table_m1).itertuples():
                 columns += [{"gene": g, "m1_cell_type": row.m1_cell_type, "m1_class": row.m1_class}
                             for g in row.genes]
     return pd.DataFrame(columns)
+
+
+def is_derived(definition: dict) -> bool:
+    return definition["rows"] in (ROWS_IN_TABLE_M1_ORDER, ROWS_OF_EARLIER_PLOT)
+
+
+def fixed_rows(species: str, plot: str) -> list:
+    """The rows of a plot with a fixed row list."""
+    rows = PLOTS[species][plot]["rows"]
+    if isinstance(rows, str):
+        raise ValueError(f"{species} {plot}: rows are derived from the labels present; use plot_rows()")
+    return list(rows)
+
+
+def labels_without_table_m1_row(species: str, labels, table_m1: pd.DataFrame) -> list:
+    """Labels (in the order given) that no Table M1 row of the species names."""
+    listed = set(table_m1.label[table_m1.species == species])
+    return [label for label in labels if label not in listed]
+
+
+def plot_rows(species: str, plot: str, labels, table_m1: pd.DataFrame, vocabulary: dict, display: dict = None) -> list:
+    """Rows of a plot, top to bottom, for a release or annotation step whose labels (at the plot's level) are given.
+
+    Fixed plots: their list. Immune plots (ROWS_IN_TABLE_M1_ORDER): every present label of the covered classes in
+    Table M1 order, then present labels without a Table M1 row in vocabulary order. Earlier plot
+    (ROWS_OF_EARLIER_PLOT): the display table's earlier_plot_rows that are present.
+    """
+    definition = PLOTS[species][plot]
+    present = set(labels)
+    if definition["rows"] == ROWS_OF_EARLIER_PLOT:
+        if display is None:
+            raise ValueError(f"{species} {plot}: rows come from the immune display table, which was not given")
+        return [label for label in display[species]["earlier_plot_rows"] if label in present]
+    if definition["rows"] != ROWS_IN_TABLE_M1_ORDER:
+        return fixed_rows(species, plot)
+
+    class_of = class_of_labels(vocabulary)
+    unknown = sorted(label for label in present if label not in class_of)
+    if unknown:
+        raise ValueError(f"{species} {plot}: labels not in the vocabulary: {unknown}")
+    covered = [label for label in class_of if label in present and class_of[label] in definition["covers"]]
+    species_rows = table_m1[table_m1.species == species].sort_values("m1_order")
+    in_table_m1 = [label for label in dict.fromkeys(species_rows.label) if label in covered]
+    return in_table_m1 + [label for label in covered if label not in in_table_m1]
 
 
 def class_of_labels(vocabulary: dict) -> dict:
@@ -446,8 +472,13 @@ def check_review_classes(species: str, step: str, kept_labels: set, vocabulary: 
 
 
 def check_rows_cover(species: str, plot: str, cell_types: pd.Series, cell_subtypes: pd.Series) -> None:
-    """Fail when a plot misses a release label it should show, or shows one the release lacks."""
+    """Fail when a fixed-row plot misses a release label it should show, or shows one the release lacks.
+
+    Plots whose rows are derived from the release's labels (plot_rows) cover them by construction.
+    """
     definition = PLOTS[species][plot]
+    if is_derived(definition):
+        return
     level_values = cell_types if definition["level"] == "cell_type" else cell_subtypes
     absent = sorted(set(definition["rows"]) - set(level_values))
     if absent:

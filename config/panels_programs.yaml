@@ -5,21 +5,27 @@
 # results/figures/panels/programs/panel_5E_one.{svg,png,provenance.json}.
 # ---------------------------------------------------------------------------
 panels_programs:
-  python: /n/lab_storage/eddy_lab/users/nhilgert/.uv/envs/rsc_uv/bin/python
-  cache_dir: /n/lab_storage/eddy_lab/users/nhilgert/.cache_scratch   # matplotlib cache (HOME is full)
+  # Interpreter and caches: config/panels.yaml (panels.python, panels.cache_dir).
 
   regulon_table:
     # Staged copy of the table of record: one row per TF with a floor-6 SCENIC regulon in both species
-    # (Ensembl one-to-one pair); rho = Spearman correlation of regulon activity with pt_harmonized_rank,
-    # computed by scenic_quadrant_rho.py (2026-10-26) and reproduced on the v9 pseudotime. The plot script
-    # refuses a table whose sha256 differs from the pinned value.
-    path: resources/figures/panels_programs/regulon_quadrants_input.csv
-    sha256: 0b93fd193dc8a17e3fad72a47c196f9c97e7b80a45992dafa4b0d859a28e0d40
-    upstream_provenance: resources/figures/panels_programs/scenic_quadrant_rho.provenance.json
-    source_of_record: /n/lab_storage/eddy_lab/users/nhilgert/xmens_figures/scenic_quadrants/regulon_quadrants_input.csv
+    # (Ensembl one-to-one pair); rho = Spearman correlation of regulon activity with pseudotime. Mouse: the
+    # release pt_harmonized_rank. Human: computed on the 30 Oct human pseudotime refit (pseudotime of record,
+    # config pseudotime_of_record.human; pt_rank of the stromal latent refit on the 47,533 fibroblast/decidual
+    # nuclei) by scenic_quadrant_rho_fibdec_latent.py (2026-10-30), which differs from scenic_quadrant_rho.py only
+    # in where the human pseudotime is read. 91_panels_programs.smk checks that the table's provenance names that
+    # pseudotime (sha256); the plot script refuses a table whose sha256 differs from the pinned value. The
+    # previous table (22 Oct human pt_harmonized_rank) stays in the same folder: regulon_quadrants_input.csv,
+    # sha256 0b93fd19...0d40.
+    path: resources/figures/panels_programs/regulon_quadrants_input_fibdec_latent.csv
+    sha256: 6c3c99e07445bb3142af26f8900ea88e67eeb4f4a261de8dbce42a50ad4ae317
+    upstream_provenance: resources/figures/panels_programs/scenic_quadrant_rho_fibdec_latent.provenance.json
+    # (an escaped line break: the path continues on the next line without a space)
+    source_of_record: "/n/lab_storage/eddy_lab/users/nhilgert/tmp/2026_10_30_5e_samap_s30fg/item1_5e/new/\
+      regulon_quadrants_input_fibdec_latent.csv"
 
   fig5e:
     threshold: 0.2   # |rho| needed in both species for a regulon to be coloured (Fig. 5E legend)
     # Regulons named on the manuscript panel, read off the figure. CEBPB (mouse rho 0.166) and IRF1
-    # (human rho 0.190) fall below the threshold in the table of record; they are drawn grey, with names.
+    # (human rho 0.187) fall below the threshold in the table of record; they are drawn grey, with names.
     named: [JUN, WT1, FOSL2, GATA2, FOS, JUNB, KLF6, CEBPB, BPTF, NFIA, IRF1, ETS1, FOXO1]

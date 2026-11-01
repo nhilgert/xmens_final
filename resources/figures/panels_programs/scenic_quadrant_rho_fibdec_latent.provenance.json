@@ -1,0 +1,105 @@
+{
+ "written": "2026-10-30T10:31:31",
+ "pseudotime_column": {
+  "mouse": "pt_harmonized_rank",
+  "human": "pt_rank of HUMAN_PT_TABLE (new pt_harmonized_rank)"
+ },
+ "inputs": {
+  "activity_mouse": {
+   "path": "/n/lab_storage/eddy_lab/users/nhilgert/decidualization/revisions/scenic_v2_2026_08_28/scenic_seeds/mouse/consensus_sketch15k_weighted_soft_occ6_pyscenic_cli/auc_mtx_weighted.csv",
+   "sha256": "f3278a66b66b1fe9d6ace50f5b6f35994bd7c4f43090fb0803d2410d56390029"
+  },
+  "object_mouse": {
+   "path": "/n/netscratch/eddy_lab/Everyone/nhilgert/2026_10_22_flagged_harmonized/Cevrim_XMens_Only_Fib_Dec_Cells.h5ad",
+   "sha256": "75f1a7c58a7e3143c4e66f92e4a81e6198a159c85272bd065933a37ab54e86ee"
+  },
+  "activity_human": {
+   "path": "/n/lab_storage/eddy_lab/users/nhilgert/decidualization/revisions/scenic_v2_2026_08_28/scenic_seeds/human/consensus_sketch15k_weighted_soft_occ6_pyscenic_cli/auc_mtx_weighted.csv",
+   "sha256": "0942335269e63f37845103049282aaf1f6daa8bf9ae1eb317c210cda2ca60def"
+  },
+  "object_human": {
+   "path": "/n/netscratch/eddy_lab/Everyone/nhilgert/2026_10_22_flagged_harmonized/Cevrim_Human_Only_Fib_Dec_Cells.h5ad",
+   "sha256": "36c86b274a88b32831e812c69070ce7009ddd6872405f0365f430f58f41bd192"
+  },
+  "orthologs": {
+   "path": "/n/netscratch/eddy_lab/Everyone/nhilgert/2026_10_30_5e_samap_s30fg/item1_5e/new/ortholog_pairs_one2one.csv",
+   "sha256": "8e00db6a2346d92f1f0800ac00e3cc139df0558695ba92f4b64e06413466812a"
+  }
+ },
+ "species": {
+  "mouse": {
+   "n_obs": 43197,
+   "n_with_pseudotime": 42290,
+   "expected_n_with_pseudotime": 42290,
+   "pt_min": 2.3646252069047056e-05,
+   "pt_max": 1.0,
+   "subtype_column": "cell_subtype",
+   "median_pt": {
+    "decidual_boundary": 0.5432726412863561,
+    "decidual_proliferative": 0.721364388744384,
+    "decidual_mature": 0.9466777015842989
+   },
+   "n_nan_by_subtype": {
+    "decidual_apoptotic": 907
+   },
+   "n_with_pseudotime_missing_activity": 0,
+   "n_activity_nuclei_without_pseudotime": 907,
+   "n_nuclei_correlated": 42290,
+   "n_regulons": 193
+  },
+  "human": {
+   "n_obs": 47533,
+   "n_with_pseudotime": 47533,
+   "expected_n_with_pseudotime": 47533,
+   "pt_min": 2.103801569435971e-05,
+   "pt_max": 1.0,
+   "n_with_pseudotime_missing_activity": 0,
+   "n_activity_nuclei_without_pseudotime": 0,
+   "n_nuclei_correlated": 47533,
+   "n_regulons": 141
+  }
+ },
+ "pt_script_sha256_in_manifest": true,
+ "human_pt_side_table": {
+  "path": "/n/netscratch/eddy_lab/Everyone/nhilgert/2026_10_30_human_fibdec_latent/run4_a40/fibdec/pt_human_pca_released/cells.parquet",
+  "sha256": "956a07cdb97d9a99dd769088a66e717b60956b81b45cb3e3d625057dacb2f94f",
+  "column": "pt_rank",
+  "run_record": "/n/netscratch/eddy_lab/Everyone/nhilgert/2026_10_30_human_fibdec_latent/run4_a40/fibdec/pt_human_pca_released/provenance.json",
+  "run_record_sha256": "a20828f927fcbb9d51ad096050427cb067b05902f7b676ea6057e904d206aee8",
+  "barcodes_match_object": true,
+  "barcodes_match_v9_object": "/n/lab_storage/eddy_lab/users/nhilgert/xmens_final/data/deliverables/2026_10_30/Cevrim_Human_Only_Fib_Dec_Cells.h5ad",
+  "spearman_with_pt_of_record": 0.8915830434735659,
+  "median_pt_by_label": {
+   "decidual_cell": 0.7378768434561251,
+   "endometrial_fibroblast": 0.28750552247911976
+  },
+  "median_pt_by_timepoint": {
+   "menstrual": 0.6327498790314098,
+   "secretory": 0.38026213367555173
+  }
+ },
+ "n_tf_pairs": 111,
+ "labelled": [
+  "CEBPB",
+  "CEBPD",
+  "CREB1",
+  "ETS1",
+  "FOS",
+  "FOSL2",
+  "FOXO1",
+  "FOXO3",
+  "GATA2",
+  "HOXA10",
+  "IRF1",
+  "JUN",
+  "JUNB",
+  "KLF4",
+  "KLF6",
+  "NFKB1",
+  "NR2F2",
+  "STAT1",
+  "TFAP2C",
+  "WT1"
+ ],
+ "labelled_not_paired": []
+}

@@ -3,7 +3,7 @@
 Used by the review notebooks (notebooks/review/) after review_step. review_step gives the cluster table and the
 per-nucleus QC; this module adds the doublet-score summaries the cluster table lacks, where every nucleus was in
 v8 (the v8 extended release and, for the round-2 lineages, the July lineage fit) and, for each EXCLUDE cluster,
-the recorded reason and decision provenance (resources/review/exclusion_reasons_v9.csv, decision_steps_v9.csv).
+the recorded reason and decision provenance (resources/review/exclusion_reasons_<tag>.csv, decision_steps_<tag>.csv).
 """
 import anndata as ad
 import h5py
@@ -110,10 +110,16 @@ def removed_cluster_rows(table, qc, cluster, status, step_info, reasons, origin=
     table, qc: review_step's cluster table and per-nucleus QC; cluster: each nucleus's cluster (aligned with qc).
     status, origin: v8_status and july_origin of every nucleus (origin None outside the round-2 lineages).
     step_info: dict with species, step, fit, object, cluster_column, decisions_table and the step's row of
-    decision_steps_v9.csv (decided_at, approval_date, approver, decision_record).
-    reasons: the step's rows of exclusion_reasons_v9.csv, indexed by cluster.
+    decision_steps_<tag>.csv (decided_at, approval_date, approver, decision_record).
+    reasons: the step's rows of exclusion_reasons_<tag>.csv, indexed by cluster.
     v8_decisions: cluster -> v8 label of the same clustering, or None.
     """
+    # One recorded reason per cluster: a repeated row would put a whole Series into the ledger's text columns.
+    repeated = sorted(set(reasons.index[reasons.index.duplicated()]))
+    if repeated:
+        raise ValueError(f"{step_info['species']} {step_info['step']}: clusters with more than one recorded reason: "
+                         f"{repeated}")
+
     doublets = doublet_summary(qc, cluster)
     kept_clusters = table.loc[~table.excluded, "cluster"]
     kept_scores = qc["doublet_score"].astype(float)[np.isin(cluster, kept_clusters)].dropna()

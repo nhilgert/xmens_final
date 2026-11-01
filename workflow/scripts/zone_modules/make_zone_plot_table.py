@@ -3,7 +3,7 @@
 
 One CSV holds everything fig_zone_modules.py needs, so every figure can be redrawn from it without the h5ad:
     barcode (index), sample, timepoint, cell_type, cell_subtype, x_um_qc, y_um_qc    obs of the release object
-    embedding_outlier                                                               barcode listed in --flag-barcodes
+    embedding_outlier                                                               obs of the release object
     auc_<MODULE> (11 columns)                                                       the run's zone_aucell.csv, unchanged
 Rows are the scored nuclei (the run's timepoints) in object order. x_um_qc / y_um_qc are NaN for nuclei that were never
 placed or failed spatial QC; they still count in the heatmaps.
@@ -16,7 +16,7 @@ import argparse, datetime, hashlib, json, os, sys
 import numpy as np, pandas as pd, h5py
 from anndata.io import read_elem
 
-OBS = ["sample", "timepoint", "cell_type", "cell_subtype", "x_um_qc", "y_um_qc"]
+OBS = ["sample", "timepoint", "cell_type", "cell_subtype", "x_um_qc", "y_um_qc", "embedding_outlier"]
 SCORING_KEYS = ["auc_threshold", "rank_cutoff", "seed", "normalization", "timepoints", "n_scored", "n_vars", "genesets", "versions",
                 "n_ranked", "gene_universe", "aucell_check"]   # last three since 2026-10-26 (absent from older runs: None)
 
@@ -32,7 +32,6 @@ def main():
     ap.add_argument("--obj", required=True)                  # release h5ad (obs is read, nothing else)
     ap.add_argument("--scores", required=True)               # the run's zone_aucell.csv
     ap.add_argument("--scores-provenance", required=True)    # the run's provenance.json
-    ap.add_argument("--flag-barcodes", required=True)        # CSV with a 'barcode' column (embedding outliers)
     ap.add_argument("--out", required=True)                  # <name>.csv; <name>.provenance.json is written next to it
     a = ap.parse_args()
     assert a.out.endswith(".csv"), a.out
@@ -56,9 +55,9 @@ def main():
     order = obs.index[obs.index.isin(S.index)]             # object order
     assert len(order) == len(S)
 
-    flags = set(pd.read_csv(a.flag_barcodes)["barcode"].astype(str))
+    # embedding_outlier as the release object stores it: the flags its release rule set (hidden in spatial panels)
+    assert obs["embedding_outlier"].dtype == bool, f"obs/embedding_outlier is {obs['embedding_outlier'].dtype}"
     T = obs.loc[order].copy()
-    T["embedding_outlier"] = T.index.isin(flags)
     T = T.join(S.loc[order])
     T.index.name = "barcode"
     os.makedirs(os.path.dirname(os.path.abspath(a.out)), exist_ok=True)
@@ -80,7 +79,8 @@ def main():
         "inputs": {"obj": {"path": os.path.abspath(a.obj), "bytes": os.path.getsize(a.obj), "sha256": P.get("obj", {}).get("sha256")},
                    "scores": {"path": os.path.abspath(a.scores), "md5": md5(a.scores)},
                    "scores_provenance": {"path": os.path.abspath(a.scores_provenance), "md5": md5(a.scores_provenance)},
-                   "flag_barcodes": {"path": os.path.abspath(a.flag_barcodes), "md5": md5(a.flag_barcodes), "n_listed": len(flags)}},
+                   "embedding_outlier": {"source": "obs/embedding_outlier of obj",
+                                         "n_flagged_in_object": int(obs["embedding_outlier"].sum())}},
         "scoring": {k: P.get(k) for k in SCORING_KEYS},
     }
     json.dump(prov, open(side, "w"), indent=1)

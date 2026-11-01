@@ -86,6 +86,9 @@ SUBTYPES_APOP = SUBTYPES + ["decAp"]   # variant; this row has the highest mean 
 N_FIB = 5   # first N_FIB rows are endometrial_fibroblast subtypes; a rule separates them from decidual
 CMAP, Q = "magma", 0.99
 META_GREY = "#6f6f6f"
+# No creation dates or software stamps in the files (with the fixed SVG ids of style()), so a re-render of the same
+# plot table is byte-identical.
+FILE_METADATA = {"pdf": {"CreationDate": None}, "svg": {"Date": None}, "png": {"Software": None}}
 
 
 def style():
@@ -93,7 +96,8 @@ def style():
     fam = next((f for f in ("Helvetica Neue", "Helvetica", "Nimbus Sans", "Nimbus Sans L", "DejaVu Sans") if f in avail), "DejaVu Sans")
     plt.rcParams.update({"font.family": [fam, "DejaVu Sans"], "font.size": 8, "axes.titlesize": 9, "axes.labelsize": 8,
                          "xtick.labelsize": 7, "ytick.labelsize": 7, "legend.fontsize": 7, "savefig.dpi": 300,
-                         "pdf.fonttype": 42, "ps.fonttype": 42, "svg.fonttype": "none"})
+                         "pdf.fonttype": 42, "ps.fonttype": 42, "svg.fonttype": "none",
+                         "svg.hashsalt": "zone_modules"})
     return fam
 
 
@@ -342,7 +346,7 @@ def main():
                     sys.exit(f"refusing to overwrite {path} (use --force)")
             fig, info = fn(dark)
             for f, path in paths.items():
-                fig.savefig(path, dpi=a.dpi)   # svg: rasterized scatters embed at this dpi, text stays vector
+                fig.savefig(path, dpi=a.dpi, metadata=FILE_METADATA.get(f))   # svg: rasters at this dpi
             plt.close(fig); path = paths[fmts[0]]
             side = {"figure": os.path.abspath(path), "files": [os.path.abspath(p) for p in paths.values()], "dpi": a.dpi, "written": datetime.datetime.now().isoformat(timespec="seconds"),
                     "note": jnote, "cmap": a.cmap, "aucell_scores": uns,

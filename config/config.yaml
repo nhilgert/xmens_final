@@ -465,14 +465,14 @@ samap_raw:
 # samap_figures (stage 10c, added 2026-10-29) -- SAMap supplementary figure,
 # Fig. 6 transferred-pseudotime panels, and the permutation control of the
 # pseudotime transfer. Rules: workflow/rules/10c_samap_figures.smk;
-# target: samap_figures_all.
+# target: samap_figures_all. Labels, coordinates and embedding_outlier flags come
+# from the release of record (deliverables.version), the human pseudotime from
+# pseudotime_of_record.human.
 # ---------------------------------------------------------------------------
 samap_figures:
-  python: /n/lab_storage/eddy_lab/users/nhilgert/.uv/envs/rsc_uv/bin/python
-  cache_dir: /n/lab_storage/eddy_lab/users/nhilgert/.cache_scratch   # matplotlib/numba caches (HOME is full)
+  # Interpreter and caches: config/panels.yaml (panels.python, panels.cache_dir).
   arm: vanilla_raw                 # SAMap run of record (10b)
   pt_variant: "_harmonized"        # samap_raw pt variant whose transfer the figures show
-  release: "2026_10_22_flagged_harmonized"   # pseudotime transferred; labels, coordinates, embedding_outlier
   ptnull_seed: 20261022
   ptnull_n_perm: 1000              # permutations per design
   main_panel_date: "20261027"      # date stem of the Fig. 6 spatial panel files
@@ -494,18 +494,17 @@ samap_figures:
 # relabel-only). Run and figure names keep the names they were created under (3dpi = 3.5 dpi).
 # ---------------------------------------------------------------------------
 zone_modules:
-  python: /n/lab_storage/eddy_lab/users/nhilgert/.uv/envs/rsc_uv/bin/python   # pyscenic 0.12.1, ctxcore 0.2.0
-  cache_dir: /n/lab_storage/eddy_lab/users/nhilgert/.cache_scratch   # numba/matplotlib caches (HOME is full)
+  # Interpreter (needs pyscenic 0.12.1, ctxcore 0.2.0) and caches: config/panels.yaml (panels.python, cache_dir).
   # 2026-10-30 (user): re-pointed from 2026_10_29b to 2026_10_30 (vocabulary v9; mouse immune, vascular and smc
   # lineages re-annotated in round 2, whole-tissue embedding re-fitted, outlier flags recomputed); the 2026_10_29b
   # results are kept in /n/netscratch/eddy_lab/Everyone/nhilgert/2026_10_30_downstream_backup.
   # 2026-10-29 (user): re-pointed from 2026_10_28 to 2026_10_29b (vocabulary v8; 18 low-quality luminal nuclei
   # dropped, mouse whole-tissue embedding re-fitted, outlier flags recomputed); the 2026_10_28 results are kept in
   # /n/netscratch/eddy_lab/Everyone/nhilgert/2026_10_29b_downstream_backup.
-  h5ad: "data/deliverables/2026_10_30/Cevrim_XMens_All_Cells.h5ad"
-  release_manifest: "data/deliverables/2026_10_30/MANIFEST.json"   # the object's sha256 is checked against this
+  # The object scored is <object_name>.h5ad of the release of record (deliverables.version), its sha256 checked
+  # against that release's MANIFEST.json (16_zone_modules.smk).
   object_name: Cevrim_XMens_All_Cells
-  embedding_outliers: "resources/embedding_outliers_mouse_2026_10_30.csv"   # the release object's embedding_outlier nuclei: hidden in spatial panels, kept in heatmaps
+  # The spatial panels hide the release object's embedding_outlier nuclei (obs embedding_outlier); heatmaps keep them.
   runs:
     table1_auc005_seed0_3dpi:
       genesets: "resources/signatures/aucell_modules_mouse.yaml"
