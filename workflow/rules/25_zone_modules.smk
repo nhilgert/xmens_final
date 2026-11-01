@@ -37,7 +37,7 @@
 # =============================================================================
 import json
 
-include: "91_panels_versions.smk"
+include: "00_panels.smk"
 
 ZM      = config["zone_modules"]
 ZM_RUNS = ZM["runs"]

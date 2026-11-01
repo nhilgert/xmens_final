@@ -18,7 +18,7 @@
 # PYTHONPATH names because Python's safe-path mode (PYTHONSAFEPATH) drops it from sys.path. They run under the
 # panels interpreter (config panels.python) with caches off HOME (PANEL_ENV, 91_panels_versions.smk).
 
-include: "91_panels_versions.smk"
+include: "00_panels.smk"
 
 PANELS_HT_OUT = "results/figures/panels/human_tissue"
 PANELS_HT_SCRIPTS = "workflow/scripts/figures/panels/human_tissue"

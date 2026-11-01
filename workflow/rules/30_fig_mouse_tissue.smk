@@ -24,7 +24,7 @@
 # panels_mouse_tissue_all. The release objects and fits are ancient(): a figure never rebuilds a
 # release or refits a lineage because an mtime moved.
 
-include: "91_panels_versions.smk"
+include: "00_panels.smk"
 
 PMT_PY      = PANEL_PY
 PMT_SCRIPTS = "workflow/scripts/figures/panels/mouse_tissue"

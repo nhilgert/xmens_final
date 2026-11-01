@@ -15,7 +15,7 @@
 
 import json
 
-include: "91_panels_versions.smk"
+include: "00_panels.smk"
 
 configfile: "config/panels_programs.yaml"
 

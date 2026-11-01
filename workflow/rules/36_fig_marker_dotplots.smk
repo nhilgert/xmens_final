@@ -30,7 +30,7 @@
 # 27_review_notebooks.smk, which the Snakefile includes earlier. Target: panels_marker_dotplots_all (not in
 # rule all).
 
-include: "91_panels_versions.smk"
+include: "00_panels.smk"
 
 PMD_PY = PANEL_PY
 PMD_SCRIPTS = "workflow/scripts/figures/panels/marker_dotplots"

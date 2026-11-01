@@ -21,7 +21,7 @@
 # The release objects and MANIFESTs are ancient(): a new release is cut on purpose (04g), never re-run
 # because an mtime moved.
 
-include: "91_panels_versions.smk"
+include: "00_panels.smk"
 
 configfile: "config/panels_mouse_stroma.yaml"
 

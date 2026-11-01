@@ -29,7 +29,7 @@
 # Target: samap_figures_all. The release objects and the SAMap object are ancient(): neither is rebuilt because an
 # mtime moved.
 
-include: "91_panels_versions.smk"
+include: "00_panels.smk"
 
 SF        = config.get("samap_figures", {})
 SF_PY     = PANEL_PY

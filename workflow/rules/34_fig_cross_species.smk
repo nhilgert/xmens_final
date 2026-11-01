@@ -27,7 +27,7 @@
 # Target: panels_cross_species_all. The release objects are ancient(): they are not rebuilt because an mtime moved.
 # The SAMap tables are outputs of 10c for the same release and are rebuilt with it.
 
-include: "91_panels_versions.smk"
+include: "00_panels.smk"
 
 PCS = config.get("panels_cross_species", {})
 PCS_PY = PANEL_PY

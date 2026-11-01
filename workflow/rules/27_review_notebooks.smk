@@ -19,7 +19,7 @@ import yaml as _review_yaml
 # its outputs go to results/annotation_review/<tag>/ and results/notebooks/review/<tag>/, so reviewing a new
 # release adds files and the review of an earlier one stays as rendered.
 
-include: "91_panels_versions.smk"
+include: "00_panels.smk"
 
 REVIEW_VERSION = PANEL_LIVE_TAG
 REVIEW_DIR = f"results/annotation_review/{REVIEW_VERSION}"

@@ -26,7 +26,7 @@
 # mode (PYTHONSAFEPATH) drops it from sys.path. They run under the panels interpreter (config panels.python) with
 # caches off HOME (PANEL_ENV, 91_panels_versions.smk).
 
-include: "91_panels_versions.smk"
+include: "00_panels.smk"
 
 PANELS_HE_RELEASES = [PANEL_LIVE_TAG]
 PANELS_HE_FIT = "data/interim/latent_human_epithelial.h5ad"
