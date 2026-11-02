@@ -46,11 +46,60 @@ rule panels_programs_all:
         multiext(f"{PPG_OUT}/panel_5E_one", *PPG_EXTS),
 
 
+# Step 1 of Fig. 5E: Spearman rho of every floor-6 consensus regulon's activity with the pseudotime (mouse: the release
+# pt_harmonized_rank of the 22 Oct fib/dec object; human: the pseudotime of record), then the quadrant-plot input table.
+# Port of scenic_quadrant_rho_fibdec_latent.py (30 Oct); the AUCell matrices are the SCENIC records (24_scenic.smk) and the
+# ortholog pairs come from rule mi_overlap. The plot rule below checks the result against the pinned sha256 of the table of
+# record, so a change in any input fails loudly instead of redrawing the panel silently.
+PPG_TABLE_DIR = f"{PPG_OUT}/regulon_table"
+PPG_HUMAN_PT = config["pseudotime_of_record"]["human"]
+
+rule programs_regulon_table:
+    input:
+        activity_mouse = ancient(_sc_cli_dir("mouse") + "/auc_mtx_weighted.csv"),
+        activity_human = ancient(_sc_cli_dir("human") + "/auc_mtx_weighted.csv"),
+        object_mouse = ancient(PPG["regulon_table"]["objects"]["mouse"]),
+        object_human = ancient(PPG["regulon_table"]["objects"]["human"]),
+        human_pt = PPG_HUMAN_PT["path"],
+        human_release = f"{RELEASE_DIR}/Cevrim_Human_Only_Fib_Dec_Cells.h5ad",
+        orthologs = rules.mi_overlap.output.pairs,
+        script = f"{PPG_SCRIPTS}/regulon_rho_pseudotime.py",
+    output:
+        table = f"{PPG_TABLE_DIR}/regulon_quadrants_input.csv",
+        provenance = f"{PPG_TABLE_DIR}/provenance.json",
+        rho = expand(f"{PPG_TABLE_DIR}/regulon_rho_pseudotime_{{sp}}.tsv", sp=["mouse", "human"]),
+    params:
+        py = PANEL_PY,
+        env = PPG_ENV,
+        human_pt_col = PPG_HUMAN_PT["column"],
+        human_pt_sha = PPG_HUMAN_PT["sha256"],
+        labelled = ",".join(PPG["regulon_table"]["labelled"]),
+        expected = ",".join(f"{k}={v}" for k, v in PPG["regulon_table"]["expected_n_with_pseudotime"].items()),
+        out_dir = PPG_TABLE_DIR,
+    log:
+        "logs/panels_programs/regulon_table.log",
+    threads: 1
+    resources:
+        mem_mb = 16000,
+        runtime = 30,
+    shell:
+        r"""
+        {params.env}
+        {params.py} -u {input.script} \
+            --activity-mouse {input.activity_mouse} --activity-human {input.activity_human} \
+            --object-mouse {input.object_mouse} --object-human {input.object_human} \
+            --human-pt-table {input.human_pt} --human-pt-col {params.human_pt_col} --human-pt-sha256 {params.human_pt_sha} \
+            --human-release-object {input.human_release} --orthologs {input.orthologs} \
+            --labelled {params.labelled} --expected-n {params.expected} --out-dir {params.out_dir} \
+            > {log} 2>&1
+        """
+
+
 # Fig. 5E: regulon-pseudotime correlation in human and X-Mens, with the manuscript's regulons named.
 rule panels_programs_5e:
     input:
-        table = PPG["regulon_table"]["path"],
-        table_provenance = PPG["regulon_table"]["upstream_provenance"],
+        table = rules.programs_regulon_table.output.table,              # rebuilt in the DAG; sha256 pinned below
+        table_provenance = rules.programs_regulon_table.output.provenance,
         script = f"{PPG_SCRIPTS}/plot_regulon_quadrants.py",
     output:
         multiext(f"{PPG_OUT}/panel_5E_one", *PPG_EXTS),

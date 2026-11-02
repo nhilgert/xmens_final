@@ -23,6 +23,17 @@ panels_programs:
     # (an escaped line break: the path continues on the next line without a space)
     source_of_record: "/n/lab_storage/eddy_lab/users/nhilgert/tmp/2026_10_30_5e_samap_s30fg/item1_5e/new/\
       regulon_quadrants_input_fibdec_latent.csv"
+    # Rule programs_regulon_table rebuilds this table in the DAG (regulon_rho_pseudotime.py, the ported script): the
+    # fibroblast/decidual objects whose obs pt_harmonized_rank is the mouse pseudotime (repo copies of the 22 Oct objects;
+    # the human one only supplies the barcodes and the sanity checks, its pseudotime comes from config
+    # pseudotime_of_record.human), and the human TFs flagged in the table's label column (the 20 canonical
+    # decidualization TFs of the run of record; fig5e.named below is the subset drawn with names).
+    objects:
+      mouse: data/deliverables/2026_10_22_flagged_harmonized/Cevrim_XMens_Only_Fib_Dec_Cells.h5ad
+      human: data/deliverables/2026_10_22_flagged_harmonized/Cevrim_Human_Only_Fib_Dec_Cells.h5ad
+    labelled: [CEBPB, CEBPD, CREB1, ETS1, FOS, FOSL2, FOXO1, FOXO3, GATA2, HOXA10, IRF1, JUN, JUNB, KLF4, KLF6, NFKB1,
+               NR2F2, STAT1, TFAP2C, WT1]
+    expected_n_with_pseudotime: {mouse: 42290, human: 47533}   # recorded in the provenance, not enforced
 
   fig5e:
     threshold: 0.2   # |rho| needed in both species for a regulon to be coloured (Fig. 5E legend)
