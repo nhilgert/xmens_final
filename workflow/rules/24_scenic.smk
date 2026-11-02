@@ -167,7 +167,7 @@ if config["scenic"]["fit"]:
         input:
             loom   = lambda wc: _sc_loom(wc.sc_species, wc.sc_seed),
             tfs    = lambda wc: ancient(_sc_tfs(wc.sc_species)),
-            script = f"{SCENIC_REV}/scripts/grn_only.py",
+            script = ancient("workflow/scripts/scenic/grn_only.py"),   # ancient: moving the script must not re-run 200 GRN seeds
         output:
             adj = _sc_adj_dir("{sc_species}") + "/adjacencies_seed{sc_seed}.tsv",
         params:
@@ -190,7 +190,7 @@ if config["scenic"]["fit"]:
         input:
             adj    = _sc_adj_dir("{sc_species}") + "/adjacencies_seed{sc_seed}.tsv",
             loom   = lambda wc: _sc_loom(wc.sc_species, wc.sc_seed),
-            script = f"{SCENIC_REV}/scripts/ctx_only.py",
+            script = ancient("workflow/scripts/scenic/ctx_only.py"),   # ancient: same
         output:
             pkl = _sc_reg_dir("{sc_species}") + "/regulons_seed{sc_seed}.pkl",
         params:
@@ -215,7 +215,7 @@ if config["scenic"]["fit"]:
             pkls = lambda wc: [_sc_reg_dir(wc.sc_species) + f"/regulons_seed{s}.pkl"
                                for s in SCENIC_SEEDS],
             h5ad   = _sc_pooled_h5ad("{sc_species}"),
-            script = f"{SCENIC_REV}/scripts/build_consensus_aucell.py",
+            script = "workflow/scripts/scenic/build_consensus_aucell.py",
         output:
             # Written by build_consensus_aucell.py into --out-dir (consensus_{tag}_{mode}_occ{floor}/). The regulons
             # (pkl) and the recurrence report are the deliverables; auc_mtx.csv is the script's internal AUCell over
