@@ -1,12 +1,12 @@
 """Permutation control for the SAMap transfer of mouse pseudotime onto human nuclei.
 
-Called by rule samap_ptnull (workflow/rules/10c_samap_figures.smk). Reads the human x mouse block of the joint SAMap
+Called by rule samap_ptnull (workflow/rules/29_fig_samap.smk). Reads the human x mouse block of the joint SAMap
 graph (C_hs_mm.npz with its row and column names) and the per-nucleus tables of export_samap_tables.py. Transfers mouse
 pt_harmonized_rank as samap_transfer_pt.py does, checks the result against the stored transfer of record, then repeats
 the transfer with mouse pseudotime permuted (a) across all mouse nuclei with a value and (b) only among nuclei of the
 same mouse compartment, with the graph held fixed. Per replicate: Spearman rho with the human pseudotime pt_human
 (all nuclei, decidual, fibroblast) and Moran's I of the transferred values (over all nuclei, and within each
-compartment).
+compartment), with spatial neighbors found within each timepoint's tissue section.
 Writes null_replicates.csv, example_transfers.csv, null_summary.json and ptnull_statistics_table.csv in --out-dir.
 """
 import argparse
@@ -22,7 +22,7 @@ from sklearn.neighbors import NearestNeighbors
 
 MOUSE_PT = "pt_harmonized_rank"  # transferred
 HUMAN_PT = "pt_human"  # compared with: export_samap_tables.py's human pseudotime (see its --human-pt)
-SPATIAL_K = 10  # spatial neighbors per nucleus for Moran's I, within one 10x lane
+SPATIAL_K = 10  # spatial neighbors per nucleus for Moran's I, within one timepoint's section
 CHUNK = 250  # replicates transferred per sparse-dense product (memory ~ 47k x CHUNK doubles)
 
 # Statistics reported in the figure and the methods, in display order.
@@ -62,7 +62,7 @@ def spearman_columns(transferred: np.ndarray, human_pt: np.ndarray) -> np.ndarra
     return (ranks * rank_human[:, None]).mean(0)
 
 
-def lane_weights(coords: np.ndarray) -> sp.csr_matrix:
+def knn_weights(coords: np.ndarray) -> sp.csr_matrix:
     """Row-standardized k-nearest-neighbor weights on spatial coordinates (microns)."""
     nn = NearestNeighbors(n_neighbors=SPATIAL_K + 1).fit(coords)
     _, idx = nn.kneighbors(coords)
@@ -123,36 +123,36 @@ def main() -> None:
         "fibroblast": scored & (human["cell_type"] == "endometrial_fibroblast").to_numpy(),
     }
 
-    # Spatial neighbors are found within each 10x lane. The three lanes of a phase share one tissue section and one
-    # coordinate frame; Moran's I is computed per lane and averaged over the six lanes.
+    # Spatial neighbors are found within each timepoint. A timepoint is one tissue section, whose three 10x lanes share
+    # one coordinate frame, so its lanes are pooled; Moran's I is computed per timepoint and averaged over timepoints.
     positioned = scored & human["x_um_qc"].notna().to_numpy()
-    lanes = {
-        lane: np.flatnonzero(positioned & (human["sample"] == lane).to_numpy())
-        for lane in sorted(human["sample"].unique())
+    sections = {
+        timepoint: np.flatnonzero(positioned & (human["timepoint"] == timepoint).to_numpy())
+        for timepoint in sorted(human["timepoint"].unique())
     }
-    weights = {lane: lane_weights(human.iloc[ix][["x_um_qc", "y_um_qc"]].to_numpy()) for lane, ix in lanes.items()}
-    print({k: int(v.sum()) for k, v in subsets.items()}, {lane: len(ix) for lane, ix in lanes.items()})
+    weights = {t: knn_weights(human.iloc[ix][["x_um_qc", "y_um_qc"]].to_numpy()) for t, ix in sections.items()}
+    print({k: int(v.sum()) for k, v in subsets.items()}, {t: len(ix) for t, ix in sections.items()})
 
     # Spatial autocorrelation within one compartment: neighbors are drawn only among that compartment's nuclei in a
-    # lane, so the fibroblast/decidual boundary cannot contribute.
+    # section, so the fibroblast/decidual boundary cannot contribute.
     compartment_cells = {
-        (k, lane): ix[subsets[k][ix]] for k in ("decidual", "fibroblast") for lane, ix in lanes.items()
+        (k, t): ix[subsets[k][ix]] for k in ("decidual", "fibroblast") for t, ix in sections.items()
     }
     compartment_weights = {
-        key: lane_weights(human.iloc[ix][["x_um_qc", "y_um_qc"]].to_numpy()) for key, ix in compartment_cells.items()
+        key: knn_weights(human.iloc[ix][["x_um_qc", "y_um_qc"]].to_numpy()) for key, ix in compartment_cells.items()
     }
-    print({f"{k}/{lane}": len(ix) for (k, lane), ix in compartment_cells.items()})
+    print({f"{k}/{t}": len(ix) for (k, t), ix in compartment_cells.items()})
 
     def statistics(transferred: np.ndarray) -> pd.DataFrame:
         stats = {f"rho_{k}": spearman_columns(transferred[m], human_pt[m]) for k, m in subsets.items()}
-        for lane, ix in lanes.items():
-            stats[f"moran_{lane}"] = morans_i(weights[lane], transferred[ix])
-        stats["moran_all"] = np.mean([stats[f"moran_{lane}"] for lane in lanes], axis=0)
+        for t, ix in sections.items():
+            stats[f"moran_{t}"] = morans_i(weights[t], transferred[ix])
+        stats["moran_all"] = np.mean([stats[f"moran_{t}"] for t in sections], axis=0)
         for k in ("decidual", "fibroblast"):
-            per_lane = [
-                morans_i(compartment_weights[(k, lane)], transferred[compartment_cells[(k, lane)]]) for lane in lanes
+            per_section = [
+                morans_i(compartment_weights[(k, t)], transferred[compartment_cells[(k, t)]]) for t in sections
             ]
-            stats[f"moran_within_{k}"] = np.mean(per_lane, axis=0)
+            stats[f"moran_within_{k}"] = np.mean(per_section, axis=0)
         stats["sd_raw"] = np.nanstd(transferred[scored], axis=0)
         return pd.DataFrame(stats)
 
