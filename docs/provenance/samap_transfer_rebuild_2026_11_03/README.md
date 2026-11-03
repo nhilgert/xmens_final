@@ -22,7 +22,7 @@ snakemake <root>/runs_raw/vanilla_raw/samap_transferred_pt_harmonized.h5ad \
 |---|---|
 | `pt_transferred_hs.csv` | byte-identical (sha256 `5f3535d2…`) |
 | `summary.json` | differs only in the two input paths (`joint`, `pt_source`) |
-| `samap_transferred_pt_harmonized.h5ad` | every obs column identical, the four transfer columns included (max \|diff\| 0, 47,352 human nuclei with a value); every dataset outside obs identical except `uns/provenance`, whose `pt_transfer.attached` timestamp and `source_csv` path differ |
+| `samap_transferred_pt_harmonized.h5ad` | every obs column identical, the four transfer columns included (max \|diff\| 0; the three pseudotime variants have a value on 47,352 human nuclei, the weight on all 47,533); every dataset outside obs identical except `uns/provenance`, whose `pt_transfer.attached` timestamp and `source_csv` path differ |
 
 Files: `transfer_rebuild_report.json` (written by `compare_transfer_rebuild.py`), `transfer_rebuild_snakemake.log`
 (the run), `uns_provenance.txt` (both provenance strings). The rebuilt files stay in
