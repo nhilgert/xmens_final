@@ -5,7 +5,7 @@
 #   data/deliverables/<release>/Cevrim_{XMens,Human}_Only_Fib_Dec_Cells.h5ad   (release of record)
 #     --(samap_fibdec_plot_table)--> results/plot_tables/<release>/{mouse,human}_fibdec_plot_table.parquet
 #   runs_raw/<arm>/samap_transferred_pt_harmonized.h5ad     (10b: samap_raw_attach_pt, variant _harmonized)
-#     --(samap_graph_block)-->   results/samap_figures/graph_block/C_hs_mm.npz (+ names, meta.json)
+#     --(samap_graph_block)-->   results/samap_figures/<tag>/graph_block/C_hs_mm.npz (+ names, meta.json)
 #     --(samap_figure_tables)--> results/samap_figures/<tag>/tables/{joint.parquet, mouse_cells.csv,
 #                                                                    human_cells.csv, provenance.json}
 #     --(samap_edge_share)-->    results/samap_figures/<tag>/edge_share/samap_compartment_edge_share.csv
@@ -23,11 +23,22 @@
 # pseudotime transferred is the mouse pt_harmonized_rank of 2026_10_22_flagged_harmonized (10b), identical in every
 # later release. Human pseudotime, which the figures and the permutation control compare the transfer with, is the
 # human pseudotime of record (config pseudotime_of_record.human; sha256 checked). Display rules as in Fig. 6: fixed
-# 0-1 viridis, values as stored, embedding outliers not drawn; every statistic uses all nuclei. A release cut draws
+# 0-1 viridis, values as stored, every nucleus drawn (embedding_outlier is a flag only since 1 Nov 2026; before that
+# Fig. 6C and 6E left the flagged nuclei out); every statistic uses all nuclei. A release cut draws
 # a new set beside the earlier ones; the sets drawn before version tags were used here (unversioned folders) stay
 # as they are. methods_numbers reads results/samap_figures/<tag>/ptnull/ptnull_statistics_table.csv.
 # Target: samap_figures_all. The release objects and the SAMap object are ancient(): neither is rebuilt because an
 # mtime moved.
+#
+# config/samap_figures_final_objects.yaml draws the same set from the deposited final objects instead (tag final):
+# the two fib/dec objects and their embedding_outlier tables, named with their sha256 in
+# resources/final_objects/MANIFEST.json, and Samap_Final.h5ad, the SAMap object above with its obs cut to six columns.
+# docs/SAMAP_FIGURES.md has the commands and the provenance of every input.
+
+import json as _sf_json
+import re as _sf_re
+from pathlib import Path
+
 
 include: "00_panels.smk"
 
@@ -36,15 +47,37 @@ SF_PY     = PANEL_PY
 SF_CACHE  = PANEL_CACHE
 SF_ARM    = SF.get("arm", "vanilla_raw")
 SF_PT     = SF.get("pt_variant", "_harmonized")
-SF_JOINT  = f"{SR_ROOT}/runs_raw/{SF_ARM}/samap_transferred_pt{SF_PT}.h5ad"
+# samap_figures.joint may name another copy of this object, e.g. the deposited Samap_Final.h5ad (same graph and UMAP,
+# obs cut to six columns); its sha256 is checked either way.
+SF_JOINT  = SF.get("joint") or f"{SR_ROOT}/runs_raw/{SF_ARM}/samap_transferred_pt{SF_PT}.h5ad"
 SF_JOINT_SHA256 = SF["joint_sha256"]   # verified by export_samap_tables.py; see config
 
+# obs column of the joint object holding the transfer of record; the tables write it as
+# transferred_mm_dpt_pseudotime_ranknorm whatever the object calls it (Samap_Final.h5ad: transferred_mouse_pseudotime).
+SF_TRANSFER_COL = SF.get("transfer_column", "transferred_mm_dpt_pseudotime_ranknorm")
+# obs column of the joint object with SAMap's own compartment labels, for the edge-share variants; empty for an object
+# without them (Samap_Final.h5ad), which leaves the release labels only.
+SF_JOINT_LABELS_COL = SF.get("joint_labels_column", "cell_type_annotations")
+
 # Release of record: its version tag names every output folder below, its folder the plot tables.
-SF_TAG     = PANEL_LIVE_TAG
-SF_RELEASE = PANEL_LIVE_RELEASE
+# samap_figures.tag and .release draw the set from another object folder (e.g. the deposited final objects)
+# without changing the release of record of the other figures.
+SF_TAG     = SF.get("tag", PANEL_LIVE_TAG)
+SF_RELEASE = SF.get("release", PANEL_LIVE_RELEASE)
 SF_TABLES  = f"results/plot_tables/{SF_RELEASE}/{{species}}_fibdec_plot_table.parquet"
 SF_OUT     = f"results/samap_figures/{SF_TAG}"
 SF_LOGS    = f"logs/samap_figures/{SF_TAG}"
+# Each set has its own graph block, so drawing a set from another SAMap object never rewrites an earlier set's.
+SF_GRAPH   = f"{SF_OUT}/graph_block"
+
+# A release folder holds its objects and MANIFEST.json (data/deliverables/<release>). A set outside it, such as the
+# deposited final objects, is named by samap_figures.release_manifest: a MANIFEST of the same form whose entries also
+# give each object's path and, where the flags are not in obs, its embedding_outlier table.
+SF_RELEASE_MANIFEST = SF.get("release_manifest")
+SF_MANIFEST_SETS = {SF_RELEASE: SF_RELEASE_MANIFEST} if SF_RELEASE_MANIFEST else {}
+SF_MANIFEST_OBJECTS = (
+    _sf_json.loads(Path(SF_RELEASE_MANIFEST).read_text())["objects"] if SF_RELEASE_MANIFEST else {}
+)
 
 # Human pseudotime compared with the transfer: the human pseudotime of record (decision G; config
 # pseudotime_of_record.human), the 30 Oct 2026 refit on the run4 human fibroblast/decidual latent.
@@ -61,31 +94,66 @@ assert SF_PT in SR_PT_VARIANTS, f"samap_figures.pt_variant {SF_PT!r} is not a sa
 # Object, embeddings and genes of each species' plot table: the columns of the 2026_10_22 tables the figures were
 # first drawn from.
 SF_PLOT_TABLE_OBJECTS = {"mouse": "Cevrim_XMens_Only_Fib_Dec_Cells", "human": "Cevrim_Human_Only_Fib_Dec_Cells"}
-SF_PLOT_TABLE_EMBEDDINGS = {
+SF_PLOT_TABLE_EMBEDDINGS = SF.get("plot_table_embeddings", {
     "mouse": "X_spatial,X_umap,X_umap_scVI",
     "human": "X_spatial,X_umap_scVI,X_umap_wholetissue",
-}
-SF_PLOT_TABLE_GENES = {"mouse": "Notum", "human": "NOTUM"}
+})
+SF_PLOT_TABLE_DIFFMAP = SF.get("plot_table_diffmap", "X_diffmap_harmonized")
+SF_PLOT_TABLE_GENES = SF.get("plot_table_genes", {"mouse": "Notum", "human": "NOTUM"})
+
+# Pseudotime columns of the release objects. Releases up to v9 store the mouse pseudotime transferred as
+# pt_harmonized_rank; the deposited final objects store each species' pseudotime of record as obs "pseudotime".
+# human_pt_from_release, when set, takes the human pseudotime drawn from that obs column, which must equal the
+# pseudotime of record on every nucleus.
+SF_MOUSE_PT_COL = SF.get("mouse_pt_column", "pt_harmonized_rank")
+SF_HUMAN_PT_RELEASE_COL = SF.get("human_pt_from_release") or ""
+
+
+def sf_plot_table_object(wildcards):
+    """Fib/dec object of one plot table: in its release folder, or at the path its set's MANIFEST names."""
+    name = SF_PLOT_TABLE_OBJECTS[wildcards.pt_species]
+    if wildcards.pt_release in SF_MANIFEST_SETS:
+        return ancient(SF_MANIFEST_OBJECTS[name]["path"])
+    return ancient(f"data/deliverables/{wildcards.pt_release}/{name}.h5ad")
+
+
+def sf_plot_table_manifest(wildcards):
+    """MANIFEST.json of a release folder (cut once, hence ancient), or the tracked MANIFEST of a set outside one."""
+    # A tracked MANIFEST can be re-pinned; its mtime then rebuilds the tables, and the new sha256 is checked.
+    if wildcards.pt_release in SF_MANIFEST_SETS:
+        return SF_MANIFEST_SETS[wildcards.pt_release]
+    return ancient(f"data/deliverables/{wildcards.pt_release}/MANIFEST.json")
+
+
+def sf_plot_table_outliers(wildcards):
+    """embedding_outlier table of an object whose flags are not in obs; release objects have none."""
+    if wildcards.pt_release not in SF_MANIFEST_SETS:
+        return []
+    table = SF_MANIFEST_OBJECTS[SF_PLOT_TABLE_OBJECTS[wildcards.pt_species]].get("embedding_outlier_table")
+    return ancient(table["path"]) if table else []
 
 
 # Per-nucleus plot table of one fib/dec release object: labels, QC'd positions, embedding_outlier flags,
 # pseudotime, embeddings and diffusion components, for samap_figure_tables, samap_fig6c/6e and Fig. 6E (91). Written
-# under results/, so a published release folder is never written to.
+# under results/, so a published release folder is never written to. The deposited final objects keep their flags in
+# a table beside them (moved out of obs on 2 Nov 2026), which the plot table joins back.
 rule samap_fibdec_plot_table:
     input:
-        h5ad     = lambda wc: ancient(f"data/deliverables/{wc.pt_release}/{SF_PLOT_TABLE_OBJECTS[wc.pt_species]}.h5ad"),
-        manifest = lambda wc: ancient(f"data/deliverables/{wc.pt_release}/MANIFEST.json"),
+        h5ad     = sf_plot_table_object,
+        manifest = sf_plot_table_manifest,
+        outliers = sf_plot_table_outliers,
         script   = "workflow/scripts/samap/make_fibdec_plot_table.py",
     output:
         table      = "results/plot_tables/{pt_release}/{pt_species}_fibdec_plot_table.parquet",
         provenance = "results/plot_tables/{pt_release}/{pt_species}_fibdec_plot_table.provenance.json",
     wildcard_constraints:
         pt_species = "mouse|human",
-        pt_release = r"\d{4}_\d{2}_\d{2}[a-z]?",
+        pt_release = "|".join([r"\d{4}_\d{2}_\d{2}[a-z]?", *map(_sf_re.escape, SF_MANIFEST_SETS)]),
     params:
         py         = SF_PY,
         env        = SF_ENV,
         embeddings = lambda wc: SF_PLOT_TABLE_EMBEDDINGS[wc.pt_species],
+        diffmap    = SF_PLOT_TABLE_DIFFMAP,
         genes      = lambda wc: SF_PLOT_TABLE_GENES[wc.pt_species],
     threads: 1
     resources:
@@ -98,7 +166,9 @@ rule samap_fibdec_plot_table:
         {params.py} -u {input.script} \
             --h5ad {input.h5ad} \
             --manifest {input.manifest} \
+            --outlier-table '{input.outliers}' \
             --embeddings {params.embeddings} \
+            --diffmap-key {params.diffmap} \
             --genes '{params.genes}' \
             --out {output.table} \
             --provenance {output.provenance} \
@@ -112,19 +182,19 @@ rule samap_graph_block:
         joint  = ancient(SF_JOINT),
         script = "workflow/scripts/samap/export_graph_block.py",
     output:
-        npz  = "results/samap_figures/graph_block/C_hs_mm.npz",
-        hs   = "results/samap_figures/graph_block/hs_names.txt",
-        mm   = "results/samap_figures/graph_block/mm_names.txt",
-        meta = "results/samap_figures/graph_block/meta.json",
+        npz  = f"{SF_GRAPH}/C_hs_mm.npz",
+        hs   = f"{SF_GRAPH}/hs_names.txt",
+        mm   = f"{SF_GRAPH}/mm_names.txt",
+        meta = f"{SF_GRAPH}/meta.json",
     params:
         py     = SF_PY,
         env    = SF_ENV,
-        outdir = "results/samap_figures/graph_block",
+        outdir = SF_GRAPH,
     threads: 1
     resources:
         mem_mb = 16000, runtime = 30,
     log:
-        "logs/samap_figures/graph_block.log",
+        f"{SF_LOGS}/graph_block.log",
     shell:
         r"""
         {params.env}
@@ -157,6 +227,9 @@ rule samap_figure_tables:
         human_pt_sha = SF_HUMAN_PT_SHA256,
         joint_sha    = SF_JOINT_SHA256,
         release      = SF_RELEASE,
+        mouse_pt_col = SF_MOUSE_PT_COL,
+        human_pt_release_col = SF_HUMAN_PT_RELEASE_COL,
+        transfer_col = SF_TRANSFER_COL,
     threads: 1
     resources:
         mem_mb = 8000, runtime = 20,
@@ -174,6 +247,9 @@ rule samap_figure_tables:
             --human-pt-col {params.human_pt_col} \
             --human-pt-sha256 {params.human_pt_sha} \
             --release {params.release} \
+            --mouse-pt-col {params.mouse_pt_col} \
+            --human-pt-release-col "{params.human_pt_release_col}" \
+            --transfer-col {params.transfer_col} \
             --out-dir {params.outdir} \
             > {log} 2>&1
         """
@@ -190,9 +266,10 @@ rule samap_edge_share:
         figure   = f"{SF_OUT}/edge_share/samap_compartment_edge_share.csv",
         variants = f"{SF_OUT}/edge_share/samap_compartment_edge_share_all.csv",
     params:
-        py     = SF_PY,
-        env    = SF_ENV,
-        outdir = f"{SF_OUT}/edge_share",
+        py         = SF_PY,
+        env        = SF_ENV,
+        outdir     = f"{SF_OUT}/edge_share",
+        labels_col = SF_JOINT_LABELS_COL,
     threads: 1
     resources:
         mem_mb = 16000, runtime = 30,
@@ -205,6 +282,7 @@ rule samap_edge_share:
             --joint {input.joint} \
             --human-cells {input.human} \
             --mouse-cells {input.mouse} \
+            --samap-labels-col "{params.labels_col}" \
             --out-dir {params.outdir} \
             > {log} 2>&1
         """
@@ -214,9 +292,9 @@ rule samap_edge_share:
 # (supplement panels f-g; methods paragraph on the permutation control).
 rule samap_ptnull:
     input:
-        npz    = "results/samap_figures/graph_block/C_hs_mm.npz",
-        hs     = "results/samap_figures/graph_block/hs_names.txt",
-        mm     = "results/samap_figures/graph_block/mm_names.txt",
+        npz    = f"{SF_GRAPH}/C_hs_mm.npz",
+        hs     = f"{SF_GRAPH}/hs_names.txt",
+        mm     = f"{SF_GRAPH}/mm_names.txt",
         mouse  = f"{SF_OUT}/tables/mouse_cells.csv",
         human  = f"{SF_OUT}/tables/human_cells.csv",
         script = "workflow/scripts/samap/ptnull_permutation.py",
@@ -228,7 +306,7 @@ rule samap_ptnull:
     params:
         py       = SF_PY,
         env      = SF_ENV,
-        graphdir = "results/samap_figures/graph_block",
+        graphdir = SF_GRAPH,
         outdir   = f"{SF_OUT}/ptnull",
         seed     = SF.get("ptnull_seed", 20261022),
         n_perm   = SF.get("ptnull_n_perm", 1000),
@@ -427,7 +505,7 @@ rule samap_fig6e:
         human    = SF_HUMAN_TABLE,
     output:
         expand(SF_MAIN_DIR + "/" + SF_MAIN_DATE + "-Human-{phase}-transferred_pseudotime-spatial.{ext}",
-               phase=["secretory", "menstrual"], ext=["png", "pdf"]),
+               phase=["secretory", "menstrual"], ext=["png", "pdf", "svg"]),
         expand(SF_MAIN_DIR + "/" + SF_MAIN_DATE + "-spatial_key_transferred_pseudotime.{ext}",
                ext=["png", "pdf", "svg"]),
         provenance = SF_MAIN_DIR + "/fig6e_sections_transferred_pseudotime.provenance.json",
@@ -460,6 +538,55 @@ rule samap_fig6e:
         """
 
 
+# Cell identity transferred onto human nuclei, the twin of Fig. 6C: the mouse cell_type carrying most of each human
+# nucleus's cross-species edge weight (graph block of samap_graph_block), on the joint UMAP on black, with and without
+# the mouse nuclei underneath; also the per-nucleus transferred labels and their agreement with the native labels.
+rule samap_fig6_cell_type:
+    input:
+        notebook = SF_NOTEBOOKS + "/fig6_umap_transferred_cell_type.ipynb",
+        joint    = SF_FIGURE_TABLES["JOINT"],
+        mouse    = SF_FIGURE_TABLES["MOUSE_CELLS"],
+        human    = SF_FIGURE_TABLES["HUMAN_CELLS"],
+        npz      = f"{SF_GRAPH}/C_hs_mm.npz",
+        hs       = f"{SF_GRAPH}/hs_names.txt",
+        mm       = f"{SF_GRAPH}/mm_names.txt",
+        colors   = "workflow/scripts/figures/panels/cross_species/cross_species_panels.py",
+    output:
+        expand(SF_MAIN_DIR + "/{stem}.{ext}",
+               stem=["umap_dark_transferred_cell_type", "umap_dark_transferred_cell_type_humanonly"],
+               ext=["png", "svg", "pdf"]),
+        table      = SF_MAIN_DIR + "/transferred_cell_type.csv",
+        provenance = SF_MAIN_DIR + "/fig6_umap_transferred_cell_type.provenance.json",
+        executed   = SF_EXECUTED + "/fig6_umap_transferred_cell_type.executed.ipynb",
+    params:
+        env       = SF_NB_ENV,
+        papermill = SF_BIN + "/papermill",
+        cwd       = SF_NOTEBOOKS,
+        out       = SF_MAIN_DIR,
+        graphdir  = SF_GRAPH,
+    threads: 1
+    resources:
+        mem_mb = 8000, runtime = 20,
+    log:
+        f"{SF_LOGS}/fig6_cell_type.log",
+    shell:
+        r"""
+        {params.env}
+        {params.papermill} {input.notebook} {output.executed} \
+            --cwd {params.cwd} \
+            -p REPO "$PWD" \
+            -p NOTEBOOK {input.notebook} \
+            -p JOINT {input.joint} \
+            -p MOUSE_CELLS {input.mouse} \
+            -p HUMAN_CELLS {input.human} \
+            -p GRAPH_DIR {params.graphdir} \
+            -p OUT {params.out} \
+            -p FORCE True \
+            --log-output \
+            > {log} 2>&1
+        """
+
+
 # Every SAMap figure and table of the release of record: the plot tables, Fig. 6C and 6E, the S30 supplement, the
 # edge shares and the permutation statistics (methods_numbers).
 rule samap_figures_all:
@@ -470,3 +597,4 @@ rule samap_figures_all:
         rules.samap_supp_figure.output,
         rules.samap_fig6c.output,
         rules.samap_fig6e.output,
+        rules.samap_fig6_cell_type.output,

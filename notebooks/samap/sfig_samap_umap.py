@@ -14,13 +14,14 @@ OTHER_SPECIES = "#d4d4d4"  # nuclei of the species whose values a panel does not
 AXIS_GREY = "#555555"      # UMAP axis arrows and their labels
 
 
-def load_umap_cells(joint_path, mouse_cells_path, human_cells_path, draw_outliers: bool) -> dict:
+def load_umap_cells(joint_path, mouse_cells_path, human_cells_path) -> dict:
     """Nuclei drawn on the UMAPs, each species in a seeded random order, and the frame around them.
 
-    Nuclei flagged embedding_outlier in the release are drawn when draw_outliers is True (S30 shows every nucleus;
-    Fig. 6C and 6E leave them out). The random order keeps early or late nuclei from always sitting on top; the seeds
-    and the joint object's nucleus order fix it. Returns {"mouse", "human"} DataFrames (umap1, umap2 and the
-    values), "xlim", "ylim", "aspect", and the flagged nuclei and those left out, per species.
+    Every nucleus is drawn, those flagged embedding_outlier in the release included (decision of 1 Nov 2026: the
+    flag is carried in the tables but no panel hides it; before that Fig. 6C and 6E left the flagged nuclei out).
+    The random order keeps early or late nuclei from always sitting on top; the seeds and the joint object's nucleus
+    order fix it. Returns {"mouse", "human"} DataFrames (umap1, umap2 and the values), "xlim", "ylim", "aspect", and
+    the number of flagged nuclei per species.
     """
     umap = (
         pd.read_parquet(joint_path, columns=["species", "X_umap__0", "X_umap__1"])
@@ -45,17 +46,16 @@ def load_umap_cells(joint_path, mouse_cells_path, human_cells_path, draw_outlier
         ((umap.species == "hs") & umap.index.isin(flagged_human))
         | ((umap.species == "mm") & umap.index.isin(flagged_mouse))
     )
-    drawn = umap if draw_outliers else umap[~is_outlier]
     flagged = {
         "mouse": int((umap.species[is_outlier] == "mm").sum()),
         "human": int((umap.species[is_outlier] == "hs").sum()),
     }
 
-    mouse_drawn = drawn[drawn.species == "mm"].join(mouse_values[["pt_rank", "cell_type", "cell_subtype"]], how="left")
-    human_drawn = drawn[drawn.species == "hs"].join(human_values[["pt_ranknorm", "pt_human", "cell_type"]], how="left")
+    mouse_drawn = umap[umap.species == "mm"].join(mouse_values[["pt_rank", "cell_type", "cell_subtype"]], how="left")
+    human_drawn = umap[umap.species == "hs"].join(human_values[["pt_ranknorm", "pt_human", "cell_type"]], how="left")
 
-    # Frame: the drawn nuclei plus 2% of their range on each side.
-    xy = drawn[["umap1", "umap2"]].values
+    # Frame: every nucleus plus 2% of the range on each side.
+    xy = umap[["umap1", "umap2"]].values
     pad = 0.02 * (xy.max(0) - xy.min(0))
     xlim = (xy[:, 0].min() - pad[0], xy[:, 0].max() + pad[0])
     ylim = (xy[:, 1].min() - pad[1], xy[:, 1].max() + pad[1])
@@ -67,7 +67,6 @@ def load_umap_cells(joint_path, mouse_cells_path, human_cells_path, draw_outlier
         "ylim": ylim,
         "aspect": (xlim[1] - xlim[0]) / (ylim[1] - ylim[0]),
         "outliers_flagged": flagged,
-        "outliers_left_out": {"mouse": 0, "human": 0} if draw_outliers else flagged,
     }
 
 

@@ -1,0 +1,337 @@
+{
+ "original_dir": "/n/lab_storage/eddy_lab/users/nhilgert/code/samap-scvi/full_fibdec/runs_raw/vanilla_raw",
+ "rebuilt_dir": "/n/lab_storage/eddy_lab/users/nhilgert/tmp/2026_11_03_fig6c_pipeline/samap_raw_root/runs_raw/vanilla_raw",
+ "files": {
+  "pt_transfer_harmonized/pt_transferred_hs.csv": {
+   "original_sha256": "5f3535d27af956c87f2ccb9eb1e571ab38420997b04a7fc969a9470bfb0239f1",
+   "rebuilt_sha256": "5f3535d27af956c87f2ccb9eb1e571ab38420997b04a7fc969a9470bfb0239f1",
+   "original_bytes": 5262397,
+   "rebuilt_bytes": 5262397,
+   "byte_identical": true
+  },
+  "pt_transfer_harmonized/summary.json": {
+   "original_sha256": "f009afdd7c06db0e56e3425673eb396cac67c60e30e560db03f41f6de759b2c9",
+   "rebuilt_sha256": "9e1d0f9f155f48fee05c57345ce84899a7652310f18a6c8a761d66af3c91bbef",
+   "original_bytes": 1515,
+   "rebuilt_bytes": 1509,
+   "byte_identical": false
+  },
+  "samap_transferred_pt_harmonized.h5ad": {
+   "original_sha256": "62fb75d7c2ca3e739299be48695476b6c7a8ac48a05c9226c3c0cb47b8a3ad84",
+   "rebuilt_sha256": "e79192bd8445bf9f90899e7aea6aa59d6e791ab361cc64278190f86371980624",
+   "original_bytes": 1530794054,
+   "rebuilt_bytes": 1530794054,
+   "byte_identical": false
+  }
+ },
+ "csv": {
+  "same_index_and_order": true,
+  "columns_only_in_original": [],
+  "columns_only_in_rebuilt": [],
+  "columns": {
+   "pt_raw": {
+    "identical": true,
+    "nan_pattern_equal": true,
+    "max_abs_diff": 0.0,
+    "n_values": 47352
+   },
+   "weight": {
+    "identical": true,
+    "nan_pattern_equal": true,
+    "max_abs_diff": 0.0,
+    "n_values": 47533
+   },
+   "pt_ranknorm": {
+    "identical": true,
+    "nan_pattern_equal": true,
+    "max_abs_diff": 0.0,
+    "n_values": 47352
+   },
+   "pt_ranknorm_insample": {
+    "identical": true,
+    "nan_pattern_equal": true,
+    "max_abs_diff": 0.0,
+    "n_values": 47352
+   }
+  }
+ },
+ "summary_json_differing_keys": [
+  "joint",
+  "pt_source"
+ ],
+ "summary_json_differing": {
+  "joint": {
+   "original": "/n/lab_storage/eddy_lab/users/nhilgert/code/samap-scvi/full_fibdec/runs_raw/vanilla_raw/samap_transferred.h5ad",
+   "rebuilt": "/n/lab_storage/eddy_lab/users/nhilgert/tmp/2026_11_03_fig6c_pipeline/samap_raw_root/runs_raw/vanilla_raw/samap_transferred.h5ad"
+  },
+  "pt_source": {
+   "original": "/n/netscratch/eddy_lab/Everyone/nhilgert/2026_10_22_flagged_harmonized/Cevrim_XMens_Only_Fib_Dec_Cells.h5ad",
+   "rebuilt": "data/deliverables/2026_10_22_flagged_harmonized/Cevrim_XMens_Only_Fib_Dec_Cells.h5ad"
+  }
+ },
+ "object": {
+  "obs": {
+   "same_index_and_order": true,
+   "columns_only_in_original": [],
+   "columns_only_in_rebuilt": [],
+   "columns": {
+    "hs_sample": {
+     "identical": true,
+     "n_differ": 0
+    },
+    "hs_cell_barcode": {
+     "identical": true,
+     "n_differ": 0
+    },
+    "hs_timepoint": {
+     "identical": true,
+     "n_differ": 0
+    },
+    "hs_coarse_refined": {
+     "identical": true,
+     "n_differ": 0
+    },
+    "hs_fine_refined": {
+     "identical": true,
+     "n_differ": 0
+    },
+    "hs_origin_lineage": {
+     "identical": true,
+     "n_differ": 0
+    },
+    "hs_lineage": {
+     "identical": true,
+     "n_differ": 0
+    },
+    "hs_cell_type": {
+     "identical": true,
+     "n_differ": 0
+    },
+    "hs_subtype": {
+     "identical": true,
+     "n_differ": 0
+    },
+    "hs_annotation_level": {
+     "identical": true,
+     "n_differ": 0
+    },
+    "hs_cell_subtype": {
+     "identical": true,
+     "n_differ": 0
+    },
+    "hs_dpt_pseudotime_provenance": {
+     "identical": true,
+     "n_differ": 0
+    },
+    "hs_spatial_qc_reason": {
+     "identical": true,
+     "n_differ": 0
+    },
+    "hs_cell_type_annotations": {
+     "identical": true,
+     "n_differ": 0
+    },
+    "hs_cell_subtype_annotations": {
+     "identical": true,
+     "n_differ": 0
+    },
+    "hs_leiden_clusters": {
+     "identical": true,
+     "n_differ": 0
+    },
+    "mm_sample": {
+     "identical": true,
+     "n_differ": 0
+    },
+    "mm_cell_barcode": {
+     "identical": true,
+     "n_differ": 0
+    },
+    "mm_timepoint": {
+     "identical": true,
+     "n_differ": 0
+    },
+    "mm_coarse_refined": {
+     "identical": true,
+     "n_differ": 0
+    },
+    "mm_fine_refined": {
+     "identical": true,
+     "n_differ": 0
+    },
+    "mm_origin_lineage": {
+     "identical": true,
+     "n_differ": 0
+    },
+    "mm_cell_type": {
+     "identical": true,
+     "n_differ": 0
+    },
+    "mm_cell_subtype": {
+     "identical": true,
+     "n_differ": 0
+    },
+    "mm_spatial_qc_reason": {
+     "identical": true,
+     "n_differ": 0
+    },
+    "mm_cell_type_annotations": {
+     "identical": true,
+     "n_differ": 0
+    },
+    "mm_cell_subtype_annotations": {
+     "identical": true,
+     "n_differ": 0
+    },
+    "mm_leiden_clusters": {
+     "identical": true,
+     "n_differ": 0
+    },
+    "batch": {
+     "identical": true,
+     "n_differ": 0
+    },
+    "species": {
+     "identical": true,
+     "n_differ": 0
+    },
+    "sample": {
+     "identical": true,
+     "n_differ": 0
+    },
+    "timepoint": {
+     "identical": true,
+     "n_differ": 0
+    },
+    "cell_type_annotations": {
+     "identical": true,
+     "n_differ": 0
+    },
+    "cell_subtype_annotations": {
+     "identical": true,
+     "n_differ": 0
+    },
+    "transferred_mm_coarse": {
+     "identical": true,
+     "n_differ": 0
+    },
+    "transferred_mm_coarse_confidence": {
+     "identical": true,
+     "nan_pattern_equal": true,
+     "max_abs_diff": 0.0,
+     "n_values": 47533
+    },
+    "transferred_mm_fine": {
+     "identical": true,
+     "n_differ": 0
+    },
+    "transferred_mm_fine_confidence": {
+     "identical": true,
+     "nan_pattern_equal": true,
+     "max_abs_diff": 0.0,
+     "n_values": 47533
+    },
+    "transferred_hs_coarse": {
+     "identical": true,
+     "n_differ": 0
+    },
+    "transferred_hs_coarse_confidence": {
+     "identical": true,
+     "nan_pattern_equal": true,
+     "max_abs_diff": 0.0,
+     "n_values": 43197
+    },
+    "transferred_mm_dpt_pseudotime": {
+     "identical": true,
+     "nan_pattern_equal": true,
+     "max_abs_diff": 0.0,
+     "n_values": 47352
+    },
+    "transferred_mm_dpt_pseudotime_ranknorm": {
+     "identical": true,
+     "nan_pattern_equal": true,
+     "max_abs_diff": 0.0,
+     "n_values": 47352
+    },
+    "transferred_mm_dpt_pseudotime_ranknorm_insample": {
+     "identical": true,
+     "nan_pattern_equal": true,
+     "max_abs_diff": 0.0,
+     "n_values": 47352
+    },
+    "transferred_mm_dpt_pseudotime_weight": {
+     "identical": true,
+     "nan_pattern_equal": true,
+     "max_abs_diff": 0.0,
+     "n_values": 47533
+    }
+   }
+  },
+  "non_obs_items": 49,
+  "non_obs_only_in_original": [],
+  "non_obs_only_in_rebuilt": [],
+  "non_obs_differing": [
+   "uns/provenance"
+  ],
+  "non_obs_differing_detail": {
+   "uns/provenance": {
+    "original": {
+     "attrs": [
+      [
+       "encoding-type",
+       "'string'"
+      ],
+      [
+       "encoding-version",
+       "'0.2.0'"
+      ]
+     ],
+     "dtype": "object",
+     "shape": [],
+     "sha256": "7d73c4f164063c62f718a25abe6f27d8ee0a6b939686ab53a0c5e3775829da04"
+    },
+    "rebuilt": {
+     "attrs": [
+      [
+       "encoding-type",
+       "'string'"
+      ],
+      [
+       "encoding-version",
+       "'0.2.0'"
+      ]
+     ],
+     "dtype": "object",
+     "shape": [],
+     "sha256": "fd43e02b90d922669edd0e3a6028c7c24234d41ca15cecb5f28f22cabc86538c"
+    }
+   }
+  }
+ },
+ "transfer_columns": {
+  "transferred_mm_dpt_pseudotime": {
+   "identical": true,
+   "nan_pattern_equal": true,
+   "max_abs_diff": 0.0,
+   "n_values": 47352
+  },
+  "transferred_mm_dpt_pseudotime_ranknorm": {
+   "identical": true,
+   "nan_pattern_equal": true,
+   "max_abs_diff": 0.0,
+   "n_values": 47352
+  },
+  "transferred_mm_dpt_pseudotime_ranknorm_insample": {
+   "identical": true,
+   "nan_pattern_equal": true,
+   "max_abs_diff": 0.0,
+   "n_values": 47352
+  },
+  "transferred_mm_dpt_pseudotime_weight": {
+   "identical": true,
+   "nan_pattern_equal": true,
+   "max_abs_diff": 0.0,
+   "n_values": 47533
+  }
+ }
+}

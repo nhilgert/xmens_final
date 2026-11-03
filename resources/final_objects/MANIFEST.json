@@ -1,0 +1,29 @@
+{
+ "release": "final_objects",
+ "note": "The deposited final fibroblast/decidual objects of 2 Nov 2026, read in place by the SAMap figure rules (config/samap_figures_final_objects.yaml) until the pipeline builds them. Their embedding_outlier flags were moved out of obs into the tables named here, and obsm X_diffmap_pseudotime renamed X_diffmap, on 2 Nov 2026 at 18:08 (final_objects/embedding_outliers/edit_record_2026_11_02.json). Checksums verified 3 Nov 2026.",
+ "folder": "/n/netscratch/eddy_lab/Everyone/nhilgert/final_objects",
+ "objects": {
+  "Cevrim_XMens_Only_Fib_Dec_Cells": {
+   "path": "/n/netscratch/eddy_lab/Everyone/nhilgert/final_objects/Cevrim_XMens_Only_Fib_Dec_Cells.h5ad",
+   "sha256": "e3e7ad3df4fd9ca58888a1e703ab70d27847be90d33fc46eae6e6860756344e7",
+   "size_bytes": 427508983,
+   "n_obs": 43197,
+   "embedding_outlier_table": {
+    "path": "/n/netscratch/eddy_lab/Everyone/nhilgert/final_objects/embedding_outliers/Cevrim_XMens_Only_Fib_Dec_Cells_embedding_outlier.csv",
+    "sha256": "9178bf10852259ebe69b6c51e3ced19991cc63ca66db773a031017e1671328dd",
+    "n_flagged": 46
+   }
+  },
+  "Cevrim_Human_Only_Fib_Dec_Cells": {
+   "path": "/n/netscratch/eddy_lab/Everyone/nhilgert/final_objects/Cevrim_Human_Only_Fib_Dec_Cells.h5ad",
+   "sha256": "e74d038e446049fe7bea8d18a5612379ebfbc22f1084eb104f75eb0695998ada",
+   "size_bytes": 436781459,
+   "n_obs": 47533,
+   "embedding_outlier_table": {
+    "path": "/n/netscratch/eddy_lab/Everyone/nhilgert/final_objects/embedding_outliers/Cevrim_Human_Only_Fib_Dec_Cells_embedding_outlier.csv",
+    "sha256": "948149c7de88f2364ca8d3dc5f3b494520079b95d80910bc39bdcb143c93ceb3",
+    "n_flagged": 6
+   }
+  }
+ }
+}

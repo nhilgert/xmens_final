@@ -1,0 +1,91 @@
+Config file config/config.yaml is extended by additional config specified via the command line.
+Config file config/deposit_objects.yaml is extended by additional config specified via the command line.
+Config file config/panels.yaml is extended by additional config specified via the command line.
+Config file config/panels.yaml is extended by additional config specified via the command line.
+Config file config/panels.yaml is extended by additional config specified via the command line.
+Config file config/panels.yaml is extended by additional config specified via the command line.
+Config file config/panels.yaml is extended by additional config specified via the command line.
+Config file config/panels_mouse_stroma.yaml is extended by additional config specified via the command line.
+Config file config/panels.yaml is extended by additional config specified via the command line.
+Config file config/panels.yaml is extended by additional config specified via the command line.
+Config file config/panels.yaml is extended by additional config specified via the command line.
+Config file config/panels.yaml is extended by additional config specified via the command line.
+Config file config/panels_programs.yaml is extended by additional config specified via the command line.
+Config file config/panels.yaml is extended by additional config specified via the command line.
+Assuming unrestricted shared filesystem usage.
+
+SNAKEMAKE
+=========
+  Date: 2026-11-02 23:53:43
+  Workflow ID: cf9ec127-5d02-45fd-ad54-873ef19540b4
+  Platform: Linux-4.18.0-553.155.1.el8_10.x86_64-x86_64-with-glibc2.28
+  Host: holy8a25505.rc.fas.harvard.edu
+  User: nhilgert
+  Snakemake version: 9.23.1
+  Python version: 3.11.15 (main, Mar 24 2026, 22:50:29) [Clang 22.1.1 ]
+  Command: /n/lab_storage/eddy_lab/users/nhilgert/.uv/envs/rsc_uv/bin/snakemake /n/lab_storage/eddy_lab/users/nhilgert/tmp/2026_11_03_fig6c_pipeline/samap_raw_root/runs_raw/vanilla_raw/samap_transferred_pt_harmonized.h5ad --configfile /n/lab_storage/eddy_lab/users/nhilgert/tmp/2026_11_03_fig6c_pipeline/transfer_overlay.yaml --allowed-rules samap_raw_pt_transfer samap_raw_attach_pt --cores 4 --resources mem_mb=128000 --printshellcmds
+  Snakefile: /n/lab_storage/eddy_lab/users/nhilgert/tmp/2026_11_03_fig6c_pipeline/repo/workflow/Snakefile
+  Base directory: /n/lab_storage/eddy_lab/users/nhilgert/tmp/2026_11_03_fig6c_pipeline/repo/workflow
+  Run directory: /n/lab_storage/eddy_lab/users/nhilgert/tmp/2026_11_03_fig6c_pipeline/repo
+  Working directory: /n/lab_storage/eddy_lab/users/nhilgert/tmp/2026_11_03_fig6c_pipeline/repo
+  Config file(s): [PosixPath('/n/lab_storage/eddy_lab/users/nhilgert/tmp/2026_11_03_fig6c_pipeline/transfer_overlay.yaml'), 'config/config.yaml', 'config/deposit_objects.yaml', 'config/panels.yaml', 'config/panels.yaml', 'config/panels.yaml', 'config/panels.yaml', 'config/panels.yaml', 'config/panels_mouse_stroma.yaml', 'config/panels.yaml', 'config/panels.yaml', 'config/panels.yaml', 'config/panels.yaml', 'config/panels_programs.yaml', 'config/panels.yaml']
+  Config MD5: d9c5c2213ed78b6591288898cd7493eb
+
+Building DAG of jobs...
+Using shell: /usr/bin/bash
+Provided cores: 4
+Rules claiming more threads will be scaled down.
+Provided resources: mem_mb=Resource("mem_mb", 128000)
+Job stats:
+job                      count
+---------------------  -------
+samap_raw_pt_transfer        1
+samap_raw_attach_pt          1
+total                        2
+
+Select jobs to execute...
+Execute 1 jobs...
+
+[Mon Nov  2 23:53:44 2026]
+localrule samap_raw_pt_transfer:
+    input: /n/lab_storage/eddy_lab/users/nhilgert/tmp/2026_11_03_fig6c_pipeline/samap_raw_root/runs_raw/vanilla_raw/samap_transferred.h5ad, data/deliverables/2026_10_22_flagged_harmonized/Cevrim_XMens_Only_Fib_Dec_Cells.h5ad, workflow/scripts/samap/samap_transfer_pt.py
+    output: /n/lab_storage/eddy_lab/users/nhilgert/tmp/2026_11_03_fig6c_pipeline/samap_raw_root/runs_raw/vanilla_raw/pt_transfer_harmonized/pt_transferred_hs.csv, /n/lab_storage/eddy_lab/users/nhilgert/tmp/2026_11_03_fig6c_pipeline/samap_raw_root/runs_raw/vanilla_raw/pt_transfer_harmonized/summary.json
+    log: logs/samap_raw/pt_transfer_vanilla_raw_harmonized.log
+    jobid: 1
+    reason: Missing output files: /n/lab_storage/eddy_lab/users/nhilgert/tmp/2026_11_03_fig6c_pipeline/samap_raw_root/runs_raw/vanilla_raw/pt_transfer_harmonized/pt_transferred_hs.csv
+    wildcards: arm=vanilla_raw, ptsuf=_harmonized
+    resources: tmpdir=/tmp, runtime=120, mem_mb=128000, mem=128 GB, mem_mib=122071
+Shell command: 
+        module load gcc/14.2.0-fasrc01
+        export HDF5_USE_FILE_LOCKING=FALSE
+        /n/lab_storage/eddy_lab/users/nhilgert/.uv/envs/samap_harmony_uv/bin/python workflow/scripts/samap/samap_transfer_pt.py \
+            --joint-h5ad /n/lab_storage/eddy_lab/users/nhilgert/tmp/2026_11_03_fig6c_pipeline/samap_raw_root/runs_raw/vanilla_raw/samap_transferred.h5ad --pt-h5ad data/deliverables/2026_10_22_flagged_harmonized/Cevrim_XMens_Only_Fib_Dec_Cells.h5ad \
+            --pt-col pt_harmonized --out-dir /n/lab_storage/eddy_lab/users/nhilgert/tmp/2026_11_03_fig6c_pipeline/samap_raw_root/runs_raw/vanilla_raw/pt_transfer_harmonized \
+            > logs/samap_raw/pt_transfer_vanilla_raw_harmonized.log 2>&1
+        
+[Mon Nov  2 23:55:58 2026]
+Finished jobid: 1 (Rule: samap_raw_pt_transfer)
+1 of 2 steps (50%) done
+Select jobs to execute...
+Execute 1 jobs...
+
+[Mon Nov  2 23:55:58 2026]
+localrule samap_raw_attach_pt:
+    input: /n/lab_storage/eddy_lab/users/nhilgert/tmp/2026_11_03_fig6c_pipeline/samap_raw_root/runs_raw/vanilla_raw/samap_transferred.h5ad, /n/lab_storage/eddy_lab/users/nhilgert/tmp/2026_11_03_fig6c_pipeline/samap_raw_root/runs_raw/vanilla_raw/pt_transfer_harmonized/pt_transferred_hs.csv, workflow/scripts/samap/samap_attach_pt.py
+    output: /n/lab_storage/eddy_lab/users/nhilgert/tmp/2026_11_03_fig6c_pipeline/samap_raw_root/runs_raw/vanilla_raw/samap_transferred_pt_harmonized.h5ad
+    log: logs/samap_raw/attach_pt_vanilla_raw_harmonized.log
+    jobid: 0
+    reason: Missing output files: /n/lab_storage/eddy_lab/users/nhilgert/tmp/2026_11_03_fig6c_pipeline/samap_raw_root/runs_raw/vanilla_raw/samap_transferred_pt_harmonized.h5ad; Input files updated by another job: /n/lab_storage/eddy_lab/users/nhilgert/tmp/2026_11_03_fig6c_pipeline/samap_raw_root/runs_raw/vanilla_raw/pt_transfer_harmonized/pt_transferred_hs.csv
+    wildcards: arm=vanilla_raw, ptsuf=_harmonized
+    resources: tmpdir=/tmp, runtime=90, mem_mb=128000, mem=128 GB, mem_mib=122071
+Shell command: 
+        module load gcc/14.2.0-fasrc01
+        export HDF5_USE_FILE_LOCKING=FALSE
+        /n/lab_storage/eddy_lab/users/nhilgert/.uv/envs/samap_harmony_uv/bin/python workflow/scripts/samap/samap_attach_pt.py \
+            --joint /n/lab_storage/eddy_lab/users/nhilgert/tmp/2026_11_03_fig6c_pipeline/samap_raw_root/runs_raw/vanilla_raw/samap_transferred.h5ad --pt-csv /n/lab_storage/eddy_lab/users/nhilgert/tmp/2026_11_03_fig6c_pipeline/samap_raw_root/runs_raw/vanilla_raw/pt_transfer_harmonized/pt_transferred_hs.csv --out /n/lab_storage/eddy_lab/users/nhilgert/tmp/2026_11_03_fig6c_pipeline/samap_raw_root/runs_raw/vanilla_raw/samap_transferred_pt_harmonized.h5ad \
+            > logs/samap_raw/attach_pt_vanilla_raw_harmonized.log 2>&1
+        
+[Mon Nov  2 23:56:44 2026]
+Finished jobid: 0 (Rule: samap_raw_attach_pt)
+2 of 2 steps (100%) done
+Complete log(s): /n/lab_storage/eddy_lab/users/nhilgert/tmp/2026_11_03_fig6c_pipeline/repo/.snakemake/log/2026-11-02T235327.898783.snakemake.log

@@ -528,8 +528,12 @@ samap_figures:
   ptnull_seed: 20261022
   ptnull_n_perm: 1000              # permutations per design
   main_panel_date: "20261027"      # date stem of the Fig. 6 spatial panel files
-  # The SAMap transferred object of record (24 Oct 2026). It has no producing rule and lives outside the
-  # repository, so the figures verify it by content, as they do the pseudotime of record.
+  # The SAMap transferred object of record (24 Oct 2026), runs_raw/vanilla_raw/samap_transferred_pt_harmonized.h5ad.
+  # It was made by hand with no log. Rebuilt by its rules (samap_raw_pt_transfer, samap_raw_attach_pt, variant
+  # _harmonized) on 3 Nov 2026, it came out identical in every obs column and every dataset outside obs; uns
+  # provenance differs only in its timestamp and source path (docs/provenance/samap_transfer_rebuild_2026_11_03). It
+  # lives outside the repository, so the figures verify it by content, as they do the pseudotime of record.
+  # config/samap_figures_final_objects.yaml draws the same figures from the deposited final objects (tag final).
   joint_sha256: 62fb75d7c2ca3e739299be48695476b6c7a8ac48a05c9226c3c0cb47b8a3ad84
 
 # ---------------------------------------------------------------------------

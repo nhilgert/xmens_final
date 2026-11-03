@@ -1,0 +1,34 @@
+# The SAMap figures (Fig. 6C, 6E and the cell-identity twin of 6C; the SAMap supplement) drawn from the deposited final
+# objects of 2 Nov 2026 rather than the release of record. Decided 3 Nov 2026: Fig. 6C of record is drawn from the
+# objects that are deposited, while `snakemake all` stays on the release of record until the pipeline builds these
+# objects itself; then these settings move into config.yaml (samap_figures) and this file goes. docs/SAMAP_FIGURES.md
+# has the provenance of every input.
+#
+#   snakemake samap_fig6c --configfile config/samap_figures_final_objects.yaml
+#   snakemake samap_figures_all --configfile config/samap_figures_final_objects.yaml
+#
+# Outputs go under tag `final` (results/samap_figures/final, results/figures/samap_main/final, ...) and the plot tables
+# under results/plot_tables/final_objects, beside the release sets. The objects are read where they were deposited,
+# on purgeable netscratch, and checked by sha256 before anything is drawn:
+#   resources/final_objects/MANIFEST.json  the two fib/dec objects and their embedding_outlier tables
+#   joint, joint_sha256                    Samap_Final.h5ad: the transfer object of record (sha256 62fb75d7...,
+#                                          config.yaml samap_figures) with obs cut to six columns by
+#                                          tmp/2026_11_02_samap_final_figures/slim_samap_obs.py, which has no rule yet
+samap_figures:
+  tag: final
+  release: final_objects
+  release_manifest: resources/final_objects/MANIFEST.json
+  joint: /n/netscratch/eddy_lab/Everyone/nhilgert/final_objects/Samap_Final.h5ad
+  joint_sha256: ce15b9d45b9c774e847f3c2a43358c1b59ea3a4f630049a082e7b87db1a58b4b
+  transfer_column: transferred_mouse_pseudotime   # transferred_mm_dpt_pseudotime_ranknorm, renamed by the slim step
+  joint_labels_column: ""                         # Samap_Final.h5ad keeps no SAMap compartment labels
+
+  # The deposited objects store the pseudotime of record as obs `pseudotime` (human: equal on every nucleus to
+  # config pseudotime_of_record.human, checked by samap_figure_tables), its diffusion map as obsm X_diffmap, and one
+  # UMAP, X_umap.
+  mouse_pt_column: pseudotime
+  human_pt_from_release: pseudotime
+  plot_table_diffmap: X_diffmap
+  plot_table_embeddings:
+    mouse: X_spatial,X_umap
+    human: X_spatial,X_umap

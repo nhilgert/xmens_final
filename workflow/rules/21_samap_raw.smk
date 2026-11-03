@@ -24,7 +24,10 @@
 #   runs_raw/<arm>/{samap.pkl,eval.json} job_arms_raw.sbatch -> run_arm.py (= run_samap_arm.py), 2026-09-01
 #   runs_raw/<arm>/staining/*.csv        job_stain_all.sbatch -> label_stain_full.py, 2026-09-01
 #   runs_raw/<arm>/samap_transferred.h5ad make_transferred_h5ad.py (= make_samap_transferred_h5ad.py), 2026-09-02
-#   runs_raw/vanilla_raw/pt_transfer_harmonized/, samap_transferred_pt_harmonized.h5ad: 2026-10-24, no log
+#   runs_raw/vanilla_raw/pt_transfer_harmonized/, samap_transferred_pt_harmonized.h5ad: 2026-10-24, no log;
+#                                        samap_raw_pt_transfer + samap_raw_attach_pt rebuilt both into a scratch root
+#                                        on 2026-11-03: CSV byte-identical, object identical but for uns provenance
+#                                        (docs/provenance/samap_transfer_rebuild_2026_11_03)
 # Scripts are ancient() where outputs pre-exist, so `snakemake samap_raw_all` does not re-fit them.
 #
 # The 2026_09_02_samap_raw_all.h5ad on netscratch is a dated DEPLOY COPY of
@@ -245,7 +248,9 @@ rule samap_raw_attach_pt:
     input:
         joint  = f"{SR_ROOT}/runs_raw/{{arm}}/samap_transferred.h5ad",
         csv    = f"{SR_ROOT}/runs_raw/{{arm}}/pt_transfer{{ptsuf}}/pt_transferred_hs.csv",
-        script = "workflow/scripts/samap/samap_attach_pt.py",
+        # ancient() as for the other scripts here: a fresh checkout gives the script a new mtime, which would
+        # otherwise rewrite the transfer object of record that the figure rules pin by sha256.
+        script = ancient("workflow/scripts/samap/samap_attach_pt.py"),
     output:
         h5ad = f"{SR_ROOT}/runs_raw/{{arm}}/samap_transferred_pt{{ptsuf}}.h5ad",
     params:

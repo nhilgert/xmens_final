@@ -1,0 +1,27 @@
+{
+ "drive_file": "/n/lab_storage/eddy_lab/users/nhilgert/xmens_figures/final_figures/Fig6_crossspecies_radial_patterning/umap_dark_transferred_pseudotime.svg",
+ "drive_vs_2026_11_02_render": {
+  "text_identical": true,
+  "rasters_identical": [
+   true,
+   true,
+   true,
+   true
+  ]
+ },
+ "2026_11_03_render_vs_2026_11_02_render": {
+  "text_identical": false,
+  "rasters_identical": [
+   true,
+   true,
+   true,
+   true
+  ],
+  "changed_lines": [
+   "-     <text style=\"font-size: 7px; font-family: 'Helvetica Neue', 'Helvetica', 'DejaVu Sans'; fill: #ffffff\" transform=\"translate(161.766142 243.02386)\">human, no mouse</text>",
+   "-     <text style=\"font-size: 7px; font-family: 'Helvetica Neue', 'Helvetica', 'DejaVu Sans'; fill: #ffffff\" transform=\"translate(161.766142 250.862329)\">neighbor (181)</text>",
+   "+     <text style=\"font-size: 7px; font-family: 'Helvetica Neue', 'Helvetica', 'DejaVu Sans'; fill: #ffffff\" transform=\"translate(161.766142 243.02386)\">no transferred</text>",
+   "+     <text style=\"font-size: 7px; font-family: 'Helvetica Neue', 'Helvetica', 'DejaVu Sans'; fill: #ffffff\" transform=\"translate(161.766142 250.862329)\">value (181)</text>"
+  ]
+ }
+}

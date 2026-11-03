@@ -1,0 +1,402 @@
+{
+ "samap_figures/final/edge_share/samap_compartment_edge_share.csv": {
+  "rows_old": 4,
+  "rows_new": 4,
+  "columns_only_old": [],
+  "columns_only_new": [],
+  "columns_differ": {},
+  "identical": true
+ },
+ "samap_figures/final/edge_share/samap_compartment_edge_share_all.csv": {
+  "identical": false,
+  "label_sets_old": [
+   "release",
+   "samap_object"
+  ],
+  "label_sets_new": [
+   "release"
+  ],
+  "rows_shared": 4,
+  "max_abs_diff_shared_rows": 0.0
+ },
+ "samap_figures/final/ptnull/example_transfers.csv": {
+  "rows_old": 47533,
+  "rows_new": 47533,
+  "columns_only_old": [],
+  "columns_only_new": [],
+  "columns_differ": {},
+  "identical": true
+ },
+ "samap_figures/final/ptnull/null_replicates.csv": {
+  "rows_old": 2001,
+  "rows_new": 2001,
+  "columns_only_old": [],
+  "columns_only_new": [],
+  "columns_differ": {},
+  "identical": true
+ },
+ "samap_figures/final/ptnull/null_summary.json": {
+  "identical": null,
+  "note": "not compared (run dates and paths)"
+ },
+ "samap_figures/final/ptnull/ptnull_statistics_table.csv": {
+  "rows_old": 6,
+  "rows_new": 6,
+  "columns_only_old": [],
+  "columns_only_new": [],
+  "columns_differ": {},
+  "identical": true
+ },
+ "samap_figures/final/tables/human_cells.csv": {
+  "rows_old": 47533,
+  "rows_new": 47533,
+  "columns_only_old": [],
+  "columns_only_new": [],
+  "columns_differ": {},
+  "identical": true
+ },
+ "samap_figures/final/tables/joint.parquet": {
+  "rows_old": 90730,
+  "rows_new": 90730,
+  "columns_only_old": [
+   "transferred_mm_dpt_pseudotime",
+   "transferred_mm_dpt_pseudotime_ranknorm_insample",
+   "transferred_mm_dpt_pseudotime_weight"
+  ],
+  "columns_only_new": [],
+  "columns_differ": {
+   "sample": 33863,
+   "timepoint": 33863
+  },
+  "identical": false
+ },
+ "samap_figures/final/tables/mouse_cells.csv": {
+  "rows_old": 43197,
+  "rows_new": 43197,
+  "columns_only_old": [],
+  "columns_only_new": [],
+  "columns_differ": {},
+  "identical": true
+ },
+ "samap_figures/final/tables/provenance.json": {
+  "identical": null,
+  "note": "not compared (run dates and paths)"
+ },
+ "samap_figures/graph_block/C_hs_mm.npz": {
+  "identical": true,
+  "shape": [
+   47533,
+   43197
+  ],
+  "nnz": 948226
+ },
+ "samap_figures/graph_block/hs_names.txt": {
+  "identical": true
+ },
+ "samap_figures/graph_block/meta.json": {
+  "identical": null,
+  "note": "not compared (run dates and paths)"
+ },
+ "samap_figures/graph_block/mm_names.txt": {
+  "identical": true
+ },
+ "figures/samap_main/final/20261027-Human-menstrual-transferred_pseudotime-spatial.pdf": {
+  "identical": null,
+  "note": "not compared (run dates and paths)"
+ },
+ "figures/samap_main/final/20261027-Human-menstrual-transferred_pseudotime-spatial.png": {
+  "identical": true,
+  "n_pixels_differ": 0
+ },
+ "figures/samap_main/final/20261027-Human-menstrual-transferred_pseudotime-spatial.svg": {
+  "identical": true,
+  "rasters_identical": true,
+  "n_rasters": 0,
+  "changed_lines": [],
+  "n_changed_lines": 0
+ },
+ "figures/samap_main/final/20261027-Human-secretory-transferred_pseudotime-spatial.pdf": {
+  "identical": null,
+  "note": "not compared (run dates and paths)"
+ },
+ "figures/samap_main/final/20261027-Human-secretory-transferred_pseudotime-spatial.png": {
+  "identical": true,
+  "n_pixels_differ": 0
+ },
+ "figures/samap_main/final/20261027-Human-secretory-transferred_pseudotime-spatial.svg": {
+  "identical": true,
+  "rasters_identical": true,
+  "n_rasters": 0,
+  "changed_lines": [],
+  "n_changed_lines": 0
+ },
+ "figures/samap_main/final/20261027-spatial_key_transferred_pseudotime.pdf": {
+  "identical": null,
+  "note": "not compared (run dates and paths)"
+ },
+ "figures/samap_main/final/20261027-spatial_key_transferred_pseudotime.png": {
+  "identical": true,
+  "n_pixels_differ": 0
+ },
+ "figures/samap_main/final/20261027-spatial_key_transferred_pseudotime.svg": {
+  "identical": true,
+  "rasters_identical": true,
+  "n_rasters": 1,
+  "changed_lines": [],
+  "n_changed_lines": 0
+ },
+ "figures/samap_main/final/fig6_umap_transferred_cell_type.provenance.json": {
+  "identical": null,
+  "note": "not compared (run dates and paths)"
+ },
+ "figures/samap_main/final/fig6c_umap_transferred_pseudotime.provenance.json": {
+  "identical": null,
+  "note": "not compared (run dates and paths)"
+ },
+ "figures/samap_main/final/fig6e_sections_transferred_pseudotime.provenance.json": {
+  "identical": null,
+  "note": "not compared (run dates and paths)"
+ },
+ "figures/samap_main/final/transferred_cell_type.csv": {
+  "rows_old": 47533,
+  "rows_new": 47533,
+  "columns_only_old": [],
+  "columns_only_new": [],
+  "columns_differ": {},
+  "identical": true
+ },
+ "figures/samap_main/final/umap_dark_transferred_cell_type.pdf": {
+  "identical": null,
+  "note": "not compared (run dates and paths)"
+ },
+ "figures/samap_main/final/umap_dark_transferred_cell_type.png": {
+  "identical": true,
+  "n_pixels_differ": 0
+ },
+ "figures/samap_main/final/umap_dark_transferred_cell_type.svg": {
+  "identical": true,
+  "rasters_identical": true,
+  "n_rasters": 3,
+  "changed_lines": [],
+  "n_changed_lines": 0
+ },
+ "figures/samap_main/final/umap_dark_transferred_cell_type_humanonly.pdf": {
+  "identical": null,
+  "note": "not compared (run dates and paths)"
+ },
+ "figures/samap_main/final/umap_dark_transferred_cell_type_humanonly.png": {
+  "identical": true,
+  "n_pixels_differ": 0
+ },
+ "figures/samap_main/final/umap_dark_transferred_cell_type_humanonly.svg": {
+  "identical": true,
+  "rasters_identical": true,
+  "n_rasters": 2,
+  "changed_lines": [],
+  "n_changed_lines": 0
+ },
+ "figures/samap_main/final/umap_dark_transferred_pseudotime.pdf": {
+  "identical": null,
+  "note": "not compared (run dates and paths)"
+ },
+ "figures/samap_main/final/umap_dark_transferred_pseudotime.png": {
+  "identical": false,
+  "n_pixels_differ": 16800,
+  "changed_box": [
+   0.635,
+   0.932,
+   0.881,
+   0.989
+  ]
+ },
+ "figures/samap_main/final/umap_dark_transferred_pseudotime.svg": {
+  "identical": false,
+  "rasters_identical": true,
+  "n_rasters": 4,
+  "changed_lines": [
+   "-     <text style=\"font-size: 7px; font-family: 'Helvetica Neue', 'Helvetica', 'DejaVu Sans'; fill: #ffffff\" transform=\"translate(161.766142 243.02386)\">human, no mouse</text>",
+   "-     <text style=\"font-size: 7px; font-family: 'Helvetica Neue', 'Helvetica', 'DejaVu Sans'; fill: #ffffff\" transform=\"translate(161.766142 250.862329)\">neighbor (181)</text>",
+   "+     <text style=\"font-size: 7px; font-family: 'Helvetica Neue', 'Helvetica', 'DejaVu Sans'; fill: #ffffff\" transform=\"translate(161.766142 243.02386)\">no transferred</text>",
+   "+     <text style=\"font-size: 7px; font-family: 'Helvetica Neue', 'Helvetica', 'DejaVu Sans'; fill: #ffffff\" transform=\"translate(161.766142 250.862329)\">value (181)</text>"
+  ],
+  "n_changed_lines": 4
+ },
+ "figures/samap_main/final/umap_dark_transferred_pseudotime_humanonly.pdf": {
+  "identical": null,
+  "note": "not compared (run dates and paths)"
+ },
+ "figures/samap_main/final/umap_dark_transferred_pseudotime_humanonly.png": {
+  "identical": false,
+  "n_pixels_differ": 16800,
+  "changed_box": [
+   0.635,
+   0.932,
+   0.881,
+   0.989
+  ]
+ },
+ "figures/samap_main/final/umap_dark_transferred_pseudotime_humanonly.svg": {
+  "identical": false,
+  "rasters_identical": true,
+  "n_rasters": 3,
+  "changed_lines": [
+   "-     <text style=\"font-size: 7px; font-family: 'Helvetica Neue', 'Helvetica', 'DejaVu Sans'; fill: #ffffff\" transform=\"translate(161.766142 243.02386)\">human, no mouse</text>",
+   "-     <text style=\"font-size: 7px; font-family: 'Helvetica Neue', 'Helvetica', 'DejaVu Sans'; fill: #ffffff\" transform=\"translate(161.766142 250.862329)\">neighbor (181)</text>",
+   "+     <text style=\"font-size: 7px; font-family: 'Helvetica Neue', 'Helvetica', 'DejaVu Sans'; fill: #ffffff\" transform=\"translate(161.766142 243.02386)\">no transferred</text>",
+   "+     <text style=\"font-size: 7px; font-family: 'Helvetica Neue', 'Helvetica', 'DejaVu Sans'; fill: #ffffff\" transform=\"translate(161.766142 250.862329)\">value (181)</text>"
+  ],
+  "n_changed_lines": 4
+ },
+ "figures/samap_supp/final/panels/sfig_samap_panel_a.png": {
+  "identical": true,
+  "n_pixels_differ": 0
+ },
+ "figures/samap_supp/final/panels/sfig_samap_panel_a.provenance.json": {
+  "identical": null,
+  "note": "not compared (run dates and paths)"
+ },
+ "figures/samap_supp/final/panels/sfig_samap_panel_a.svg": {
+  "identical": true,
+  "rasters_identical": true,
+  "n_rasters": 1,
+  "changed_lines": [],
+  "n_changed_lines": 0
+ },
+ "figures/samap_supp/final/panels/sfig_samap_panel_a_600dpi.png": {
+  "identical": true,
+  "n_pixels_differ": 0
+ },
+ "figures/samap_supp/final/panels/sfig_samap_panel_b.png": {
+  "identical": true,
+  "n_pixels_differ": 0
+ },
+ "figures/samap_supp/final/panels/sfig_samap_panel_b.provenance.json": {
+  "identical": null,
+  "note": "not compared (run dates and paths)"
+ },
+ "figures/samap_supp/final/panels/sfig_samap_panel_b.svg": {
+  "identical": true,
+  "rasters_identical": true,
+  "n_rasters": 2,
+  "changed_lines": [],
+  "n_changed_lines": 0
+ },
+ "figures/samap_supp/final/panels/sfig_samap_panel_b_600dpi.png": {
+  "identical": true,
+  "n_pixels_differ": 0
+ },
+ "figures/samap_supp/final/panels/sfig_samap_panel_c.png": {
+  "identical": true,
+  "n_pixels_differ": 0
+ },
+ "figures/samap_supp/final/panels/sfig_samap_panel_c.provenance.json": {
+  "identical": null,
+  "note": "not compared (run dates and paths)"
+ },
+ "figures/samap_supp/final/panels/sfig_samap_panel_c.svg": {
+  "identical": true,
+  "rasters_identical": true,
+  "n_rasters": 2,
+  "changed_lines": [],
+  "n_changed_lines": 0
+ },
+ "figures/samap_supp/final/panels/sfig_samap_panel_c_600dpi.png": {
+  "identical": true,
+  "n_pixels_differ": 0
+ },
+ "figures/samap_supp/final/panels/sfig_samap_panel_d.png": {
+  "identical": true,
+  "n_pixels_differ": 0
+ },
+ "figures/samap_supp/final/panels/sfig_samap_panel_d.provenance.json": {
+  "identical": null,
+  "note": "not compared (run dates and paths)"
+ },
+ "figures/samap_supp/final/panels/sfig_samap_panel_d.svg": {
+  "identical": true,
+  "rasters_identical": true,
+  "n_rasters": 0,
+  "changed_lines": [],
+  "n_changed_lines": 0
+ },
+ "figures/samap_supp/final/panels/sfig_samap_panel_d_600dpi.png": {
+  "identical": true,
+  "n_pixels_differ": 0
+ },
+ "figures/samap_supp/final/panels/sfig_samap_panel_e.png": {
+  "identical": true,
+  "n_pixels_differ": 0
+ },
+ "figures/samap_supp/final/panels/sfig_samap_panel_e.provenance.json": {
+  "identical": null,
+  "note": "not compared (run dates and paths)"
+ },
+ "figures/samap_supp/final/panels/sfig_samap_panel_e.svg": {
+  "identical": true,
+  "rasters_identical": true,
+  "n_rasters": 3,
+  "changed_lines": [],
+  "n_changed_lines": 0
+ },
+ "figures/samap_supp/final/panels/sfig_samap_panel_e_600dpi.png": {
+  "identical": true,
+  "n_pixels_differ": 0
+ },
+ "figures/samap_supp/final/panels/sfig_samap_panel_f.png": {
+  "identical": true,
+  "n_pixels_differ": 0
+ },
+ "figures/samap_supp/final/panels/sfig_samap_panel_f.provenance.json": {
+  "identical": null,
+  "note": "not compared (run dates and paths)"
+ },
+ "figures/samap_supp/final/panels/sfig_samap_panel_f.svg": {
+  "identical": true,
+  "rasters_identical": true,
+  "n_rasters": 7,
+  "changed_lines": [],
+  "n_changed_lines": 0
+ },
+ "figures/samap_supp/final/panels/sfig_samap_panel_f_600dpi.png": {
+  "identical": true,
+  "n_pixels_differ": 0
+ },
+ "figures/samap_supp/final/panels/sfig_samap_panel_g.png": {
+  "identical": true,
+  "n_pixels_differ": 0
+ },
+ "figures/samap_supp/final/panels/sfig_samap_panel_g.provenance.json": {
+  "identical": null,
+  "note": "not compared (run dates and paths)"
+ },
+ "figures/samap_supp/final/panels/sfig_samap_panel_g.svg": {
+  "identical": true,
+  "rasters_identical": true,
+  "n_rasters": 6,
+  "changed_lines": [],
+  "n_changed_lines": 0
+ },
+ "figures/samap_supp/final/panels/sfig_samap_panel_g_600dpi.png": {
+  "identical": true,
+  "n_pixels_differ": 0
+ },
+ "figures/samap_supp/final/sfig_samap.png": {
+  "identical": true,
+  "n_pixels_differ": 0
+ },
+ "figures/samap_supp/final/sfig_samap.provenance.json": {
+  "identical": null,
+  "note": "not compared (run dates and paths)"
+ },
+ "figures/samap_supp/final/sfig_samap.svg": {
+  "identical": true,
+  "rasters_identical": true,
+  "n_rasters": 21,
+  "changed_lines": [],
+  "n_changed_lines": 0
+ },
+ "figures/samap_supp/final/sfig_samap_600dpi.png": {
+  "identical": true,
+  "n_pixels_differ": 0
+ }
+}

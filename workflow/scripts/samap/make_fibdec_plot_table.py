@@ -2,7 +2,9 @@
 
 Called by rule samap_fibdec_plot_table (workflow/rules/10c_samap_figures.smk), once per species and release.
 Reads:  data/deliverables/<release>/Cevrim_{XMens,Human}_Only_Fib_Dec_Cells.h5ad (h5py, read-only) and the
-        release MANIFEST.json, whose sha256 for the object must match.
+        release MANIFEST.json, whose sha256 for the object must match; for an object that keeps its
+        embedding_outlier flags beside it rather than in obs (the deposited final objects), that table too, whose
+        sha256 must match the MANIFEST entry's embedding_outlier_table.
 Writes: <species>_fibdec_plot_table.parquet, one row per nucleus in object order: every obs column as stored,
         two columns per embedding (<key>__0, <key>__1), the diffusion map of the harmonized pseudotime as
         dc0..dc<n-1>, and per gene <gene>__counts, <gene>__X and <gene>__log1p_cp10k plus total_counts_layer;
@@ -46,6 +48,21 @@ def check_manifest(h5ad: Path, manifest: Path) -> str:
     if observed != expected:
         raise ValueError(f"{h5ad}: sha256 {observed} differs from {manifest} ({expected})")
     return observed
+
+
+def read_outlier_flags(table_path: Path, h5ad: Path, manifest: Path, obs_names: pd.Index) -> pd.Series:
+    """embedding_outlier flags from the table the MANIFEST names for the object, one per nucleus of obs_names."""
+    entry = json.loads(manifest.read_text())["objects"][h5ad.stem].get("embedding_outlier_table")
+    if entry is None:
+        raise ValueError(f"{manifest} names no embedding_outlier_table for {h5ad.stem}, but --outlier-table is set")
+    observed = sha256_of(table_path)
+    if observed != entry["sha256"]:
+        raise ValueError(f"{table_path}: sha256 {observed} differs from {manifest} ({entry['sha256']})")
+
+    flags = pd.read_csv(table_path, index_col=0)["embedding_outlier"].astype(bool)
+    if len(flags) != len(obs_names) or not flags.index.isin(obs_names).all():
+        raise ValueError(f"{table_path} holds {len(flags)} nuclei, not the {len(obs_names)} of {h5ad}")
+    return flags.reindex(obs_names)
 
 
 def gene_columns(group: h5py.Group, gene_index: int, n_obs: int) -> tuple[np.ndarray, np.ndarray]:
@@ -104,6 +121,8 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--h5ad", type=Path, required=True)
     parser.add_argument("--manifest", type=Path, required=True)
+    parser.add_argument("--outlier-table", default="",
+                        help="embedding_outlier table of an object without the flags in obs; empty: flags from obs")
     parser.add_argument("--embeddings", required=True, help="comma-separated obsm keys, e.g. X_spatial,X_umap_scVI")
     parser.add_argument("--diffmap-key", default="X_diffmap_harmonized")
     parser.add_argument("--genes", default="", help="comma-separated gene names (may be empty)")
@@ -116,6 +135,14 @@ def main() -> None:
     genes = [gene for gene in args.genes.split(",") if gene]
     table = build_table(args.h5ad, embeddings, args.diffmap_key, genes)
 
+    # The deposited final objects keep their flags in a table beside them (moved out of obs on 2 Nov 2026); the plot
+    # table carries them as a column either way, so every reader finds embedding_outlier where it always was.
+    if args.outlier_table:
+        if "embedding_outlier" in table.columns:
+            raise ValueError(f"{args.h5ad} has embedding_outlier in obs and --outlier-table is set; use one")
+        outlier_table = Path(args.outlier_table)
+        table["embedding_outlier"] = read_outlier_flags(outlier_table, args.h5ad, args.manifest, table.index)
+
     # Index named as in the 2026_10_22 plot tables: export_samap_tables.py writes it to CSV and samap_edge_share.py /
     # ptnull_permutation.py read index_col="cell" (bundle a66e05b wrote it unnamed and the S30 chain failed).
     table.index.name = "cell"
@@ -123,16 +150,20 @@ def main() -> None:
     table.to_parquet(args.out)
 
     flags = table["embedding_outlier"].astype(bool)
+    inputs = {
+        "h5ad": {"path": str(args.h5ad), "sha256": object_sha256},
+        "manifest": {"path": str(args.manifest), "sha256": sha256_of(args.manifest)},
+    }
+    if args.outlier_table:
+        inputs["embedding_outlier_table"] = {"path": args.outlier_table, "sha256": sha256_of(Path(args.outlier_table))}
+
     record = {
         "written": datetime.datetime.now().isoformat(timespec="seconds"),
         # Paths as the rule passes them, relative to the repository, so the record reads the same in any checkout.
         "script": os.path.relpath(__file__),
         "script_sha256": sha256_of(Path(__file__)),
         "release": json.loads(args.manifest.read_text())["release"],
-        "inputs": {
-            "h5ad": {"path": str(args.h5ad), "sha256": object_sha256},
-            "manifest": {"path": str(args.manifest), "sha256": sha256_of(args.manifest)},
-        },
+        "inputs": inputs,
         "output": {"path": str(args.out), "sha256": sha256_of(args.out)},
         "n_nuclei": int(len(table)),
         "n_columns": int(table.shape[1]),
