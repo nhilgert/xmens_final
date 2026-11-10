@@ -1,0 +1,13 @@
+# resources/figures/c7_presence/mouse_section_crops.yaml
+# Window of each mouse section shown in the C7-fibroblast figure (panel f), on the raw QC coordinates (x_um_qc, y_um_qc,
+# micrometres, bounds inclusive): limits_map of the user's cagri_mouse_spatial.py, keyed by release timepoint. null:
+# the whole section. Every placed nucleus of the timepoint is rotated by resources/figures/mouse_section_rotation.yaml
+# (workflow/scripts/figures/section_rotation.py); the window selects nuclei on the raw coordinates, so it selects the same
+# nuclei whatever the angle. Each section is then scaled to fill its square.
+crop_um:
+  "uninduced":        {x: [3350, 5850], y: [500, 3000]}
+  "1.5_dpi_early":    {x: [1000, 3000], y: [1000, 3000]}
+  "1.5_dpi_late":     null
+  "2.5_dpi":          {x: [2000, 9500], y: [500, 6500]}
+  "3.5_dpi":          {x: [1250, 8500], y: [1250, 8500]}
+  "4.5_dpi_bleeding": null

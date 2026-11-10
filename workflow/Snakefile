@@ -31,6 +31,8 @@ include: "rules/00_release.smk"
 #   29-36  figure panels of the revision
 #   37     the numbers quoted in the Methods, rebuilt from the release
 #   38     the supplementary tables built from the pipeline's own records (S5, S13)
+#   39     the in vitro / in vivo decidualization comparison (target ivd_all; not in the default target)
+#   41     the C7-fibroblast figure of the revision (reviewer comment 1; config/c7_presence.yaml)
 STEPS = [
     "01_cellbender", "02_slidetags", "03_ingest", "04_qc", "05_qc_report", "06_concat",
     "07_integrate", "08_annotate", "09_reintegrate_lineages", "10_annotate_lineages", "11_reembed", "12_spatial_qc",
@@ -42,6 +44,9 @@ STEPS = [
     "29_fig_samap", "30_fig_mouse_tissue", "31_fig_mouse_stroma", "32_fig_human_tissue", "33_fig_human_epithelium",
     "34_fig_cross_species", "35_fig_programs", "36_fig_marker_dotplots",
     "37_methods_numbers", "38_supp_tables",
+    "39_ivd_comparisons",
+    "40_fig_scenic_params",
+    "41_fig_c7_presence",
 ]
 for step in STEPS:
     include: f"rules/{step}.smk"
@@ -67,6 +72,7 @@ rule all:
         rules.zone_modules_all.input,
         rules.methods_numbers_all.input,
         rules.supp_tables.input,
+        rules.panels_c7_presence_all.input,
 
 
 # Release consistency ----

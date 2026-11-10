@@ -1,0 +1,22 @@
+# ivd env: the PyDESeq2 environment of the in vitro / in vivo decidualization comparison (rules 39_ivd_comparisons).
+# It is the environment the fits of record ran in (the lab's rsc_uv_py31111, 27-29 Oct 2026); requirements-frozen.txt
+# is its complete freeze. PyDESeq2 p-values depend on the NumPy build: with NumPy 2.4.6 the same genes are called but
+# some standard errors and p-values differ (see README.md here), so pin NumPy 2.2.0 for exact reproduction.
+#   uv venv --python 3.11.11 .venv && uv pip install -r requirements-frozen.txt
+[project]
+name = "xmens-ivd-env"
+version = "0.0.1"
+requires-python = "==3.11.11"
+dependencies = [
+  "pydeseq2==0.5.4",
+  "numpy==2.2.0",
+  "pandas==2.3.3",
+  "scipy==1.17.1",
+  "anndata==0.12.11",
+  "h5py==3.16.0",
+  "scikit-learn==1.8.0",
+  "formulaic==1.2.2",
+  "pyarrow==23.0.1",
+  "openpyxl==3.1.5",
+  "PyYAML==6.0.3",
+]

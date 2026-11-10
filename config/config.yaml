@@ -636,3 +636,26 @@ supp_tables:
       pct_doublet_score_above_5: pct_nuclei_doublet_score_gt5
       kept_pct_doublet_score_above_5: kept_clusters_pct_nuclei_doublet_score_gt5
       pct_two_lineages: pct_nuclei_two_lineages
+
+ivd:
+  # In vitro / in vivo decidualization comparison (Methods, "Comparison with in vitro and in vivo decidualization
+  # models"): rules 39_ivd_comparisons, ported 2026-11-02 from paper_code/ivd_comparisons (docs/PORTING.md item 3).
+  # Target ivd_all; not in the default target. Outputs go to results/ivd/<run>/; the last rule verifies every table
+  # against the tables of record (resources/ivd/expected) and the two workbooks on Drive (record_workbooks).
+  run: "2026_11_02"
+  python: /n/lab_storage/eddy_lab/users/nhilgert/.uv/envs/rsc_uv/bin/python               # tables, workbooks, verification
+  python_fit: /n/lab_storage/eddy_lab/users/nhilgert/.uv/envs/rsc_uv_py31111/bin/python  # PyDESeq2 0.5.4 / NumPy 2.2.0 (workflow/envs/ivd)
+  cache_dir: /n/lab_storage/eddy_lab/users/nhilgert/.cache_scratch
+  # The objects the fits of record used (not the v9 release objects): the X-Mens interim object (27 Oct fit) and the
+  # 2026_09_15 fib/dec release (29 Oct fit).
+  mouse_object: data/interim/final_mouse.h5ad
+  human_object: data/deliverables/2026_09_15/Cevrim_Human_Only_Fib_Dec_Cells.h5ad
+  ulrich:
+    url: https://datasets.cellxgene.cziscience.com/c93622aa-a356-4e29-b45a-c0a532c65d10.h5ad
+    sha256: 5be96393e3a18e9596eeb67e8c0a024af54e78effd2c5698cb92876961734a90
+    h5ad: data/external/ulrich2024/ulrich2024_20donor_stromal.h5ad
+    mirror: /n/netscratch/eddy_lab/Everyone/nhilgert/ulrich2024/ulrich2024_20donor_stromal.h5ad   # copied instead of downloaded when present with the pinned checksum
+    contrast: dS_vs_C7fib_all_donors   # the contrast the Methods and the workbooks use; all nine configured contrasts are fitted
+    label: "all decidual stroma (dS1-3) vs C7-Fibroblast, within donor, no phase filter"
+  # Drive copies of the two workbooks of record (30 Oct 2026), compared cell for cell by ivd_verify; empty to skip.
+  record_workbooks: /n/lab_storage/eddy_lab/users/nhilgert/xmens_figures/2026-10-30_revision_panels/DESeq2_DE_and_IVD_comparisons

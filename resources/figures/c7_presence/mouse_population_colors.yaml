@@ -1,0 +1,15 @@
+# resources/figures/c7_presence/mouse_population_colors.yaml
+# Colors of the mouse fibroblast/decidual populations in the C7-fibroblast figure (panels d, e): heca_palettes.MOUSE_COL
+# as drawn in FIG_c7_presence v7-v8. Not the SUBTYPE_COLORS of the mouse stroma panels (S16, S17;
+# workflow/scripts/figures/panels/mouse_stroma/panel_style.py); switching to those is a display decision still open.
+order: [eFib1, eFib2, eFib2i, eFib3, eFibP, dec1, dec2, dec3, decAp]
+colors:
+  eFib1: "#b8860b"
+  eFib2: "#35978f"
+  eFib2i: "#01665e"
+  eFib3: "#80cdc1"
+  eFibP: "#7b3294"
+  dec1: "#fa9fb5"
+  dec2: "#e7298a"
+  dec3: "#ae017e"
+  decAp: "#49006a"

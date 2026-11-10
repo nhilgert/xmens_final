@@ -102,3 +102,4 @@ __pycache__/
 /xmens_pipeline/
 # editor swap files
 .*.sw?
+resources/ivd/

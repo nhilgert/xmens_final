@@ -1,0 +1,79 @@
+# ---------------------------------------------------------------------------
+# c7_presence -- the C7-fibroblast figure of the revision (reviewer comment 1): Ulrich et al. 2024's Stro-7
+# "C7-fibroblasts" in our human fibroblast/decidual nuclei (Leiden cluster 3 at resolution 0.5) and, through the
+# SAMap graph, in mouse (outer fibroblasts, eFib1). Rules: workflow/rules/41_fig_c7_presence.smk (configfile there);
+# target panels_c7_presence_all (in rule all); review_c7_leiden_seeds is not in the default target.
+# Added 2026-11-03. Ports, as rules, the code that made the figure inputs outside the repository:
+#   Leiden labels   paper_code/ulrich_mapping/run_mapping.py (30 Aug 2026)
+#   Stro-7 cosine   paper_code/ulrich_mapping/WRITEUP_2026_09_20/02_spatial_human/code/continuous_correspondence_job.py
+#                   (4 Sep 2026; in the 2 Nov paper_code patch), human branch, panel 1
+#   mouse transfer  the operator of the pseudotime transfer (transfer_label_staining.project): connectivity-weighted
+#                   mean over each mouse cell's human neighbours in the SAMap graph
+#   figure          FIG_c7_presence v8 (2 Nov 2026), drawn from the final objects with no nuclei excluded
+# Each rule compares what it computes with the value stored in the final objects and fails on a difference.
+# ---------------------------------------------------------------------------
+c7_presence:
+  tag: final_2026_11_02          # in every output name: the objects below
+
+  # The final objects of 2 Nov 2026: the v9 deposit's without_new_cell_types set (release 2026_10_29b, "v8"), with the
+  # corrections of /n/lab_storage/eddy_lab/users/nhilgert/tmp/2026_11_01_current_objects_v8_fixed (README.md there:
+  # +0.5 dpi sample names; each fib/dec object carries its stromal-lineage latent and that latent's UMAP) and the
+  # edits of 2 Nov (stro7_cosine, stro7_cosine_transferred added; embedding_outlier flags removed and kept as tables,
+  # final_objects/embedding_outliers/README.txt). No rule makes them, so the rules verify them by content (sha256).
+  # Netscratch is purged: copy the folder to lab_storage and repoint the three paths.
+  objects:
+    human_fibdec:
+      path: /n/netscratch/eddy_lab/Everyone/nhilgert/final_objects/Cevrim_Human_Only_Fib_Dec_Cells.h5ad
+      sha256: e74d038e446049fe7bea8d18a5612379ebfbc22f1084eb104f75eb0695998ada
+    mouse_fibdec:
+      path: /n/netscratch/eddy_lab/Everyone/nhilgert/final_objects/Cevrim_XMens_Only_Fib_Dec_Cells.h5ad
+      sha256: e3e7ad3df4fd9ca58888a1e703ab70d27847be90d33fc46eae6e6860756344e7
+    mouse_allcells:
+      path: /n/netscratch/eddy_lab/Everyone/nhilgert/final_objects/Cevrim_XMens_All_Cells.h5ad
+      sha256: de53189f98c300e3552685a7cc44e319f6a501f9961ff0c091272ff81f0b00ea
+  # The SAMap object is the one of record (samap_figures: samap_raw runs_raw/vanilla_raw/
+  # samap_transferred_pt_harmonized.h5ad, joint_sha256). Its cells and connectivities are identical to those of the
+  # 2026_09_02_samap_raw_all.h5ad deploy copy the figure inputs were first made from and of final_objects/Samap_Final.h5ad
+  # (checked 2026-11-03: same obs_names, same data/indices/indptr). Set joint / joint_sha256 here to use another.
+
+  # Ulrich et al. 2024, PNAS 121:e2404775121, Datasets S5 (sheet 5B, subtype centroids, log1p CP10k) and S6 (sheet 6C,
+  # stromal subtype markers): https://www.pnas.org/doi/suppl/10.1073/pnas.2404775121/suppl_file/pnas.2404775121.sd05.xlsx
+  # and .sd06.xlsx, copied from analysis/hammoud/ (the files every earlier run read).
+  ulrich:
+    s5:
+      path: data/external/ulrich2024/pnas.2404775121.sd05.xlsx
+      sha256: c7f6bfcdc415d70e74893628a578e7447b44f8f5eea8ed010a1b68472c4dc3ed
+    s6:
+      path: data/external/ulrich2024/pnas.2404775121.sd06.xlsx
+      sha256: ecff2fa5c1f701bd5f55edf26832844247ec5031a5bc7dea23691ca94371e299
+
+  # Leiden clusters: the recipe of the labels of record. The labels of record are the leiden_0.5 column of
+  # analysis/hammoud/fib_centroid_results/cluster_assignments.csv (sha256 a5390ffcdf6e0cae1f1d404df709dde92aa6ab206fca0fc7bbca25c26ba4cf81,
+  # run_mapping.py on 2026_08_28_Cevrim_Human_Only_Fib_Dec_Cells.h5ad, whose X_scVI equals the final object's), kept here
+  # as two columns. c7_leiden_labels recomputes them and fails unless every nucleus gets its label of record.
+  leiden:
+    labels_of_record: resources/figures/c7_presence/leiden05_labels_of_record.csv.gz
+    use_rep: X_scVI
+    n_neighbors: 30
+    resolution: 0.5
+    flavor: igraph
+    n_iterations: 2
+    seed: 0
+
+  # Contrastive cosine of each nucleus to the 11 stromal subtype centroids (fibroblast subtypes Stro-5, 7, 8, 9, 10,
+  # 11; perivascular and smooth-muscle subtypes 1, 2, 3, 4, 6): nucleus profile minus the mean over the human nuclei,
+  # centroid minus the mean over the 11 centroids, over the 3,000 genes that vary most across the 11 centroids after
+  # every subtype's top 50 Dataset S6 markers (by avg_log2FC) are removed. Expression: the human half of the SAMap
+  # object's X (log1p applied when its maximum exceeds 50, as the source script did).
+  cosine:
+    n_panel: 3000
+    n_markers: 50
+    fibroblast_subtypes: [5, 7, 8, 9, 10, 11]
+    control_subtypes: [1, 2, 3, 4, 6]
+    target: Stro-7
+    tolerance: 1.0e-5          # max |recomputed - stored| allowed for stro7_cosine and stro7_cosine_transferred
+
+  dotplot_genes: [C7, ADH1B, DPT, CCDC80, OGN, SERPINF1, DCN, MGP]
+  mouse_section_crops: resources/figures/c7_presence/mouse_section_crops.yaml
+  mouse_population_colors: resources/figures/c7_presence/mouse_population_colors.yaml
+  review_seeds: 20               # review_c7_leiden_seeds: Leiden seeds 0..n-1 on the stored and the 30-neighbour graph

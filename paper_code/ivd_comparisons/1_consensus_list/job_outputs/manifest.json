@@ -1,0 +1,321 @@
+{
+  "inputs": {
+    "build_consensus": {
+      "path": "/n/lab_storage/eddy_lab/users/nhilgert/human_ivd_repro_final_defense_20260812/build_consensus.py",
+      "sha256": "a4759720c3c92709ad011c8e80b93fa10e1dfa81eede467386f100fef1e9f2a1"
+    },
+    "derive_signatures": {
+      "path": "/n/lab_storage/eddy_lab/users/nhilgert/human_ivd_repro_final_defense_20260812/derive_signatures.py",
+      "sha256": "8bdaa856f9383d5b9045f770e109f31e5c4038347eced8e36708c6abf3e3adcc"
+    },
+    "table_s2": {
+      "path": "/n/lab_storage/eddy_lab/users/nhilgert/human_ivd_repro_final_defense_20260812/papers/stadtmauer/tables2.docx",
+      "sha256": "95ede8ade759f4c6d3dd11b874dd963cf1c06dfa94c394c7b245b8eff6fac821"
+    },
+    "table_s3": {
+      "path": "/n/lab_storage/eddy_lab/users/nhilgert/human_ivd_repro_final_defense_20260812/papers/stadtmauer/tables3.docx",
+      "sha256": "dc91010b0f8d373b93b46692cc11ec2c4b0f02bb19aaac630c642a111ce1ac9f"
+    },
+    "overlay": {
+      "path": "/n/lab_storage/eddy_lab/users/nhilgert/human_ivd_repro_final_defense_20260812/papers/stadtmauer/stadtmauer_manual_overlay.csv",
+      "sha256": "7c6d13e87f8435cb549b2592be9dfc27010023575303526f8f3716397b5115f6"
+    },
+    "released_consensus": {
+      "path": "/n/lab_storage/eddy_lab/users/nhilgert/cagri_ivd_end_to_end_20260815/resources/consensus123.csv",
+      "sha256": "dab23d9fb1ffce8fdedcf6ee52c963232f0ccf522d94eccaf1e190ccf9c769d7"
+    },
+    "released_orthology": {
+      "path": "/n/lab_storage/eddy_lab/users/nhilgert/cagri_ivd_end_to_end_20260815/resources/consensus123_mouse_orthology.csv",
+      "sha256": "fce4ba85d0718f03c5bca75557000d934afa8e7b20dc62be8d1afecf58af01c5"
+    },
+    "released_heca_mapping": {
+      "path": "/n/lab_storage/eddy_lab/users/nhilgert/cagri_ivd_end_to_end_20260815/resources/consensus123_heca_mapping.csv",
+      "sha256": "b374c377a3efc0062ed3456001b1e4d2fa85deac22d35e14d384cfb6d186b877"
+    },
+    "orthology_script": {
+      "path": "/n/lab_storage/eddy_lab/users/nhilgert/cagri_ivd_end_to_end_20260815/derive_consensus123_orthology.py",
+      "sha256": "d4b22175d67f4000ade7b8029fad80195c0543bf90b021016e915a2c9dc8c9e1"
+    },
+    "run_pipeline": {
+      "path": "/n/lab_storage/eddy_lab/users/nhilgert/cagri_ivd_end_to_end_20260815/run_pipeline.py",
+      "sha256": "1c7696a267f0b605c61cad4177c38e35d83a27fc0cc3c07d008f8b29c06764c1"
+    },
+    "pipeline_config": {
+      "path": "/n/lab_storage/eddy_lab/users/nhilgert/cagri_ivd_end_to_end_20260815/config.yaml",
+      "sha256": "46010654650487b76ca2cc51b20d74ef5a5b656d95b90be26f10d9e5462a0afa"
+    },
+    "sig_Aghajanova": {
+      "path": "/n/lab_storage/eddy_lab/users/nhilgert/human_ivd_repro_final_defense_20260812/signatures/aghajanova2011_invitro_decidualization_nonendo.csv",
+      "sha256": "586d70aaa82950ac91ef5c27967744687058cfe67a11f4c45b2e1b71d1a81b0f"
+    },
+    "sig_Rytkonen": {
+      "path": "/n/lab_storage/eddy_lab/users/nhilgert/human_ivd_repro_final_defense_20260812/signatures/rytkonen2019_complete_signature.csv",
+      "sha256": "3afdba6091f79f798ca999709bf71261fc12fe35f9b46fc5f197a0e2c3c85832"
+    },
+    "sig_Stadtmauer": {
+      "path": "/n/lab_storage/eddy_lab/users/nhilgert/human_ivd_repro_final_defense_20260812/signatures/stadtmauer2022_hits.csv",
+      "sha256": "cb2bbf667c11573c0d7859f56fe66902ab459b966ef638e2ec1f0948fc48ac32"
+    },
+    "sig_Lucas": {
+      "path": "/n/lab_storage/eddy_lab/users/nhilgert/human_ivd_repro_final_defense_20260812/signatures/lucas2020_S2vsS3_decidualization_onset.csv",
+      "sha256": "23354acde776e472033740d6f4bb099b79a4e8ac14d64d412ba0bad4cf295214"
+    },
+    "xmens": {
+      "path": "xmens_broad_all_genes.csv",
+      "sha256": "84516a99f2f02773556ed7d07c83db1c7b440384a1cb23e29b39771a39a6270a"
+    },
+    "released_support": {
+      "path": "consensus_ortholog_xmens_broad_support_rows.csv",
+      "sha256": "108617ed9135598144726b85323d0ef3e8849bd9a46dba7a3fd78ee909d6fe1e"
+    }
+  },
+  "checks": {
+    "1_table_parser_reproduces_original_calls": {
+      "pass": true,
+      "table_genes": 30,
+      "rows_compared": 32,
+      "missing": [],
+      "extra": [],
+      "KLF4_original_rule": [
+        "down",
+        "up"
+      ]
+    },
+    "2_vote_reproduces_released_consensus123": {
+      "pass": true,
+      "detail": "identical",
+      "genes": 123
+    },
+    "3_orthology_script_reproduces_released_table": {
+      "pass": true,
+      "log": "a_alias_to_current_audit.csv: sha256 1250a417adfa4e0e705b0ed79de8657201a5479ce4c0d327da3cf8f72d928891\n\nwrote /n/home12/nhilgert/.claude-science-scratch/.claude-science/jobs/e8f91bb6-d6dc-4059-bb17-40242f99c734/out/work/orthology_released/resources/consensus123_mouse_orthology.csv\n  sha256 fce4ba85d0718f03c5bca75557000d934afa8e7b20dc62be8d1afecf58af01c5   <- pin this in config.yaml under resources:"
+    },
+    "4_scoring_reproduces_released_support_rows": {
+      "pass": true,
+      "detail": "identical"
+    }
+  },
+  "environment": {
+    "python": "3.11.11",
+    "pandas": "2.3.3",
+    "support_calls": {
+      "padj_lt": 0.05,
+      "abs_unshrunk_lfc_gt": 1.0,
+      "supported_definition": "significant_and_same_direction",
+      "reversed_definition": "significant_and_opposite_direction"
+    }
+  },
+  "stadtmauer": {
+    "table_genes": 30,
+    "table_genes_with_a_call": 26,
+    "text_genes": 37,
+    "dropped_overlay_rows": [
+      {
+        "gene": "KLF4",
+        "direction": "up",
+        "reason": "boundary FC~1 curation call"
+      }
+    ],
+    "genes_whose_arm_call_changes_under_mean_TPM_reading": [
+      "ZBTB16",
+      "BMP2",
+      "IGFBP1"
+    ]
+  },
+  "tallies": {
+    "released": {
+      "Aghajanova": {
+        "genes_listed": 179,
+        "consistent_up": 125,
+        "consistent_down": 54,
+        "conflicting_excluded": 0,
+        "genes_in_list": 84
+      },
+      "Rytkonen": {
+        "genes_listed": 4672,
+        "consistent_up": 2601,
+        "consistent_down": 2026,
+        "conflicting_excluded": 45,
+        "genes_in_list": 123
+      },
+      "Stadtmauer": {
+        "genes_listed": 67,
+        "consistent_up": 38,
+        "consistent_down": 26,
+        "conflicting_excluded": 3,
+        "genes_in_list": 46
+      },
+      "vote": {
+        "genes_with_2plus_clean_calls": 147,
+        "agreeing": 123,
+        "conflicting": 24,
+        "by_study_combination": {
+          "Aghajanova; Rytkonen": 77,
+          "Rytkonen; Stadtmauer": 39,
+          "Aghajanova; Rytkonen; Stadtmauer": 7
+        }
+      }
+    },
+    "corrected": {
+      "Aghajanova": {
+        "genes_listed": 179,
+        "consistent_up": 125,
+        "consistent_down": 54,
+        "conflicting_excluded": 0,
+        "genes_in_list": 84
+      },
+      "Rytkonen": {
+        "genes_listed": 4672,
+        "consistent_up": 2601,
+        "consistent_down": 2026,
+        "conflicting_excluded": 45,
+        "genes_in_list": 123
+      },
+      "Stadtmauer": {
+        "genes_listed": 63,
+        "consistent_up": 37,
+        "consistent_down": 26,
+        "conflicting_excluded": 0,
+        "genes_in_list": 46
+      },
+      "vote": {
+        "genes_with_2plus_clean_calls": 147,
+        "agreeing": 123,
+        "conflicting": 24,
+        "by_study_combination": {
+          "Aghajanova; Rytkonen": 77,
+          "Rytkonen; Stadtmauer": 39,
+          "Aghajanova; Rytkonen; Stadtmauer": 7
+        }
+      }
+    }
+  },
+  "changes": [
+    {
+      "gene": "ADAMTS5",
+      "change": "added",
+      "studies_released": "Rytkonen",
+      "studies_corrected": "Rytkonen; Stadtmauer",
+      "stadtmauer_table_call_released": "down/up",
+      "stadtmauer_table_call_corrected": "up",
+      "xmens_released": "",
+      "xmens_corrected": "supported"
+    },
+    {
+      "gene": "CLU",
+      "change": "added",
+      "studies_released": "Rytkonen",
+      "studies_corrected": "Rytkonen; Stadtmauer",
+      "stadtmauer_table_call_released": "down/up",
+      "stadtmauer_table_call_corrected": "up",
+      "xmens_released": "",
+      "xmens_corrected": "tested_not_called"
+    },
+    {
+      "gene": "KLF4",
+      "change": "removed",
+      "studies_released": "Rytkonen; Stadtmauer",
+      "studies_corrected": "Rytkonen",
+      "stadtmauer_table_call_released": "down/up",
+      "stadtmauer_table_call_corrected": "no call",
+      "xmens_released": "tested_not_called",
+      "xmens_corrected": ""
+    },
+    {
+      "gene": "TSHZ1",
+      "change": "removed",
+      "studies_released": "Rytkonen; Stadtmauer",
+      "studies_corrected": "Rytkonen",
+      "stadtmauer_table_call_released": "up",
+      "stadtmauer_table_call_corrected": "no call",
+      "xmens_released": "tested_not_called",
+      "xmens_corrected": ""
+    }
+  ],
+  "summary": [
+    {
+      "variant": "released",
+      "consensus_genes": 123,
+      "up": 93,
+      "down": 30,
+      "strict_1to1_orthologs": 114,
+      "xmens_called": 49,
+      "same_direction": 19,
+      "opposite_direction": 30,
+      "tested_not_called": 54,
+      "not_testable": 11,
+      "pct_same_direction": 38.8,
+      "pct_expected_by_chance": 45.2
+    },
+    {
+      "variant": "corrected",
+      "consensus_genes": 123,
+      "up": 93,
+      "down": 30,
+      "strict_1to1_orthologs": 114,
+      "xmens_called": 50,
+      "same_direction": 20,
+      "opposite_direction": 30,
+      "tested_not_called": 53,
+      "not_testable": 11,
+      "pct_same_direction": 40.0,
+      "pct_expected_by_chance": 45.6
+    },
+    {
+      "variant": "corrected_aghajanova_14d_only",
+      "consensus_genes": 122,
+      "up": 92,
+      "down": 30,
+      "strict_1to1_orthologs": 113,
+      "xmens_called": 50,
+      "same_direction": 20,
+      "opposite_direction": 30,
+      "tested_not_called": 52,
+      "not_testable": 11,
+      "pct_same_direction": 40.0,
+      "pct_expected_by_chance": 45.6
+    },
+    {
+      "variant": "corrected_stadtmauer_table_genes_only",
+      "consensus_genes": 102,
+      "up": 85,
+      "down": 17,
+      "strict_1to1_orthologs": 94,
+      "xmens_called": 37,
+      "same_direction": 12,
+      "opposite_direction": 25,
+      "tested_not_called": 48,
+      "not_testable": 9,
+      "pct_same_direction": 32.4,
+      "pct_expected_by_chance": 40.5
+    },
+    {
+      "variant": "corrected_TPM_filter_read_as_mean",
+      "consensus_genes": 123,
+      "up": 93,
+      "down": 30,
+      "strict_1to1_orthologs": 114,
+      "xmens_called": 50,
+      "same_direction": 20,
+      "opposite_direction": 30,
+      "tested_not_called": 53,
+      "not_testable": 11,
+      "pct_same_direction": 40.0,
+      "pct_expected_by_chance": 45.6
+    },
+    {
+      "variant": "corrected_plus_SOX4_from_text",
+      "consensus_genes": 124,
+      "up": 94,
+      "down": 30,
+      "strict_1to1_orthologs": 115,
+      "xmens_called": 51,
+      "same_direction": 20,
+      "opposite_direction": 31,
+      "tested_not_called": 53,
+      "not_testable": 11,
+      "pct_same_direction": 39.2,
+      "pct_expected_by_chance": 45.1
+    }
+  ]
+}

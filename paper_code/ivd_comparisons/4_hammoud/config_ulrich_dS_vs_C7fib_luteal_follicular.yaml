@@ -1,0 +1,374 @@
+# cagri_ivd_ulrich_deseq2: Ulrich 2024 replaces HECA F as the human atlas; PyDESeq2 for both species.
+# Mouse preparation, zones, support rule and reused resources are copied verbatim from the upstream config (sha256 under upstream).
+# human.primary picks the contrast that feeds the workbook headline; every listed contrast is fitted and tabulated.
+# acceptance: filled from acceptance_observed.yaml of a --record run, after review. A verify run must reproduce it exactly.
+# v6 (2026-10-19): primary = all decidual stroma (dS1-3) vs C7-Fibroblast only, within donor, luteal-phase donors only (20-cell floor);
+#   the same with a 10-cell floor as a sensitivity contrast; the v5 pooled-reference contrast and earlier contrasts kept as secondary.
+# v7 (2026-10-28): primary = all decidual stroma (dS1-3) vs C7-Fibroblast only, within donor, luteal- and follicular-phase donors
+#   (the proliferative-phase donors are back in); the same with all donors (adds D3, no recorded phase) as a secondary contrast;
+#   the v6 contrasts kept as secondary. Everything else is unchanged from v6.
+schema_version: '1.0'
+analysis_id: cagri_ivd_ulrich_deseq2_20261019
+runtime:
+  python: 3.11.11
+  pydeseq2: 0.5.4
+  interpreter: /n/lab_storage/eddy_lab/users/nhilgert/.uv/envs/rsc_uv_py31111/bin/python
+upstream:
+  repo: /n/lab_storage/eddy_lab/users/nhilgert/cagri_ivd_end_to_end_20260815
+  run_pipeline_sha256: 1c7696a267f0b605c61cad4177c38e35d83a27fc0cc3c07d008f8b29c06764c1
+  config_sha256: 46010654650487b76ca2cc51b20d74ef5a5b656d95b90be26f10d9e5462a0afa
+  unchanged_partitions:
+    wang_ivd_vs_oil:
+      supported: 531
+      reversed: 237
+      not_in_published_deg_list: 733
+      ineligible_or_unmatched: 0
+    wang_ivd_vs_pregnancy:
+      supported: 310
+      reversed: 456
+      not_in_published_deg_list: 735
+      ineligible_or_unmatched: 0
+objects:
+  ulrich_cells:
+    path: /n/netscratch/eddy_lab/Everyone/nhilgert/ulrich2024/ulrich2024_20donor_stromal.h5ad
+    sha256: 5be96393e3a18e9596eeb67e8c0a024af54e78effd2c5698cb92876961734a90
+    shape:
+    - 85875
+    - 36166
+    matrix: raw/X
+    var_path: raw/var
+  xmens_mouse:
+    path: /n/lab_storage/eddy_lab/users/nhilgert/xmens_final/data/interim/final_mouse.h5ad
+    sha256: 7cfa0ebda34812fbfbc9ea4fbe23888e32997ad0bc8263634abc7f9f30ad7116
+    shape:
+    - 57033
+    - 33698
+    counts_layer: counts
+resources:
+  consensus123:
+    path: /n/lab_storage/eddy_lab/users/nhilgert/cagri_ivd_end_to_end_20260815/resources/consensus123.csv
+    sha256: dab23d9fb1ffce8fdedcf6ee52c963232f0ccf522d94eccaf1e190ccf9c769d7
+  consensus123_mouse_orthology:
+    path: /n/lab_storage/eddy_lab/users/nhilgert/cagri_ivd_end_to_end_20260815/resources/consensus123_mouse_orthology.csv
+    sha256: fce4ba85d0718f03c5bca75557000d934afa8e7b20dc62be8d1afecf58af01c5
+  xmens_feature_manifest:
+    path: /n/lab_storage/eddy_lab/users/nhilgert/cagri_ivd_end_to_end_20260815/resources/xmens_feature_manifest.tsv
+    sha256: 551649d3d30bee8a5a40515bd4b3c28e0426ff0fe1c6c1bbd97816733fbb79cf
+  wang_ivd:
+    path: /n/lab_storage/eddy_lab/users/nhilgert/cagri_ivd_end_to_end_20260815/resources/wang_ivd.csv
+    sha256: 1ace8a545077f468b4c8f21e835e3eae0b306a41d7c52c0ea5767df715023969
+  wang_oil:
+    path: /n/lab_storage/eddy_lab/users/nhilgert/cagri_ivd_end_to_end_20260815/resources/wang_oil.csv
+    sha256: 30a0726d47b719c0a80ea78d348ee37b9e7cccfeaf691cfd9ecf6fce7d1cede1
+  wang_pregnancy:
+    path: /n/lab_storage/eddy_lab/users/nhilgert/cagri_ivd_end_to_end_20260815/resources/wang_pregnancy.csv
+    sha256: 8cfc0e205d0e2cbf19550e641f6d779f3e0d45ad4fad405efae2a2be1b9b9572
+  zone_mapping:
+    path: /n/lab_storage/eddy_lab/users/nhilgert/cagri_ivd_end_to_end_20260815/resources/zone_mapping.tsv
+    sha256: fa4e529a1e3e874e92d3f135502f9ef960dee13da9782380bf25bd2434fe0761
+  zone_markers:
+    path: /n/lab_storage/eddy_lab/users/nhilgert/cagri_ivd_end_to_end_20260815/resources/zone_markers.tsv
+    sha256: 9ff233a8830d6e81ea027288354aefcf022f98f7e0ba31fe4190a5edafdc86f2
+  consensus123_human_mapping:
+    path: resources/consensus123_ulrich_mapping.csv
+    sha256: b16b74515737ffe0ed08a5a61205d2ce099767b5aa6cb13d8d7df0c78d85d03f
+  ulrich_feature_manifest:
+    path: resources/ulrich_feature_manifest.tsv
+    sha256: b8e2cba5234e9e1ef0cc5afe59ed177e528c98adda23c17fbadf42ee3d1d7a90
+human:
+  label_field: author_cell_type
+  donor_field: donor_id
+  donor_level_fields:
+  - menstrual_phase_at_collection
+  - Data_source
+  tissue_field: tissue
+  cell_floor: 20
+  eligibility_cpm_threshold: 1.0
+  model_formula: ~ donor + state
+  primary: dS_vs_C7fib_luteal_follicular
+  contrasts:
+  - id: dS_vs_C7fib_luteal_follicular
+    label: all decidual stroma (dS1-3) vs C7-Fibroblast, within donor, luteal- and follicular-phase donors
+    decidual: &id001
+    - dS1
+    - dS2
+    - dS3
+    reference: &id002
+    - C7-Fibroblast
+    donor_filter:
+      field: menstrual_phase_at_collection
+      keep:
+      - luteal
+      - follicular
+  - id: dS_vs_C7fib_all_donors
+    label: all decidual stroma (dS1-3) vs C7-Fibroblast, within donor, all donors (adds the donor with no recorded phase)
+    decidual: *id001
+    reference: *id002
+  - id: dS_vs_C7fib_luteal
+    label: all decidual stroma (dS1-3) vs C7-Fibroblast, within donor, luteal-phase donors only
+    decidual: *id001
+    reference: *id002
+    donor_filter: &id003
+      field: menstrual_phase_at_collection
+      keep:
+      - luteal
+  - id: dS_vs_C7fib_luteal_floor10
+    label: all decidual stroma (dS1-3) vs C7-Fibroblast, within donor, luteal-phase donors only, 10-cell floor (sensitivity)
+    decidual: *id001
+    reference: *id002
+    donor_filter: *id003
+    cell_floor: 10
+  - id: dS_vs_nondecidual_luteal
+    label: all decidual stroma (dS1-3) vs all non-decidual stroma (C7-Fibroblast + eS-proliferative), within donor, luteal-phase donors only
+    decidual:
+    - dS1
+    - dS2
+    - dS3
+    reference:
+    - C7-Fibroblast
+    - eS-proliferative
+    donor_filter:
+      field: menstrual_phase_at_collection
+      keep:
+      - luteal
+  - id: dS_vs_nondecidual
+    label: all decidual stroma (dS1-3) vs all non-decidual stroma (C7-Fibroblast + eS-proliferative), within donor
+    decidual:
+    - dS1
+    - dS2
+    - dS3
+    reference:
+    - C7-Fibroblast
+    - eS-proliferative
+  - id: phase_luteal_vs_follicular
+    kind: between_donor
+    label: endometrial stroma (dS1-3), luteal vs follicular donors
+    labels:
+    - dS1
+    - dS2
+    - dS3
+    factor_field: menstrual_phase_at_collection
+    numerator: luteal
+    denominator: follicular
+    covariate_field: Data_source
+  - id: dS1_vs_dS23
+    label: dS1 vs dS2 + dS3 within donor (decidualized vs non-decidualized stroma)
+    decidual:
+    - dS1
+    reference:
+    - dS2
+    - dS3
+  - id: dS1_vs_C7fib
+    label: dS1 vs C7-Fibroblast within donor
+    decidual:
+    - dS1
+    reference:
+    - C7-Fibroblast
+xmens_broad:
+  coarse_state_field: coarse_refined
+  timepoint_field: timepoint
+  sample_field: sample
+  numerator_value: decidual cells
+  denominator_value: endometrial fibroblasts
+  cell_floor: 25
+  expected_timepoints:
+  - 1_dpi_early
+  - 1_dpi_late
+  - 2_dpi
+  - 3_dpi
+  - 4_dpi_bleeding
+  eligibility_cpm_threshold: 1.0
+  model_formula: ~ timepoint + group
+  expected_pseudobulks: 10
+  expected_selected_cells: 43197
+  expected_carrier_genes: 33233
+  expected_eligible_genes: 16525
+  expected_pseudobulk_cells:
+    1_dpi_early:
+      decidual: 1263
+      fibroblast: 1425
+    1_dpi_late:
+      decidual: 5654
+      fibroblast: 5133
+    2_dpi:
+      decidual: 2404
+      fibroblast: 1170
+    3_dpi:
+      decidual: 8675
+      fibroblast: 1998
+    4_dpi_bleeding:
+      decidual: 4859
+      fibroblast: 1282
+  expected_pseudobulk_sample_n:
+    1_dpi_early: 1
+    1_dpi_late: 2
+    2_dpi: 1
+    3_dpi: 2
+    4_dpi_bleeding: 1
+  engine: pydeseq2_wald_fixed_block
+  expected_wang_unmatched_n: 55
+  expected_wang_matched_n: 1446
+  expected_wang_alias_route_n: 6
+zones:
+  source_annotation_column: fine_refined
+  coarse_state_field: coarse_refined
+  decidual_coarse_value: decidual cells
+  nondecidual_value: not_applicable
+  expected_counts:
+    not_applicable: 34114
+    secondary_like: 18156
+    primary_like: 3856
+    zone_unresolved: 907
+  expected_subtype_counts:
+    dec1: 3722
+    dec2: 14434
+    dec3: 3856
+    decAp: 907
+  expected_subtype_library_sizes:
+    dec1: 11991621
+    dec2: 92872114
+    dec3: 37931836
+    decAp: 3240320
+support_calls:
+  padj_lt: 0.05
+  abs_unshrunk_lfc_gt: 1.0
+  supported_definition: significant_and_same_direction
+  reversed_definition: significant_and_opposite_direction
+acceptance:
+  human:
+    dS_vs_C7fib_luteal_follicular:
+      pseudobulks: 18
+      donors: 9
+      eligible_genes: 13533
+      count_sum: 298825466
+      strict_calls: 777
+      residual_df: 8
+    dS_vs_C7fib_all_donors:
+      pseudobulks: 20
+      donors: 10
+      eligible_genes: 13772
+      count_sum: 307714288
+      strict_calls: 886
+      residual_df: 9
+    dS_vs_C7fib_luteal:
+      pseudobulks: 10
+      donors: 5
+      eligible_genes: 13582
+      count_sum: 157583676
+      strict_calls: 322
+      residual_df: 4
+    dS_vs_C7fib_luteal_floor10:
+      pseudobulks: 18
+      donors: 9
+      eligible_genes: 13271
+      count_sum: 243330252
+      strict_calls: 228
+      residual_df: 8
+    dS_vs_nondecidual_luteal:
+      pseudobulks: 20
+      donors: 10
+      eligible_genes: 14198
+      count_sum: 259234986
+      strict_calls: 915
+      residual_df: 9
+    dS_vs_nondecidual:
+      pseudobulks: 34
+      donors: 17
+      eligible_genes: 13856
+      count_sum: 451879867
+      strict_calls: 856
+      residual_df: 16
+    phase_luteal_vs_follicular:
+      pseudobulks: 19
+      donors: 19
+      eligible_genes: 14358
+      count_sum: 428288158
+      strict_calls: 1064
+      residual_df: 15
+    dS1_vs_dS23:
+      pseudobulks: 24
+      donors: 12
+      eligible_genes: 13705
+      count_sum: 360649149
+      strict_calls: 253
+      residual_df: 11
+    dS1_vs_C7fib:
+      pseudobulks: 14
+      donors: 7
+      eligible_genes: 13443
+      count_sum: 21635351
+      strict_calls: 919
+      residual_df: 6
+  mouse:
+    eligible_genes: 16525
+    strict_calls: 4626
+    residual_df: 4
+    wang_estimable: 1351
+    wang_strict_called: 654
+  status_partitions:
+    consensus123_vs_ulrich_dS_vs_C7fib_luteal_follicular:
+      supported: 13
+      reversed: 13
+      tested_not_called: 92
+      ineligible_or_unavailable: 5
+    consensus123_vs_ulrich_dS_vs_C7fib_all_donors:
+      supported: 12
+      reversed: 12
+      tested_not_called: 94
+      ineligible_or_unavailable: 5
+    consensus123_vs_ulrich_dS_vs_C7fib_luteal:
+      supported: 7
+      reversed: 7
+      tested_not_called: 105
+      ineligible_or_unavailable: 4
+    consensus123_vs_ulrich_dS_vs_C7fib_luteal_floor10:
+      supported: 8
+      reversed: 4
+      tested_not_called: 106
+      ineligible_or_unavailable: 5
+    consensus123_vs_ulrich_dS_vs_nondecidual_luteal:
+      supported: 12
+      reversed: 5
+      tested_not_called: 103
+      ineligible_or_unavailable: 3
+    consensus123_vs_ulrich_dS_vs_nondecidual:
+      supported: 8
+      reversed: 5
+      tested_not_called: 106
+      ineligible_or_unavailable: 4
+    consensus123_vs_ulrich_phase_luteal_vs_follicular:
+      supported: 41
+      reversed: 6
+      tested_not_called: 72
+      ineligible_or_unavailable: 4
+    consensus123_vs_ulrich_dS1_vs_dS23:
+      supported: 3
+      reversed: 2
+      tested_not_called: 115
+      ineligible_or_unavailable: 3
+    consensus123_vs_ulrich_dS1_vs_C7fib:
+      supported: 17
+      reversed: 18
+      tested_not_called: 83
+      ineligible_or_unavailable: 5
+    consensus_ortholog_vs_xmens_broad:
+      supported: 19
+      reversed: 30
+      tested_not_called: 54
+      ineligible_or_unavailable: 11
+    wang_ivd_vs_oil:
+      supported: 531
+      reversed: 237
+      not_in_published_deg_list: 733
+      ineligible_or_unmatched: 0
+    wang_ivd_vs_pregnancy:
+      supported: 310
+      reversed: 456
+      not_in_published_deg_list: 735
+      ineligible_or_unmatched: 0
+    wang_ivd_vs_xmens_broad:
+      supported: 459
+      reversed: 195
+      tested_not_called: 697
+      ineligible_or_unmatched: 150
+output_directory: /n/netscratch/eddy_lab/Everyone/nhilgert/cagri_ivd_ulrich_deseq2_runs/release_20261028_v7_dS_vs_C7fib_luteal_follicular
